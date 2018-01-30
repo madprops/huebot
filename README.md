@@ -1,0 +1,1 @@
+To use simply do "npm install" inside the directory and change the login details in huebot.js
