@@ -46,12 +46,12 @@
 
 					if(lmsg === ".ass")
 					{
-						change_tv("https://adultswimhls-i.akamaihd.net/hls/live/238460/adultswim/main/1/master_Layer2.m3u8")
+						change_tv("https://somedomain.com/video.mp4")
 					}
 
 					if(lmsg === ".stream")
 					{
-						change_tv("https://j.l5.ca/stream/hls/test.m3u8")
+						change_tv("https://somdomain/stream/hls/test.m3u8")
 					}
 					
 					if(lmsg === ".lofi")
