@@ -1,0 +1,8 @@
+{
+	"name": "huebot",
+	"version": "0.0.1",
+	"private": true,
+	"dependencies": {
+		"socket.io-client": "~2.0.4"
+	}
+}
