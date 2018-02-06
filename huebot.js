@@ -3,8 +3,10 @@
 	// const server_address = "http://localhost:3210"
 	const server_address = "https://hue.merkoba.com"
 
-	const bot_username = "username"
-	const bot_password = "password"
+	const bot_username = "woody"
+	const bot_password = "datwoody"
+
+	const command_prefix = "."
 
 	const socket = io(server_address)
 
@@ -32,29 +34,34 @@
 					send_message(`hello! ${data.username}`)
 				}
 
-				if(lmsg === ".hello")
+				if(lmsg.length > 1 && lmsg[0] === command_prefix)
 				{
-					change_image("https://i.imgur.com/ZUdre7C.gif")
-				}
+					var cmd = lmsg.substring(1)
 
-				if(lmsg === ".tony")
-				{
-					change_tv("https://youtu.be/4YYTNkAdDD8")
-				}
-				
-				if(lmsg === ".ys")
-				{
-					change_tv("https://youtu.be/ybGOT4d2Hs8")
-				}
+					if(cmd === "hello")
+					{
+						change_image("https://i.imgur.com/ZUdre7C.gif")
+					}
 
-				if(lmsg === ".ass")
-				{
-					change_tv("https://adultswimhls-i.akamaihd.net/hls/live/238460/adultswim/main/1/master_Layer2.m3u8")
-				}
-				
-				if(lmsg === ".lofi")
-				{
-					change_radio("https://youtu.be/SsYkibjW_gc")
+					else if(cmd === "tony")
+					{
+						change_tv("https://youtu.be/4YYTNkAdDD8")
+					}
+					
+					else if(cmd === "ys")
+					{
+						change_tv("https://youtu.be/ybGOT4d2Hs8")
+					}
+
+					else if(cmd === "ass")
+					{
+						change_tv("https://adultswimhls-i.akamaihd.net/hls/live/238460/adultswim/main/1/master_Layer2.m3u8")
+					}
+					
+					else if(cmd === "lofi")
+					{
+						change_radio("https://youtu.be/SsYkibjW_gc")
+					}
 				}
 			}
 
