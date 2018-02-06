@@ -3,8 +3,8 @@
 	// const server_address = "http://localhost:3210"
 	const server_address = "https://hue.merkoba.com"
 
-	const bot_username = "a user username"
-	const bot_password = "the user password"
+	const bot_username = "username"
+	const bot_password = "password"
 
 	const socket = io(server_address)
 
@@ -27,42 +27,34 @@
 			{
 				var lmsg = data.msg.toLowerCase()
 
-				if(data.username !== bot_username)
+				if(lmsg === `hi ${bot_username}`)						
 				{
-					if(lmsg === `hi ${bot_username}`)						
-					{
-						send_message(`hello! ${data.username}`)
-					}
+					send_message(`hello! ${data.username}`)
+				}
 
-					if(lmsg === ".hello")
-					{
-						change_image("https://i.imgur.com/ZUdre7C.gif")
-					}
+				if(lmsg === ".hello")
+				{
+					change_image("https://i.imgur.com/ZUdre7C.gif")
+				}
 
-					if(lmsg === ".tony")
-					{
-						change_tv("https://youtu.be/4YYTNkAdDD8")
-					}
-					
-					if(lmsg === ".ys")
-					{
-						change_tv("https://youtu.be/ybGOT4d2Hs8")
-					}
+				if(lmsg === ".tony")
+				{
+					change_tv("https://youtu.be/4YYTNkAdDD8")
+				}
+				
+				if(lmsg === ".ys")
+				{
+					change_tv("https://youtu.be/ybGOT4d2Hs8")
+				}
 
-					if(lmsg === ".ass")
-					{
-						change_tv("https://somedomain.com/video.mp4")
-					}
-
-					if(lmsg === ".stream")
-					{
-						change_tv("https://somdomain/stream/hls/test.m3u8")
-					}
-					
-					if(lmsg === ".lofi")
-					{
-						change_radio("https://youtu.be/SsYkibjW_gc")
-					}
+				if(lmsg === ".ass")
+				{
+					change_tv("https://adultswimhls-i.akamaihd.net/hls/live/238460/adultswim/main/1/master_Layer2.m3u8")
+				}
+				
+				if(lmsg === ".lofi")
+				{
+					change_radio("https://youtu.be/SsYkibjW_gc")
 				}
 			}
 
