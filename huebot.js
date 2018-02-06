@@ -43,6 +43,11 @@
 					{
 						change_tv("https://youtu.be/4YYTNkAdDD8")
 					}
+					
+					if(lmsg === ".ys")
+					{
+						change_tv("https://youtu.be/ybGOT4d2Hs8")
+					}
 
 					if(lmsg === ".ass")
 					{
