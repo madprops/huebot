@@ -3,8 +3,8 @@
 	// const server_address = "http://localhost:3210"
 	const server_address = "https://hue.merkoba.com"
 
-	const bot_username = "woody"
-	const bot_password = "datwoody"
+	const bot_username = "username"
+	const bot_password = "password"
 
 	const command_prefix = "."
 
