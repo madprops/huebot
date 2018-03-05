@@ -19,22 +19,22 @@ var can_chat = false
 var can_tv = false
 var can_radio = false
 var vpermissions = {}
-vpermissions.v1_chat_permission = false
-vpermissions.v1_images_permission = false
-vpermissions.v1_tv_permission = false
-vpermissions.v1_radio_permission = false
-vpermissions.v2_chat_permission = false
-vpermissions.v2_images_permission = false
-vpermissions.v2_tv_permission = false
-vpermissions.v2_radio_permission = false
-vpermissions.v3_chat_permission = false
-vpermissions.v3_images_permission = false
-vpermissions.v3_tv_permission = false
-vpermissions.v3_radio_permission = false
-vpermissions.v4_chat_permission = false
-vpermissions.v4_images_permission = false
-vpermissions.v4_tv_permission = false
-vpermissions.v4_radio_permission = false
+vpermissions.voice1_chat_permission = false
+vpermissions.voice1_images_permission = false
+vpermissions.voice1_tv_permission = false
+vpermissions.voice1_radio_permission = false
+vpermissions.voice2_chat_permission = false
+vpermissions.voice2_images_permission = false
+vpermissions.voice2_tv_permission = false
+vpermissions.voice2_radio_permission = false
+vpermissions.voice3_chat_permission = false
+vpermissions.voice3_images_permission = false
+vpermissions.voice3_tv_permission = false
+vpermissions.voice3_radio_permission = false
+vpermissions.voice4_chat_permission = false
+vpermissions.voice4_images_permission = false
+vpermissions.voice4_tv_permission = false
+vpermissions.voice4_radio_permission = false
 
 
 const server_address = "http://localhost:3210"
@@ -241,36 +241,9 @@ function check_permission(role, type)
 		return true
 	}
 
-	if(role === "voice1")
+	if(window[`${role}_${type}_permission`])
 	{
-		if(vpermissions[`v1_${type}_permission`])
-		{
-			return true
-		}
-	}
-
-	else if(role === "voice2")
-	{
-		if(vpermissions[`v2_${type}_permission`])
-		{
-			return true
-		}
-	}
-
-	else if(role === "voice3")
-	{
-		if(vpermissions[`v3_${type}_permission`])
-		{
-			return true
-		}
-	}
-
-	else if(role === 'voice4')
-	{
-		if(vpermissions[`v4_${type}_permission`])
-		{
-			return true
-		}
+		return true
 	}
 
 	return false	
@@ -288,22 +261,22 @@ function set_role(rol)
 
 function set_permissions(data)
 {
-	vpermissions.v1_chat_permission = data.v1_chat_permission
-	vpermissions.v1_images_permission = data.v1_images_permission
-	vpermissions.v1_tv_permission = data.v1_tv_permission
-	vpermissions.v1_radio_permission = data.v1_radio_permission
-	vpermissions.v2_chat_permission = data.v2_chat_permission
-	vpermissions.v2_images_permission = data.v2_images_permission
-	vpermissions.v2_tv_permission = data.v2_tv_permission
-	vpermissions.v2_radio_permission = data.v2_radio_permission
-	vpermissions.v3_chat_permission = data.v3_chat_permission
-	vpermissions.v3_images_permission = data.v3_images_permission
-	vpermissions.v3_tv_permission = data.v3_tv_permission
-	vpermissions.v3_radio_permission = data.v3_radio_permission
-	vpermissions.v4_chat_permission = data.v4_chat_permission
-	vpermissions.v4_images_permission = data.v4_images_permission
-	vpermissions.v4_tv_permission = data.v4_tv_permission
-	vpermissions.v4_radio_permission = data.v4_radio_permission	
+	vpermissions.voice1_chat_permission = data.voice1_chat_permission
+	vpermissions.voice1_images_permission = data.voice1_images_permission
+	vpermissions.voice1_tv_permission = data.voice1_tv_permission
+	vpermissions.voice1_radio_permission = data.voice1_radio_permission
+	vpermissions.voice2_chat_permission = data.voice2_chat_permission
+	vpermissions.voice2_images_permission = data.voice2_images_permission
+	vpermissions.voice2_tv_permission = data.voice2_tv_permission
+	vpermissions.voice2_radio_permission = data.voice2_radio_permission
+	vpermissions.voice3_chat_permission = data.voice3_chat_permission
+	vpermissions.voice3_images_permission = data.voice3_images_permission
+	vpermissions.voice3_tv_permission = data.voice3_tv_permission
+	vpermissions.voice3_radio_permission = data.voice3_radio_permission
+	vpermissions.voice4_chat_permission = data.voice4_chat_permission
+	vpermissions.voice4_images_permission = data.voice4_images_permission
+	vpermissions.voice4_tv_permission = data.voice4_tv_permission
+	vpermissions.voice4_radio_permission = data.voice4_radio_permission	
 }
 
 function set_room_enables(data)
