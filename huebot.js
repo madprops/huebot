@@ -6,9 +6,15 @@ const bot_email = "some@email.com"
 const bot_password = "somepassword"
 
 // Admins get access to certain control commands like .set
-const admins = ["user1", "user2", "user3"]
+// There can be any number of admins
+
+const admins = ["username1", "username2", "username3"]
+
+// const server_address = "http://localhost:3210"
+const server_address = "https://hue.merkoba.com"
 
 const command_prefix = "."
+const command_types = ["image", "tv", "radio"]
 
 var username = ""
 var role = false
@@ -35,10 +41,6 @@ vpermissions.voice4_chat_permission = false
 vpermissions.voice4_images_permission = false
 vpermissions.voice4_tv_permission = false
 vpermissions.voice4_radio_permission = false
-
-
-const server_address = "http://localhost:3210"
-// const server_address = "https://hue.merkoba.com"
 
 const socket = io(server_address,
 {
@@ -112,6 +114,12 @@ socket.on('update', function(data)
 				var command_type = split[1]
 				var command_url = split.slice(2).join(" ")
 
+				if(command_types.indexOf(command_type) === -1)
+				{
+					send_message(`Can't save that command.`)
+					return false
+				}
+
 				var testobj = {}
 
 				try
@@ -128,6 +136,7 @@ socket.on('update', function(data)
 				catch(err)
 				{
 					send_message(`Can't save that command.`)
+					return false
 				}
 			}
 
@@ -241,7 +250,7 @@ function check_permission(role, type)
 		return true
 	}
 
-	if(window[`${role}_${type}_permission`])
+	if(vpermissions[`${role}_${type}_permission`])
 	{
 		return true
 	}
