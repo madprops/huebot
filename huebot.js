@@ -107,7 +107,7 @@ socket.on('update', function(data)
 
 				if(split.length < 3)
 				{
-					send_message(`Correct format is --> ${command_prefix}set name ${command_types.join("|")} url`)
+					send_message(`Correct format is --> ${command_prefix}set [name] ${command_types.join("|")} [url]`)
 					return false
 				}
 
@@ -117,7 +117,7 @@ socket.on('update', function(data)
 
 				if(command_types.indexOf(command_type) === -1)
 				{
-					send_message(`Correct format is --> ${command_prefix}set name ${command_types.join("|")} url`)
+					send_message(`Correct format is --> ${command_prefix}set [name] ${command_types.join("|")} [url]`)
 					return false
 				}
 
