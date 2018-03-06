@@ -1,3 +1,4 @@
+const path = require('path')
 const fs = require("fs")
 const io = require("socket.io-client")
 var commands = require("./commands.json")
@@ -128,8 +129,14 @@ socket.on('update', function(data)
 					testobj[command_name] = {type:command_type, url:command_url}
 					commands[command_name] = {type:command_type, url:command_url}
 
-					fs.writeFile('./commands.json', JSON.stringify(commands), 'utf8', function()
+					fs.writeFile(path.join(__dirname, "commands.json"), JSON.stringify(commands), 'utf8', function()
 					{
+						if(err)
+						{
+							console.error(err)
+							return false
+						}
+
 						send_message(`Command "${command_name}" successfully set.`)
 					})
 				}
