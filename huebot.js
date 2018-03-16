@@ -53,7 +53,7 @@ const socket = io(server_address,
 
 socket.on('connect', function() 
 {
-	socket.emit('join_room', 
+	socket_emit('join_room', 
 	{
 		alternative: true, 
 		room_id: "main", 
@@ -129,7 +129,7 @@ socket.on('update', function(data)
 					testobj[command_name] = {type:command_type, url:command_url}
 					commands[command_name] = {type:command_type, url:command_url}
 
-					fs.writeFile(path.join(__dirname, "commands.json"), JSON.stringify(commands), 'utf8', function()
+					fs.writeFile(path.join(__dirname, "commands.json"), JSON.stringify(commands), 'utf8', function(err)
 					{
 						if(err)
 						{
@@ -210,7 +210,7 @@ function send_message(msg)
 		return false
 	}
 	
-	socket.emit('sendchat', {msg:msg})	
+	socket_emit('sendchat', {msg:msg})	
 }
 
 function change_image(src)
@@ -220,7 +220,7 @@ function change_image(src)
 		return false
 	}
 	
-	socket.emit('linked_image', {image_url:src})
+	socket_emit('linked_image', {image_url:src})
 }
 
 function change_tv(src)
@@ -230,7 +230,7 @@ function change_tv(src)
 		return false
 	}
 	
-	socket.emit('change_tv_source', {src:src})
+	socket_emit('change_tv_source', {src:src})
 }
 
 function change_radio(src)
@@ -240,7 +240,7 @@ function change_radio(src)
 		return false
 	}
 	
-	socket.emit('change_radio_source', {src:src})
+	socket_emit('change_radio_source', {src:src})
 }
 
 function check_permissions()
@@ -301,4 +301,10 @@ function set_room_enables(data)
 	room_images_enabled = data.room_images_enabled
 	room_tv_enabled = data.room_tv_enabled
 	room_radio_enabled = data.room_radio_enabled	
+}
+
+function socket_emit(destination, data)
+{
+	data.server_method_name = destination
+	socket.emit("server_method", data)	
 }
