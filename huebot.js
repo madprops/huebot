@@ -220,7 +220,7 @@ function change_image(src)
 		return false
 	}
 	
-	socket_emit('linked_image', {image_url:src})
+	socket_emit('change_image_source', {src:src})
 }
 
 function change_tv(src)
