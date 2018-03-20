@@ -77,7 +77,7 @@ socket.on('update', function(data)
 	{
 		var msg = data.msg.replace(/\s+/g, ' ').trim()
 
-		if(msg === `hi ${username}`)						
+		if(msg === `hi ${username}` || msg === `${username} hi`)						
 		{
 			send_message(`hello ${data.username}!`)
 		}
