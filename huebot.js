@@ -11,8 +11,8 @@ const bot_password = "somepassword"
 
 const admins = ["username1", "username2", "username3"]
 
-// const server_address = "http://localhost:3210"
-const server_address = "https://hue.merkoba.com"
+const server_address = "http://localhost:3210"
+// const server_address = "https://hue.merkoba.com"
 
 const command_prefix = "."
 const command_types = ["image", "tv", "radio"]
@@ -64,143 +64,204 @@ socket.on('connect', function()
 
 socket.on('update', function(data) 
 {
-	if(data.type === 'joined')
+	try
 	{
-		set_username(data.username)
-		set_role(data.role)
-		set_room_enables(data)
-		set_permissions(data)
-		check_permissions()
-	}
-
-	else if(data.type === 'chat_msg')
-	{
-		var msg = data.msg.replace(/\s+/g, ' ').trim()
-
-		if(msg === `hi ${username}` || msg === `${username} hi`)						
-		{
-			send_message(`hello ${data.username}!`)
-		}
-
-		if(msg.length > 1 && msg[0] === command_prefix && msg[1] !== command_prefix)
-		{
-			var a = msg.split(' ')
-
-			var cmd = a[0]
-
-			if(a.length > 1)
-			{
-				cmd += ' '
-
-				var arg = msg.substring(cmd.length)
-			}
-
-			cmd = cmd.substring(1).trim()
-
-			if(cmd === "set")
-			{
-				if(admins.indexOf(data.username) === -1)
-				{
-					return false
-				}
-
-				var split = arg.split(' ')
-
-				if(split.length < 3)
-				{
-					send_message(`Correct format is --> ${command_prefix}set [name] ${command_types.join("|")} [url]`)
-					return false
-				}
-
-				var command_name = split[0]
-				var command_type = split[1]
-				var command_url = split.slice(2).join(" ")
-
-				if(command_types.indexOf(command_type) === -1)
-				{
-					send_message(`Correct format is --> ${command_prefix}set [name] ${command_types.join("|")} [url]`)
-					return false
-				}
-
-				var testobj = {}
-
-				try
-				{
-					testobj[command_name] = {type:command_type, url:command_url}
-					commands[command_name] = {type:command_type, url:command_url}
-
-					fs.writeFile(path.join(__dirname, "commands.json"), JSON.stringify(commands), 'utf8', function(err)
-					{
-						if(err)
-						{
-							console.error(err)
-							return false
-						}
-
-						send_message(`Command "${command_name}" successfully set.`)
-					})
-				}
-
-				catch(err)
-				{
-					send_message(`Can't save that command.`)
-					return false
-				}
-			}
-
-			else if(commands[cmd] !== undefined)
-			{
-				var command = commands[cmd]
-
-				if(command.type === "image")
-				{
-					change_image(command.url)
-				}
-
-				else if(command.type === "tv")
-				{
-					change_tv(command.url)
-				}
-
-				else if(command.type === "radio")
-				{
-					change_radio(command.url)
-				}
-			}
-		}
-	}
-
-	else if(data.type === 'room_images_enabled_change')
-	{
-		room_images_enabled = data.what
-		check_permissions()
-	}
-
-	else if(data.type === 'room_tv_enabled_change')
-	{
-		room_tv_enabled = data.what
-		check_permissions()
-	}
-
-	else if(data.type === 'room_radio_enabled_change')
-	{
-		room_radio_enabled = data.what
-		check_permissions()
-	}
-
-	else if(data.type === 'voice_permission_change')
-	{
-		vpermissions[data.ptype] = data.what
-		check_permissions()
-	}
-
-	else if(data.type === 'new_username')
-	{
-		if(username === data.old_username)
+		if(data.type === 'joined')
 		{
 			set_username(data.username)
-		}			
-	}					
+			set_role(data.role)
+			set_room_enables(data)
+			set_permissions(data)
+			check_permissions()
+		}
+
+		else if(data.type === 'chat_msg')
+		{
+			if(data.username === username)
+			{
+				return false
+			}
+
+			var msg = data.msg.replace(/\s+/g, ' ').trim()
+
+			if(msg === `hi ${username}` || msg === `${username} hi`)						
+			{
+				send_message(`hello ${data.username}!`)
+			}
+
+			if(msg.length > 1 && msg[0] === command_prefix && msg[1] !== command_prefix)
+			{
+				var a = msg.split(' ')
+
+				var cmd = a[0]
+
+				if(a.length > 1)
+				{
+					cmd += ' '
+
+					var arg = msg.substring(cmd.length)
+				}
+
+				else
+				{
+					var arg = ""
+				}
+
+				cmd = cmd.substring(1).trim()
+
+				if(cmd === "set" && arg)
+				{
+					if(admins.indexOf(data.username) === -1)
+					{
+						return false
+					}
+
+					var split = arg.split(' ')
+
+					if(split.length < 3)
+					{
+						send_message(`Correct format is --> ${command_prefix}set [name] ${command_types.join("|")} [url]`)
+						return false
+					}
+
+					var command_name = split[0]
+					var command_type = split[1]
+					var command_url = split.slice(2).join(" ")
+
+					if(command_types.indexOf(command_type) === -1)
+					{
+						send_message(`Correct format is --> ${command_prefix}set [name] ${command_types.join("|")} [url]`)
+						return false
+					}
+
+					var testobj = {}
+
+					try
+					{
+						testobj[command_name] = {type:command_type, url:command_url}
+						commands[command_name] = {type:command_type, url:command_url}
+
+						fs.writeFile(path.join(__dirname, "commands.json"), JSON.stringify(commands), 'utf8', function(err)
+						{
+							if(err)
+							{
+								console.error(err)
+								return false
+							}
+
+							send_message(`Command "${command_name}" successfully set.`)
+						})
+					}
+
+					catch(err)
+					{
+						send_message(`Can't save that command.`)
+						return false
+					}
+				}
+
+				else if(cmd === "list")
+				{
+					var list = []
+					var filter = arg ? true : false
+					var cmds = Object.keys(commands)
+
+					if(filter)
+					{
+						cmds.sort()
+					}
+
+					else
+					{
+						cmds = cmds.map(x => [Math.random(), x]).sort(([a], [b]) => a - b).map(([_, x]) => x)
+					}
+
+					for(var c of cmds)
+					{
+						if(filter)
+						{
+							if(c.includes(arg))
+							{
+								list.push(`.${c}`)
+							}
+						}
+
+						else
+						{
+							list.push(`.${c}`)
+						}
+
+						if(list.length === 20)
+						{
+							break
+						}
+					}
+
+					if(list.length > 0)
+					{
+						var s = list.join(" ")
+					}
+
+					else
+					{
+						var s = "No commands found."
+					}
+
+					send_message(s)
+				}
+
+				else if(cmd === "random")
+				{
+					var cmds = Object.keys(commands)
+					var c = cmds[get_random_int(0, cmds.length - 1)]
+
+					run_command(c)
+				}
+
+				else if(commands[cmd] !== undefined)
+				{
+					run_command(cmd)
+				}
+			}
+		}
+
+		else if(data.type === 'room_images_enabled_change')
+		{
+			room_images_enabled = data.what
+			check_permissions()
+		}
+
+		else if(data.type === 'room_tv_enabled_change')
+		{
+			room_tv_enabled = data.what
+			check_permissions()
+		}
+
+		else if(data.type === 'room_radio_enabled_change')
+		{
+			room_radio_enabled = data.what
+			check_permissions()
+		}
+
+		else if(data.type === 'voice_permission_change')
+		{
+			vpermissions[data.ptype] = data.what
+			check_permissions()
+		}
+
+		else if(data.type === 'new_username')
+		{
+			if(username === data.old_username)
+			{
+				set_username(data.username)
+			}
+		}
+	}
+
+	catch(err)
+	{
+		console.error(err)
+	}
 })
 
 function send_message(msg)
@@ -241,6 +302,26 @@ function change_radio(src)
 	}
 	
 	socket_emit('change_radio_source', {src:src})
+}
+
+function run_command(cmd)
+{
+	var command = commands[cmd]
+
+	if(command.type === "image")
+	{
+		change_image(command.url)
+	}
+
+	else if(command.type === "tv")
+	{
+		change_tv(command.url)
+	}
+
+	else if(command.type === "radio")
+	{
+		change_radio(command.url)
+	}	
 }
 
 function check_permissions()
@@ -307,4 +388,9 @@ function socket_emit(destination, data)
 {
 	data.server_method_name = destination
 	socket.emit("server_method", data)	
+}
+
+function get_random_int(min, max)
+{
+	return Math.floor(Math.random() * (max  -min + 1) + min)
 }
