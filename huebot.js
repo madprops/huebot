@@ -213,6 +213,17 @@ socket.on('update', function(data)
 				else if(cmd === "random")
 				{
 					var cmds = Object.keys(commands)
+
+					if(arg)
+					{
+						if(!command_types.includes(arg))
+						{
+							return false
+						}
+						
+						cmds = cmds.filter(x => commands[x].type === arg)
+					}
+
 					var c = cmds[get_random_int(0, cmds.length - 1)]
 
 					run_command(c)
