@@ -4,8 +4,8 @@ const io = require("socket.io-client")
 var commands = require("./commands.json")
 var permissions = require("./permissions.json")
 
-const bot_email = "some@email.com"
-const bot_password = "somepassword"
+const bot_email = "xxx"
+const bot_password = "xxx"
 
 const server_address = "http://localhost:3210"
 // const server_address = "https://hue.merkoba.com"
@@ -228,7 +228,7 @@ socket.on('update', function(data)
 
 				else if(cmd === "adminadd" && arg)
 				{
-					if(permissions.admins.indexOf(data.username) === -1)
+					if(!protected_admins.includes(data.username))
 					{
 						return false
 					}
@@ -257,17 +257,12 @@ socket.on('update', function(data)
 
 				else if(cmd === "adminremove" && arg)
 				{
-					if(permissions.admins.indexOf(data.username) === -1)
+					if(!protected_admins.includes(data.username))
 					{
 						return false
 					}
 
 					if(arg === data.username)
-					{
-						return false
-					}
-
-					if(protected_admins.includes(arg))
 					{
 						return false
 					}
