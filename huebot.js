@@ -2,20 +2,17 @@ const path = require('path')
 const fs = require("fs")
 const io = require("socket.io-client")
 var commands = require("./commands.json")
+var permissions = require("./permissions.json")
 
 const bot_email = "some@email.com"
 const bot_password = "somepassword"
-
-// Admins get access to certain control commands like .set
-// There can be any number of admins
-
-const admins = ["username1", "username2", "username3"]
 
 const server_address = "http://localhost:3210"
 // const server_address = "https://hue.merkoba.com"
 
 const command_prefix = "."
 const command_types = ["image", "tv", "radio"]
+var protected_admins = ["mad"]
 
 var username = ""
 var role = false
@@ -111,7 +108,7 @@ socket.on('update', function(data)
 
 				if(cmd === "set" && arg)
 				{
-					if(admins.indexOf(data.username) === -1)
+					if(permissions.admins.indexOf(data.username) === -1)
 					{
 						return false
 					}
@@ -227,6 +224,109 @@ socket.on('update', function(data)
 					var c = cmds[get_random_int(0, cmds.length - 1)]
 
 					run_command(c)
+				}
+
+				else if(cmd === "adminadd" && arg)
+				{
+					if(permissions.admins.indexOf(data.username) === -1)
+					{
+						return false
+					}
+
+					if(arg === data.username)
+					{
+						return false
+					}
+
+					if(!permissions.admins.includes(arg))
+					{
+						permissions.admins.push(arg)
+
+						fs.writeFile(path.join(__dirname, "permissions.json"), JSON.stringify(permissions), 'utf8', function(err)
+						{
+							if(err)
+							{
+								console.error(err)
+								return false
+							}
+
+							send_message(`${arg} was successfully added as an admin.`)
+						})
+					}
+				}
+
+				else if(cmd === "adminremove" && arg)
+				{
+					if(permissions.admins.indexOf(data.username) === -1)
+					{
+						return false
+					}
+
+					if(arg === data.username)
+					{
+						return false
+					}
+
+					if(protected_admins.includes(arg))
+					{
+						return false
+					}
+					
+					if(permissions.admins.includes(arg))
+					{
+						for(let i=0; i<permissions.admins.length; i++)
+						{
+							var admin = permissions.admins[i]
+
+							if(admin === arg)
+							{
+								permissions.admins.splice(i, 1)
+							}
+						}
+
+						fs.writeFile(path.join(__dirname, "permissions.json"), JSON.stringify(permissions), 'utf8', function(err)
+						{
+							if(err)
+							{
+								console.error(err)
+								return false
+							}
+
+							send_message(`${arg} was successfully removed as an admin.`)
+						})
+					}
+
+					else
+					{
+						send_message(`${arg} is not an admin. Nothing to remove.`)
+					}
+				}
+
+				else if(cmd === "adminlist")
+				{
+					if(permissions.admins.indexOf(data.username) === -1)
+					{
+						return false
+					}
+
+					var s = ""
+
+					for(let i=0; i<permissions.admins.length; i++)
+					{
+						s += permissions.admins[i]
+
+						if(i >= 50 || i === permissions.admins.length - 1)
+						{
+							break
+						}
+
+						else
+						{
+							s += ", "
+						}
+					}
+
+					send_message(s)
 				}
 
 				else if(commands[cmd] !== undefined)
