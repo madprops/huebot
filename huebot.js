@@ -24,6 +24,10 @@ var can_chat = false
 var can_tv = false
 var can_radio = false
 var vpermissions = {}
+var theme
+var text_color
+var text_color_mode
+
 vpermissions.voice1_chat_permission = false
 vpermissions.voice1_images_permission = false
 vpermissions.voice1_tv_permission = false
