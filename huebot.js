@@ -3,6 +3,7 @@ const fs = require("fs")
 const io = require("socket.io-client")
 var commands = require("./commands.json")
 var permissions = require("./permissions.json")
+var themes = require("./themes.json")
 
 const bot_email = "xxx"
 const bot_password = "xxx"
@@ -69,6 +70,7 @@ socket.on('update', function(data)
 			set_role(data.role)
 			set_room_enables(data)
 			set_permissions(data)
+			set_theme(data)
 			check_permissions()
 		}
 
@@ -138,14 +140,8 @@ socket.on('update', function(data)
 						testobj[command_name] = {type:command_type, url:command_url}
 						commands[command_name] = {type:command_type, url:command_url}
 
-						fs.writeFile(path.join(__dirname, "commands.json"), JSON.stringify(commands), 'utf8', function(err)
+						save_file("commands.json", commands, function(err)
 						{
-							if(err)
-							{
-								console.error(err)
-								return false
-							}
-
 							send_message(`Command "${command_name}" successfully set.`)
 						})
 					}
@@ -159,47 +155,9 @@ socket.on('update', function(data)
 
 				else if(cmd === "list")
 				{
-					var list = []
-					var filter = arg ? true : false
-					var cmds = Object.keys(commands)
+					var s = list_items(commands, arg, command_prefix)
 
-					if(filter)
-					{
-						cmds.sort()
-					}
-
-					else
-					{
-						cmds = cmds.map(x => [Math.random(), x]).sort(([a], [b]) => a - b).map(([_, x]) => x)
-					}
-
-					for(var c of cmds)
-					{
-						if(filter)
-						{
-							if(c.includes(arg))
-							{
-								list.push(`.${c}`)
-							}
-						}
-
-						else
-						{
-							list.push(`.${c}`)
-						}
-
-						if(list.length === 20)
-						{
-							break
-						}
-					}
-
-					if(list.length > 0)
-					{
-						var s = list.join(" ")
-					}
-
-					else
+					if(!s)
 					{
 						var s = "No commands found."
 					}
@@ -242,14 +200,8 @@ socket.on('update', function(data)
 					{
 						permissions.admins.push(arg)
 
-						fs.writeFile(path.join(__dirname, "permissions.json"), JSON.stringify(permissions), 'utf8', function(err)
+						save_file("permissions.json", permissions, function(err)
 						{
-							if(err)
-							{
-								console.error(err)
-								return false
-							}
-
 							send_message(`${arg} was successfully added as an admin.`)
 						})
 					}
@@ -279,14 +231,8 @@ socket.on('update', function(data)
 							}
 						}
 
-						fs.writeFile(path.join(__dirname, "permissions.json"), JSON.stringify(permissions), 'utf8', function(err)
+						save_file("permissions.json", permissions, function(err)
 						{
-							if(err)
-							{
-								console.error(err)
-								return false
-							}
-
 							send_message(`${arg} was successfully removed as an admin.`)
 						})
 					}
@@ -320,6 +266,113 @@ socket.on('update', function(data)
 							s += ", "
 						}
 					}
+
+					send_message(s)
+				}
+
+				else if(cmd === "savetheme")
+				{
+					if(permissions.admins.indexOf(data.username) === -1)
+					{
+						return false
+					}
+
+					if(!arg)
+					{
+						send_message(`Correct format is --> ${command_prefix}savetheme [name]`)
+						return false
+					}
+
+					var obj = {}
+
+					obj.theme = theme
+					obj.text_color = text_color
+					obj.text_color_mode = text_color_mode
+
+					themes[arg] = obj
+
+					save_file("themes.json", themes, function()
+					{
+						send_message(`Theme "${arg}" successfully saved.`)
+					})
+				}
+
+				else if(cmd === "theme")
+				{
+					if(permissions.admins.indexOf(data.username) === -1)
+					{
+						return false
+					}
+
+					if(role !== "admin" && role !== "op")
+					{
+						send_message("I need operator status to do this.")
+						return false
+					}
+
+					if(!arg)
+					{
+						send_message(`Correct format is --> ${command_prefix}theme [name]`)
+						return false
+					}
+
+					var obj = themes[arg]
+
+					if(obj)
+					{
+						if(obj.theme !== theme)
+						{
+							socket_emit("change_theme", {color:obj.theme})
+						}
+
+						if(obj.text_color !== text_color)
+						{
+							socket_emit("change_text_color", {color:obj.text_color})
+						}
+
+						if(obj.text_color_mode !== text_color_mode)
+						{
+							socket_emit("change_text_color_mode", {mode:obj.text_color_mode})
+						}
+					}
+
+					else
+					{
+						send_message(`Theme "${arg}" doesn't exist.`)
+					}
+				}
+
+				else if(cmd === "themes")
+				{
+					if(permissions.admins.indexOf(data.username) === -1)
+					{
+						return false
+					}
+
+					var s = list_items(themes, arg, "", ",")
+
+					if(!s)
+					{
+						var s = "No themes found."
+					}
+
+					send_message(s)
+				}
+
+				else if(cmd === "help")
+				{
+					var s = ""
+
+					s += "Available commands: "
+					s += `${command_prefix}set, ` 
+					s += `${command_prefix}list, ` 
+					s += `${command_prefix}random, ` 
+					s += `${command_prefix}adminadd, ` 
+					s += `${command_prefix}adminremove, ` 
+					s += `${command_prefix}adminlist, ` 
+					s += `${command_prefix}savetheme, ` 
+					s += `${command_prefix}theme, ` 
+					s += `${command_prefix}themes` 
 
 					send_message(s)
 				}
@@ -360,6 +413,30 @@ socket.on('update', function(data)
 			if(username === data.old_username)
 			{
 				set_username(data.username)
+			}
+		}
+
+		else if(data.type === 'theme_change')
+		{
+			theme = data.color
+		}
+
+		else if(data.type === 'text_color_changed')
+		{
+			text_color = data.color
+		}
+
+		else if(data.type === 'text_color_mode_changed')
+		{
+			text_color_mode = data.mode
+		}
+
+		else if(data.type === 'announce_role_change')
+		{
+			if(username === data.username2)
+			{
+				set_role(data.role)
+				check_permissions()
 			}
 		}
 	}
@@ -499,4 +576,85 @@ function socket_emit(destination, data)
 function get_random_int(min, max)
 {
 	return Math.floor(Math.random() * (max  -min + 1) + min)
+}
+
+function set_theme(data)
+{
+	theme = data.theme
+	text_color_mode = data.text_color_mode
+	text_color = data.text_color
+}
+
+function save_file(name, content, callback=false)
+{
+	fs.writeFile(path.join(__dirname, name), JSON.stringify(content), 'utf8', function(err)
+	{
+		if(err)
+		{
+			console.error(err)
+		}
+
+		else
+		{
+			if(callback)
+			{
+				return callback()
+			}
+		}
+	})
+}
+
+function list_items(obj, arg, prep="", app="")
+{
+	var list = []
+	var filter = arg ? true : false
+	var props = Object.keys(obj)
+
+	if(filter)
+	{
+		props.sort()
+	}
+
+	else
+	{
+		props = props.map(x => [Math.random(), x]).sort(([a], [b]) => a - b).map(([_, x]) => x)
+	}
+
+	for(var p of props)
+	{
+		if(filter)
+		{
+			if(p.includes(arg))
+			{
+				list.push(`${prep}${p}${app}`)
+			}
+		}
+
+		else
+		{
+			list.push(`${prep}${p}${app}`)
+		}
+
+		if(list.length === 20)
+		{
+			break
+		}
+	}
+
+	if(list.length > 0)
+	{
+		var s = list.join(" ")
+
+		if(app)
+		{
+			s = s.slice(0, -1)
+		}
+	}
+
+	else
+	{
+		var s = false
+	}
+
+	return s
 }
