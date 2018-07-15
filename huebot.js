@@ -112,7 +112,7 @@ socket.on('update', function(data)
 
 				cmd = cmd.substring(1).trim()
 
-				if(cmd === "set" && arg)
+				if(cmd === "set")
 				{
 					if(permissions.admins.indexOf(data.username) === -1)
 					{
@@ -121,7 +121,7 @@ socket.on('update', function(data)
 
 					var split = arg.split(' ')
 
-					if(split.length < 3)
+					if(!arg || split.length < 3)
 					{
 						send_message(`Correct format is --> ${command_prefix}set [name] ${command_types.join("|")} [url]`)
 						return false
@@ -157,6 +157,33 @@ socket.on('update', function(data)
 					}
 				}
 
+				if(cmd === "unset")
+				{
+					if(permissions.admins.indexOf(data.username) === -1)
+					{
+						return false
+					}
+
+					if(!arg)
+					{
+						send_message(`Correct format is --> ${command_prefix}unset [name]`)
+						return false
+					}
+
+					if(commands[arg] === undefined)
+					{
+						send_message(`Command "${arg}" doesn't exist.`)
+						return false
+					}
+
+					delete commands[arg]
+
+					save_file("commands.json", commands, function(err)
+					{
+						send_message(`Command "${arg}" successfully unset.`)
+					})
+				}
+
 				else if(cmd === "list")
 				{
 					var s = list_items(commands, arg, command_prefix)
@@ -188,10 +215,16 @@ socket.on('update', function(data)
 					run_command(c)
 				}
 
-				else if(cmd === "adminadd" && arg)
+				else if(cmd === "adminadd")
 				{
 					if(!protected_admins.includes(data.username))
 					{
+						return false
+					}
+
+					if(!arg)
+					{
+						send_message(`Correct format is --> ${command_prefix}adminadd [username]`)
 						return false
 					}
 
@@ -211,10 +244,16 @@ socket.on('update', function(data)
 					}
 				}
 
-				else if(cmd === "adminremove" && arg)
+				else if(cmd === "adminremove")
 				{
 					if(!protected_admins.includes(data.username))
 					{
+						return false
+					}
+
+					if(!arg)
+					{
+						send_message(`Correct format is --> ${command_prefix}adminremove [username]`)
 						return false
 					}
 
@@ -247,7 +286,7 @@ socket.on('update', function(data)
 					}
 				}
 
-				else if(cmd === "adminlist")
+				else if(cmd === "admins")
 				{
 					if(permissions.admins.indexOf(data.username) === -1)
 					{
@@ -274,7 +313,7 @@ socket.on('update', function(data)
 					send_message(s)
 				}
 
-				else if(cmd === "savetheme")
+				else if(cmd === "themeadd")
 				{
 					if(permissions.admins.indexOf(data.username) === -1)
 					{
@@ -283,7 +322,7 @@ socket.on('update', function(data)
 
 					if(!arg)
 					{
-						send_message(`Correct format is --> ${command_prefix}savetheme [name]`)
+						send_message(`Correct format is --> ${command_prefix}themeadd [name]`)
 						return false
 					}
 
@@ -298,6 +337,33 @@ socket.on('update', function(data)
 					save_file("themes.json", themes, function()
 					{
 						send_message(`Theme "${arg}" successfully saved.`)
+					})
+				}
+
+				else if(cmd === "themeremove")
+				{
+					if(permissions.admins.indexOf(data.username) === -1)
+					{
+						return false
+					}
+
+					if(!arg)
+					{
+						send_message(`Correct format is --> ${command_prefix}themeremove [name]`)
+						return false
+					}
+
+					if(themes[arg] === undefined)
+					{
+						send_message(`Theme "${arg}" doesn't exist.`)
+						return false
+					}
+
+					delete themes[arg]
+
+					save_file("themes.json", themes, function()
+					{
+						send_message(`Theme "${arg}" successfully removed.`)
 					})
 				}
 
@@ -370,14 +436,16 @@ socket.on('update', function(data)
 				{
 					var s = ""
 
-					s += "Available commands: "
+					s += "Available Commands: "
 					s += `${command_prefix}set, ` 
+					s += `${command_prefix}unset, ` 
 					s += `${command_prefix}list, ` 
 					s += `${command_prefix}random, ` 
 					s += `${command_prefix}adminadd, ` 
 					s += `${command_prefix}adminremove, ` 
-					s += `${command_prefix}adminlist, ` 
-					s += `${command_prefix}savetheme, ` 
+					s += `${command_prefix}admins, ` 
+					s += `${command_prefix}themeadd, ` 
+					s += `${command_prefix}themeremove, ` 
 					s += `${command_prefix}theme, ` 
 					s += `${command_prefix}themes` 
 
@@ -460,6 +528,8 @@ function send_message(msg)
 	{
 		return false
 	}
+
+	msg = msg.substring(0, 2000).replace(/[\n\r]+/g, '\n').replace(/\s+$/g, '')
 	
 	socket_emit('sendchat', {msg:msg})	
 }
