@@ -329,14 +329,17 @@ socket.on('update', function(data)
 							socket_emit("change_theme", {color:obj.theme})
 						}
 
-						if(obj.text_color !== text_color)
-						{
-							socket_emit("change_text_color", {color:obj.text_color})
-						}
-
 						if(obj.text_color_mode !== text_color_mode)
 						{
 							socket_emit("change_text_color_mode", {mode:obj.text_color_mode})
+						}
+
+						if(obj.text_color_mode === "custom")
+						{
+							if(obj.text_color !== text_color)
+							{
+								socket_emit("change_text_color", {color:obj.text_color})
+							}
 						}
 					}
 
