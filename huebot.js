@@ -114,7 +114,7 @@ socket.on('update', function(data)
 
 				if(cmd === "set")
 				{
-					if(permissions.admins.indexOf(data.username) === -1)
+					if(!permissions.admins.includes(data.username))
 					{
 						return false
 					}
@@ -131,7 +131,7 @@ socket.on('update', function(data)
 					var command_type = split[1]
 					var command_url = split.slice(2).join(" ")
 
-					if(command_types.indexOf(command_type) === -1)
+					if(!command_types.includes(command_type))
 					{
 						send_message(`Correct format is --> ${command_prefix}set [name] ${command_types.join("|")} [url]`)
 						return false
@@ -159,7 +159,7 @@ socket.on('update', function(data)
 
 				if(cmd === "unset")
 				{
-					if(permissions.admins.indexOf(data.username) === -1)
+					if(!permissions.admins.includes(data.username))
 					{
 						return false
 					}
@@ -288,26 +288,16 @@ socket.on('update', function(data)
 
 				else if(cmd === "admins")
 				{
-					if(permissions.admins.indexOf(data.username) === -1)
+					if(!permissions.admins.includes(data.username))
 					{
 						return false
 					}
 
-					var s = ""
+					var s = list_items(permissions.admins, arg, "", ",")
 
-					for(let i=0; i<permissions.admins.length; i++)
+					if(!s)
 					{
-						s += permissions.admins[i]
-
-						if(i >= 50 || i === permissions.admins.length - 1)
-						{
-							break
-						}
-
-						else
-						{
-							s += ", "
-						}
+						var s = "No admins found."
 					}
 
 					send_message(s)
@@ -315,7 +305,7 @@ socket.on('update', function(data)
 
 				else if(cmd === "themeadd")
 				{
-					if(permissions.admins.indexOf(data.username) === -1)
+					if(!permissions.admins.includes(data.username))
 					{
 						return false
 					}
@@ -342,7 +332,7 @@ socket.on('update', function(data)
 
 				else if(cmd === "themeremove")
 				{
-					if(permissions.admins.indexOf(data.username) === -1)
+					if(!permissions.admins.includes(data.username))
 					{
 						return false
 					}
@@ -369,7 +359,7 @@ socket.on('update', function(data)
 
 				else if(cmd === "theme")
 				{
-					if(permissions.admins.indexOf(data.username) === -1)
+					if(!permissions.admins.includes(data.username))
 					{
 						return false
 					}
@@ -417,7 +407,7 @@ socket.on('update', function(data)
 
 				else if(cmd === "themes")
 				{
-					if(permissions.admins.indexOf(data.username) === -1)
+					if(!permissions.admins.includes(data.username))
 					{
 						return false
 					}
@@ -684,8 +674,18 @@ function save_file(name, content, callback=false)
 function list_items(obj, arg, prep="", app="")
 {
 	var list = []
+	
 	var filter = arg ? true : false
-	var props = Object.keys(obj)
+
+	if(Array.isArray(obj))
+	{
+		var props = obj
+	}
+
+	else
+	{
+		var props = Object.keys(obj)
+	}
 
 	if(filter)
 	{
