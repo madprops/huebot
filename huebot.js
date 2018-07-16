@@ -1,9 +1,14 @@
 const path = require('path')
 const fs = require("fs")
 const io = require("socket.io-client")
+const fetch = require("node-fetch")
+const cheerio = require("cheerio")
+const linkify = require("linkifyjs")
+
 var commands = require("./commands.json")
 var permissions = require("./permissions.json")
 var themes = require("./themes.json")
+var options = require("./options.json")
 
 const bot_email = "xxx"
 const bot_password = "xxx"
@@ -31,6 +36,7 @@ var emit_queue_timeout
 var emit_queue = []
 var socket_emit_throttle = 10
 var max_text_length = 2000
+var max_title_length = 250
 
 vpermissions.voice1_chat_permission = false
 vpermissions.voice1_images_permission = false
@@ -89,11 +95,52 @@ socket.on('update', function(data)
 				return false
 			}
 
-			var msg = data.msg.replace(/\s+/g, ' ').trim()
+			var msg = data.msg
 
 			if(msg === `hi ${username}` || msg === `${username} hi`)						
 			{
 				send_message(`hello ${data.username}!`)
+			}
+
+			if(options.link_titles)
+			{
+				var links = linkify.find(msg)
+
+				if(links)
+				{
+					for(let i=0; i<links.length; i++)
+					{
+						if(i >= 3)
+						{
+							break
+						}
+
+						link = links[i]
+
+						fetch(link.href)
+						
+						.then(res => 
+						{
+							return res.text()
+						})
+						
+						.then(body => 
+						{
+							var $ = cheerio.load(body)
+							var title = $("title").text().substring(0, max_title_length)
+							
+							if(title)
+							{
+								send_message(`[ Link Title: ${title} ]`)
+							}
+						})
+
+						.catch(err =>
+						{
+							console.error(err)
+						})
+					}
+				}
 			}
 
 			if(msg.length > 1 && msg[0] === command_prefix && msg[1] !== command_prefix)
@@ -124,18 +171,11 @@ socket.on('update', function(data)
 					}
 
 					var split = arg.split(' ')
-
-					if(!arg || split.length < 3)
-					{
-						send_message(`Correct format is --> ${command_prefix}set [name] ${command_types.join("|")} [url]`)
-						return false
-					}
-
 					var command_name = split[0]
 					var command_type = split[1]
 					var command_url = split.slice(2).join(" ")
 
-					if(!command_types.includes(command_type))
+					if(!arg || split.length < 3 || !command_types.includes(command_type))
 					{
 						send_message(`Correct format is --> ${command_prefix}set [name] ${command_types.join("|")} [url]`)
 						return false
@@ -426,6 +466,52 @@ socket.on('update', function(data)
 					send_message(s)
 				}
 
+				else if(cmd === "linktitles")
+				{
+					if(!permissions.admins.includes(data.username))
+					{
+						return false
+					}
+
+					if(!arg || (arg !== "on" && arg !== "off"))
+					{
+						send_message(`Correct format is --> ${command_prefix}linktitles on|off`)
+						return false
+					}
+
+					if(arg === "on")
+					{
+						if(options.link_titles)
+						{
+							send_message("Link titles are already on.")
+							return false
+						}
+
+						options.link_titles = true
+
+						save_file("options.json", options, function()
+						{
+							send_message(`Link titles are now on.`)
+						})
+					}
+
+					else if(arg === "off")
+					{
+						if(!options.link_titles)
+						{
+							send_message("Link titles are already off.")
+							return false
+						}
+
+						options.link_titles = false
+
+						save_file("options.json", options, function()
+						{
+							send_message(`Link titles are now off.`)
+						})
+					}
+				}
+
 				else if(cmd === "help")
 				{
 					var s = ""
@@ -441,7 +527,8 @@ socket.on('update', function(data)
 					s += `${command_prefix}themeadd, ` 
 					s += `${command_prefix}themeremove, ` 
 					s += `${command_prefix}theme, ` 
-					s += `${command_prefix}themes` 
+					s += `${command_prefix}themes, ` 
+					s += `${command_prefix}linktitles`
 
 					send_message(s)
 				}
