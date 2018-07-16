@@ -27,6 +27,10 @@ var vpermissions = {}
 var theme
 var text_color
 var text_color_mode
+var emit_queue_timeout
+var emit_queue = []
+var socket_emit_throttle = 10
+var max_text_length = 2000
 
 vpermissions.voice1_chat_permission = false
 vpermissions.voice1_images_permission = false
@@ -519,7 +523,7 @@ function send_message(msg)
 		return false
 	}
 
-	msg = msg.substring(0, 2000).replace(/[\n\r]+/g, '\n').replace(/\s+$/g, '')
+	msg = msg.substring(0, max_text_length).replace(/[\n\r]+/g, '\n').replace(/\s+$/g, '')
 	
 	socket_emit('sendchat', {msg:msg})	
 }
@@ -636,8 +640,50 @@ function set_room_enables(data)
 
 function socket_emit(destination, data)
 {
-	data.server_method_name = destination
-	socket.emit("server_method", data)	
+	var obj =
+	{
+		destination: destination,
+		data: data
+	}
+
+	emit_queue.push(obj)
+
+	if(emit_queue_timeout === undefined)
+	{
+		check_emit_queue()
+	}
+}
+
+function check_emit_queue()
+{
+	if(emit_queue.length > 0)
+	{
+		var obj = emit_queue[0]
+
+		if(obj !== "first")
+		{
+			do_socket_emit(obj)
+		}
+
+		emit_queue.shift()
+
+		emit_queue_timeout = setTimeout(function()
+		{
+			check_emit_queue()
+		}, socket_emit_throttle)
+	}
+
+	else
+	{
+		clearTimeout(emit_queue_timeout)
+		emit_queue_timeout = undefined
+	}
+}
+
+function do_socket_emit(obj)
+{
+	obj.data.server_method_name = obj.destination
+	socket.emit("server_method", obj.data)
 }
 
 function get_random_int(min, max)
