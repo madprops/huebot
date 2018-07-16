@@ -131,7 +131,7 @@ socket.on('update', function(data)
 							
 							if(title)
 							{
-								send_message(`[ Link Title: ${title} ]`)
+								send_message(`[ Title: ${title} ]`)
 							}
 						})
 
