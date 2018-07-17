@@ -121,7 +121,7 @@ socket.on('update', function(data)
 
 						if(extension)
 						{
-							if(extension !== "html")
+							if(extension !== "html" && extension !== "php")
 							{
 								continue
 							}
