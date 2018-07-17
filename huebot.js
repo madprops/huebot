@@ -115,7 +115,17 @@ socket.on('update', function(data)
 							break
 						}
 
-						link = links[i]
+						var link = links[i]
+
+						var extension = get_extension(link.href).toLowerCase()
+
+						if(extension)
+						{
+							if(extension !== "html")
+							{
+								continue
+							}
+						}
 
 						fetch(link.href)
 						
@@ -867,4 +877,19 @@ function list_items(obj, arg, prep="", app="")
 	}
 
 	return s
+}
+
+function get_extension(s)
+{
+	var matches = s.match(/\.(\w+)(?=$|[#?])/)
+
+	if(matches)
+	{
+		return matches[1]
+	}
+
+	else
+	{
+		return ""
+	}
 }
