@@ -137,7 +137,7 @@ socket.on('update', function(data)
 						.then(body => 
 						{
 							var $ = cheerio.load(body)
-							var title = $("title").text().substring(0, max_title_length)
+							var title = $("title").text().substring(0, max_title_length).trim()
 							
 							if(title)
 							{
