@@ -22,9 +22,9 @@ var protected_admins = ["mad"]
 
 var username = ""
 var role = false
-var room_images_enabled = false
-var room_tv_enabled = false
-var room_radio_enabled = false
+var room_images_mode = "disabled"
+var room_tv_mode = "disabled"
+var room_radio_mode = "disabled"
 var can_chat = false
 var can_tv = false
 var can_radio = false
@@ -550,21 +550,21 @@ socket.on('update', function(data)
 			}
 		}
 
-		else if(data.type === 'room_images_enabled_change')
+		else if(data.type === 'room_images_mode_change')
 		{
-			room_images_enabled = data.what
+			room_images_mode = data.what
 			check_permissions()
 		}
 
-		else if(data.type === 'room_tv_enabled_change')
+		else if(data.type === 'room_tv_mode_change')
 		{
-			room_tv_enabled = data.what
+			room_tv_mode = data.what
 			check_permissions()
 		}
 
-		else if(data.type === 'room_radio_enabled_change')
+		else if(data.type === 'room_radio_mode_change')
 		{
-			room_radio_enabled = data.what
+			room_radio_mode = data.what
 			check_permissions()
 		}
 
@@ -629,6 +629,7 @@ function change_image(src)
 {
 	if(!can_images)
 	{
+		console.error("No images permission")
 		return false
 	}
 	
@@ -639,6 +640,7 @@ function change_tv(src)
 {
 	if(!can_tv)
 	{
+		console.error("No tv permission")
 		return false
 	}
 	
@@ -649,6 +651,7 @@ function change_radio(src)
 {
 	if(!can_radio)
 	{
+		console.error("No radio permission")
 		return false
 	}
 	
@@ -678,9 +681,9 @@ function run_command(cmd)
 function check_permissions()
 {
 	can_chat = check_permission(role, "chat")
-	can_images = room_images_enabled && check_permission(role, "images")
-	can_tv = room_tv_enabled && check_permission(role, "tv")
-	can_radio =  room_radio_enabled && check_permission(role, "radio")
+	can_images = room_images_mode === "enabled" && check_permission(role, "images")
+	can_tv = room_tv_mode === "enabled" && check_permission(role, "tv")
+	can_radio =  room_radio_mode === "enabled" && check_permission(role, "radio")
 }
 
 function check_permission(role, type)
@@ -730,9 +733,9 @@ function set_permissions(data)
 
 function set_room_enables(data)
 {
-	room_images_enabled = data.room_images_enabled
-	room_tv_enabled = data.room_tv_enabled
-	room_radio_enabled = data.room_radio_enabled	
+	room_images_mode = data.room_images_mode
+	room_tv_mode = data.room_tv_mode
+	room_radio_mode = data.room_radio_mode	
 }
 
 function socket_emit(destination, data)
