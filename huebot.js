@@ -218,7 +218,7 @@ socket.on('update', function(data)
 
 						save_file("commands.json", commands, function(err)
 						{
-							send_message(`Command "${old_name}" successfully changed to "${new_name}".`)
+							send_message(`Command "${old_name}" successfully renamed to "${new_name}".`)
 						})
 					}
 
