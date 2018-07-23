@@ -520,6 +520,7 @@ socket.on('update', function(data)
 					s += "Available Commands: "
 					s += `${command_prefix}set, ` 
 					s += `${command_prefix}unset, ` 
+					s += `${command_prefix}rename, ` 
 					s += `${command_prefix}list, ` 
 					s += `${command_prefix}random, ` 
 					s += `${command_prefix}adminadd, ` 
@@ -865,7 +866,7 @@ function save_file(name, content, callback=false)
 function list_items(obj, arg, prep="", app="")
 {
 	arg = arg.toLowerCase()
-	
+
 	var list = []
 	
 	var filter = arg ? true : false
