@@ -163,7 +163,7 @@ socket.on('update', function(data)
 				{
 					cmd += ' '
 
-					var arg = msg.substring(cmd.length)
+					var arg = msg.substring(cmd.length).trim()
 				}
 
 				else
