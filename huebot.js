@@ -102,57 +102,6 @@ socket.on('update', function(data)
 				send_message(`hello ${data.username}!`)
 			}
 
-			if(options.link_titles)
-			{
-				var links = linkify.find(msg)
-
-				if(links)
-				{
-					for(let i=0; i<links.length; i++)
-					{
-						if(i >= 3)
-						{
-							break
-						}
-
-						var link = links[i]
-
-						var extension = get_extension(link.href).toLowerCase()
-
-						if(extension)
-						{
-							if(extension !== "html" && extension !== "php")
-							{
-								continue
-							}
-						}
-
-						fetch(link.href)
-						
-						.then(res => 
-						{
-							return res.text()
-						})
-						
-						.then(body => 
-						{
-							var $ = cheerio.load(body)
-							var title = $("title").text().substring(0, max_title_length).trim()
-							
-							if(title)
-							{
-								send_message(`[ Title: ${title} ]`)
-							}
-						})
-
-						.catch(err =>
-						{
-							console.error(err)
-						})
-					}
-				}
-			}
-
 			if(msg.length > 1 && msg[0] === command_prefix && msg[1] !== command_prefix)
 			{
 				var a = msg.split(' ')
@@ -163,7 +112,7 @@ socket.on('update', function(data)
 				{
 					cmd += ' '
 
-					var arg = msg.substring(cmd.length).trim()
+					var arg = clean_string2(a.slice(1).join(" "))
 				}
 
 				else
@@ -548,6 +497,60 @@ socket.on('update', function(data)
 					run_command(cmd)
 				}
 			}
+
+			else
+			{
+				if(options.link_titles)
+				{
+					var links = linkify.find(msg)
+
+					if(links)
+					{
+						for(let i=0; i<links.length; i++)
+						{
+							if(i >= 3)
+							{
+								break
+							}
+
+							var link = links[i]
+
+							var extension = get_extension(link.href).toLowerCase()
+
+							if(extension)
+							{
+								if(extension !== "html" && extension !== "php")
+								{
+									continue
+								}
+							}
+
+							fetch(link.href)
+							
+							.then(res => 
+							{
+								return res.text()
+							})
+							
+							.then(body => 
+							{
+								var $ = cheerio.load(body)
+								var title = clean_string2($("title").text().substring(0, max_title_length))
+								
+								if(title)
+								{
+									send_message(`[ Title: ${title} ]`)
+								}
+							})
+
+							.catch(err =>
+							{
+								console.error(err)
+							})
+						}
+					}
+				}
+			}
 		}
 
 		else if(data.type === 'room_images_mode_change')
@@ -895,4 +898,9 @@ function get_extension(s)
 	{
 		return ""
 	}
+}
+
+function clean_string2(s)
+{
+	return s.replace(/\s+/g, ' ').trim()
 }
