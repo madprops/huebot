@@ -132,9 +132,9 @@ socket.on('update', function(data)
 					var split = arg.split(' ')
 					var command_name = split[0]
 					var command_type = split[1]
-					var command_url = split.slice(2).join(" ")
+					var command_url = split[2]
 
-					if(!arg || split.length < 3 || !command_types.includes(command_type))
+					if(!arg || split.length !== 3 || !command_types.includes(command_type))
 					{
 						send_message(`Correct format is --> ${command_prefix}set [name] ${command_types.join("|")} [url]`)
 						return false
@@ -185,6 +185,48 @@ socket.on('update', function(data)
 					{
 						send_message(`Command "${arg}" successfully unset.`)
 					})
+				}
+
+				if(cmd === "rename")
+				{
+					if(!permissions.admins.includes(data.username))
+					{
+						return false
+					}
+
+					var split = arg.split(' ')
+					var old_name = split[0]
+					var new_name = split[1]
+
+					if(!arg || split.length !== 2)
+					{
+						send_message(`Correct format is --> ${command_prefix}rename [old_name] [new_name]`)
+						return false
+					}
+
+					if(commands[old_name] === undefined)
+					{
+						send_message(`Command "${old_name}" doesn't exist.`)
+						return false
+					}
+
+					try
+					{
+						commands[new_name] = commands[old_name]
+
+						delete commands[old_name]
+
+						save_file("commands.json", commands, function(err)
+						{
+							send_message(`Command "${old_name}" successfully changed to "${new_name}".`)
+						})
+					}
+
+					catch(err)
+					{
+						send_message(`Can't rename that command.`)
+						return false
+					}
 				}
 
 				else if(cmd === "list")
@@ -822,6 +864,8 @@ function save_file(name, content, callback=false)
 
 function list_items(obj, arg, prep="", app="")
 {
+	arg = arg.toLowerCase()
+	
 	var list = []
 	
 	var filter = arg ? true : false
@@ -850,7 +894,7 @@ function list_items(obj, arg, prep="", app="")
 	{
 		if(filter)
 		{
-			if(p.includes(arg))
+			if(p.toLowerCase().includes(arg))
 			{
 				list.push(`${prep}${p}${app}`)
 			}
