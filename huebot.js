@@ -402,6 +402,48 @@ socket.on('update', function(data)
 					})
 				}
 
+				if(cmd === "themerename")
+				{
+					if(!permissions.admins.includes(data.username))
+					{
+						return false
+					}
+
+					var split = arg.split(' ')
+					var old_name = split[0]
+					var new_name = split[1]
+
+					if(!arg || split.length !== 2)
+					{
+						send_message(`Correct format is --> ${command_prefix}themerename [old_name] [new_name]`)
+						return false
+					}
+
+					if(themes[old_name] === undefined)
+					{
+						send_message(`Theme "${old_name}" doesn't exist.`)
+						return false
+					}
+
+					try
+					{
+						themes[new_name] = themes[old_name]
+
+						delete themes[old_name]
+
+						save_file("themes.json", themes, function(err)
+						{
+							send_message(`Theme "${old_name}" successfully renamed to "${new_name}".`)
+						})
+					}
+
+					catch(err)
+					{
+						send_message(`Can't rename that theme.`)
+						return false
+					}
+				}
+
 				else if(cmd === "theme")
 				{
 					if(!permissions.admins.includes(data.username))
@@ -528,6 +570,7 @@ socket.on('update', function(data)
 					s += `${command_prefix}admins, ` 
 					s += `${command_prefix}themeadd, ` 
 					s += `${command_prefix}themeremove, ` 
+					s += `${command_prefix}themerename, ` 
 					s += `${command_prefix}theme, ` 
 					s += `${command_prefix}themes, ` 
 					s += `${command_prefix}linktitles`
