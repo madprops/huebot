@@ -371,7 +371,7 @@ socket.on('update', function(data)
 
 					save_file("themes.json", themes, function()
 					{
-						send_message(`Theme "${arg}" successfully saved.`)
+						send_message(`Theme "${arg}" successfully added.`)
 					})
 				}
 
