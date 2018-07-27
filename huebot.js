@@ -722,7 +722,7 @@ socket.on('update', function(data)
 					{
 						if(queue[arg1].includes(arg2))
 						{
-							send_message(`That URL is already queued.`)
+							send_message(`That URL is already in the ${arg1} queue.`)
 							return false
 						}
 						
