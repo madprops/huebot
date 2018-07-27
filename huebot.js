@@ -1203,7 +1203,7 @@ function clean_string2(s)
 
 function generate_random_drawing()
 {
-	var n = get_random_int(100, 300)
+	var n = get_random_int(5, 200)
 
 	var click_x = []
 	var click_y = []
