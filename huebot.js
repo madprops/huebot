@@ -558,6 +558,11 @@ socket.on('update', function(data)
 
 				else if(cmd === "q")
 				{
+					if(!permissions.admins.includes(data.username))
+					{
+						return false
+					}
+					
 					var error = false
 
 					var arg1
