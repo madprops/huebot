@@ -232,6 +232,11 @@ socket.on('update', function(data)
 
 				else if(cmd === "list")
 				{
+					if(!permissions.admins.includes(data.username))
+					{
+						return false
+					}
+
 					var s = list_items(commands, arg, command_prefix)
 
 					if(!s)
@@ -244,6 +249,11 @@ socket.on('update', function(data)
 
 				else if(cmd === "random")
 				{
+					if(!permissions.admins.includes(data.username))
+					{
+						return false
+					}
+
 					var cmds = Object.keys(commands)
 
 					if(arg)
@@ -562,7 +572,7 @@ socket.on('update', function(data)
 					{
 						return false
 					}
-					
+
 					var error = false
 
 					var arg1
@@ -720,6 +730,11 @@ socket.on('update', function(data)
 
 				else if(cmd === "help")
 				{
+					if(!permissions.admins.includes(data.username))
+					{
+						return false
+					}
+					
 					var s = ""
 
 					s += "Available Commands: "
@@ -744,7 +759,10 @@ socket.on('update', function(data)
 
 				else if(commands[cmd] !== undefined)
 				{
-					run_command(cmd)
+					if(permissions.admins.includes(data.username))
+					{
+						run_command(cmd)
+					}
 				}
 			}
 
