@@ -9,6 +9,7 @@ var commands = require("./commands.json")
 var permissions = require("./permissions.json")
 var themes = require("./themes.json")
 var options = require("./options.json")
+var queue = require("./queue.json")
 
 const bot_email = "xxx"
 const bot_password = "xxx"
@@ -555,6 +556,165 @@ socket.on('update', function(data)
 					}
 				}
 
+				else if(cmd === "q")
+				{
+					var error = false
+					var arg1
+					var arg1
+
+					if(!arg)
+					{
+						error = true
+					}
+					
+					else
+					{
+						var split = arg.split(' ')
+
+						if(split.length !== 2)
+						{
+							error = true
+						}
+
+						else
+						{
+							arg1 = split[0]
+
+							if(!command_types.includes(arg1))
+							{
+								error = true
+							}
+							
+							else
+							{
+								arg2 = split[1]
+
+								if(arg2 !== "next" && arg2 !== "clear" && arg2 !== "size")
+								{
+									if(!arg2.startsWith("http://") && !arg2.startsWith("https://"))
+									{
+										error = true
+									}
+								}
+							}
+						}
+					}
+
+					if(error)
+					{
+						send_message(`Correct format is --> ${command_prefix}q ${command_types.join("|")} [url]|next|clear|size`)
+						return false
+					}
+
+					if(arg1 === "image")
+					{
+						var lname = "images"
+						var pname = "images"
+						var uname = "Image"
+						var perm = can_images
+					}
+
+					else if(arg1 === "tv")
+					{
+						var lname = "tv"
+						var pname = "the tv"
+						var uname = "TV"
+						var perm = can_tv
+					}
+
+					else if(arg1 === "radio")
+					{
+						var lname = "radio"
+						var pname = "the radio"
+						var uname = "Radio"
+						var perm = can_radio
+					}
+
+					if(arg2 === "next")
+					{
+						if(queue[lname].length > 0)
+						{
+							if(!perm)
+							{
+								send_message(`I don't have permission to change ${pname}.`)
+								return false
+							}
+
+							var url = queue[lname].shift()
+
+							if(arg1 === "image")
+							{
+								change_image(url)
+							}
+
+							else if(arg1 === "tv")
+							{
+								change_tv(url)
+							}
+
+							else if(arg1 === "radio")
+							{
+								change_radio(url)
+							}
+
+							save_file("queue.json", queue)
+						}
+
+						else
+						{
+							send_message(`${uname} queue is empty.`)
+						}
+
+						return false
+					}
+
+					else if(arg2 === "clear")
+					{
+						if(queue[lname].length > 0)
+						{
+							queue[lname] = []
+
+							save_file("queue.json", queue, function()
+							{
+								send_message(`${uname} queue successfully cleared.`)
+							})
+						}
+
+						else
+						{
+							send_message(`${uname} queue was already cleared.`)
+						}
+
+						return false
+					}
+
+					else if(arg2 === "size")
+					{
+						var n = queue[lname].length
+
+						if(n === 1)
+						{
+							var s = "item"
+						}
+
+						else
+						{
+							var s = "items"
+						}
+
+						send_message(`${uname} queue has ${n} ${s}.`)
+
+						return false
+					}
+
+					queue[lname].push(arg2)
+
+					save_file("queue.json", queue, function()
+					{
+						send_message(`${uname} URL successfully queued.`)
+					})
+				}
+
 				else if(cmd === "help")
 				{
 					var s = ""
@@ -565,6 +725,7 @@ socket.on('update', function(data)
 					s += `${command_prefix}rename, ` 
 					s += `${command_prefix}list, ` 
 					s += `${command_prefix}random, ` 
+					s += `${command_prefix}q, ` 
 					s += `${command_prefix}adminadd, ` 
 					s += `${command_prefix}adminremove, ` 
 					s += `${command_prefix}admins, ` 
