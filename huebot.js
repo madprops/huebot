@@ -299,7 +299,7 @@ socket.on('update', function(data)
 
 						save_file("permissions.json", permissions, function(err)
 						{
-							send_message(`${arg} was successfully added as an admin.`)
+							send_message(`Username "${arg}" was successfully added as an admin.`)
 						})
 					}
 				}
@@ -336,13 +336,13 @@ socket.on('update', function(data)
 
 						save_file("permissions.json", permissions, function(err)
 						{
-							send_message(`${arg} was successfully removed as an admin.`)
+							send_message(`Username "${arg}" was successfully removed as an admin.`)
 						})
 					}
 
 					else
 					{
-						send_message(`${arg} is not an admin. Nothing to remove.`)
+						send_message(`"${arg}" is not an admin. Nothing to remove.`)
 					}
 				}
 
@@ -767,7 +767,7 @@ socket.on('update', function(data)
 					{
 						return false
 					}
-					
+
 					run_command(cmd)
 				}
 			}
