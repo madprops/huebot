@@ -96,6 +96,10 @@ socket.on('update', function(data)
 				return false
 			}
 
+			var is_admin = permissions.admins.includes(data.username)
+
+			var is_protected_admin = protected_admins.includes(data.username)
+
 			var msg = data.msg
 
 			if(msg === `hi ${username}` || msg === `${username} hi`)						
@@ -125,7 +129,7 @@ socket.on('update', function(data)
 
 				if(cmd === "set")
 				{
-					if(!permissions.admins.includes(data.username))
+					if(!is_admin)
 					{
 						return false
 					}
@@ -161,9 +165,9 @@ socket.on('update', function(data)
 					}
 				}
 
-				if(cmd === "unset")
+				else if(cmd === "unset")
 				{
-					if(!permissions.admins.includes(data.username))
+					if(!is_admin)
 					{
 						return false
 					}
@@ -188,9 +192,9 @@ socket.on('update', function(data)
 					})
 				}
 
-				if(cmd === "rename")
+				else if(cmd === "rename")
 				{
-					if(!permissions.admins.includes(data.username))
+					if(!is_admin)
 					{
 						return false
 					}
@@ -232,7 +236,7 @@ socket.on('update', function(data)
 
 				else if(cmd === "list")
 				{
-					if(!permissions.admins.includes(data.username))
+					if(!is_admin)
 					{
 						return false
 					}
@@ -249,7 +253,7 @@ socket.on('update', function(data)
 
 				else if(cmd === "random")
 				{
-					if(!permissions.admins.includes(data.username))
+					if(!is_admin)
 					{
 						return false
 					}
@@ -273,7 +277,7 @@ socket.on('update', function(data)
 
 				else if(cmd === "adminadd")
 				{
-					if(!protected_admins.includes(data.username))
+					if(!is_protected_admin)
 					{
 						return false
 					}
@@ -302,7 +306,7 @@ socket.on('update', function(data)
 
 				else if(cmd === "adminremove")
 				{
-					if(!protected_admins.includes(data.username))
+					if(!is_protected_admin)
 					{
 						return false
 					}
@@ -344,7 +348,7 @@ socket.on('update', function(data)
 
 				else if(cmd === "admins")
 				{
-					if(!permissions.admins.includes(data.username))
+					if(!is_admin)
 					{
 						return false
 					}
@@ -361,7 +365,7 @@ socket.on('update', function(data)
 
 				else if(cmd === "themeadd")
 				{
-					if(!permissions.admins.includes(data.username))
+					if(!is_admin)
 					{
 						return false
 					}
@@ -388,7 +392,7 @@ socket.on('update', function(data)
 
 				else if(cmd === "themeremove")
 				{
-					if(!permissions.admins.includes(data.username))
+					if(!is_admin)
 					{
 						return false
 					}
@@ -413,9 +417,9 @@ socket.on('update', function(data)
 					})
 				}
 
-				if(cmd === "themerename")
+				else if(cmd === "themerename")
 				{
-					if(!permissions.admins.includes(data.username))
+					if(!is_admin)
 					{
 						return false
 					}
@@ -457,7 +461,7 @@ socket.on('update', function(data)
 
 				else if(cmd === "theme")
 				{
-					if(!permissions.admins.includes(data.username))
+					if(!is_admin)
 					{
 						return false
 					}
@@ -505,7 +509,7 @@ socket.on('update', function(data)
 
 				else if(cmd === "themes")
 				{
-					if(!permissions.admins.includes(data.username))
+					if(!is_admin)
 					{
 						return false
 					}
@@ -522,7 +526,7 @@ socket.on('update', function(data)
 
 				else if(cmd === "linktitles")
 				{
-					if(!permissions.admins.includes(data.username))
+					if(!is_admin)
 					{
 						return false
 					}
@@ -568,7 +572,7 @@ socket.on('update', function(data)
 
 				else if(cmd === "q")
 				{
-					if(!permissions.admins.includes(data.username))
+					if(!is_admin)
 					{
 						return false
 					}
@@ -730,7 +734,7 @@ socket.on('update', function(data)
 
 				else if(cmd === "help")
 				{
-					if(!permissions.admins.includes(data.username))
+					if(!is_admin)
 					{
 						return false
 					}
@@ -759,10 +763,12 @@ socket.on('update', function(data)
 
 				else if(commands[cmd] !== undefined)
 				{
-					if(permissions.admins.includes(data.username))
+					if(!is_admin)
 					{
-						run_command(cmd)
+						return false
 					}
+					
+					run_command(cmd)
 				}
 			}
 
