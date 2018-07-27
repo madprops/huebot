@@ -894,14 +894,12 @@ socket.on('update', function(data)
 			{
 				return false
 			}
-			
-			var coords = generate_random_drawing()
 
 			socket_emit('whisper', 
 			{
 				username: data.username, 
 				message: "Hi! I hope you like my drawing :)", 
-				draw_coords: coords
+				draw_coords: generate_random_drawing()
 			})
 		}
 	}
