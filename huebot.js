@@ -885,6 +885,25 @@ socket.on('update', function(data)
 				check_permissions()
 			}
 		}
+
+		else if(data.type === 'whisper')
+		{
+			var is_admin = permissions.admins.includes(data.username)
+
+			if(!is_admin)
+			{
+				return false
+			}
+			
+			var coords = generate_random_drawing()
+
+			socket_emit('whisper', 
+			{
+				username: data.username, 
+				message: "Hi! I hope you like my drawing :)", 
+				draw_coords: coords
+			})
+		}
 	}
 
 	catch(err)
@@ -1182,4 +1201,31 @@ function get_extension(s)
 function clean_string2(s)
 {
 	return s.replace(/\s+/g, ' ').trim()
+}
+
+function generate_random_drawing()
+{
+	var n = get_random_int(100, 300)
+
+	var click_x = []
+	var click_y = []
+	var drag = []
+
+	for(let i=0; i<n; i++)
+	{
+		click_x.push(get_random_int(0, 400))
+		click_y.push(get_random_int(0, 300))
+
+		if(drag.length === 0)
+		{
+			drag.push(false)
+		}
+
+		else
+		{
+			drag.push(get_random_int(0, 2) > 0)
+		}
+	}
+
+	return [click_x, click_y, drag]
 }
