@@ -629,21 +629,21 @@ socket.on('update', function(data)
 					if(arg1 === "image")
 					{
 						var pname = "images"
-						var uname = "Image"
+						var upname = "Image"
 						var perm = can_images
 					}
 
 					else if(arg1 === "tv")
 					{
 						var pname = "the tv"
-						var uname = "TV"
+						var upname = "TV"
 						var perm = can_tv
 					}
 
 					else if(arg1 === "radio")
 					{
 						var pname = "the radio"
-						var uname = "Radio"
+						var upname = "Radio"
 						var perm = can_radio
 					}
 
@@ -679,10 +679,8 @@ socket.on('update', function(data)
 
 						else
 						{
-							send_message(`${uname} queue is empty.`)
+							send_message(`${upname} queue is empty.`)
 						}
-
-						return false
 					}
 
 					else if(arg2 === "clear")
@@ -693,16 +691,14 @@ socket.on('update', function(data)
 
 							save_file("queue.json", queue, function()
 							{
-								send_message(`${uname} queue successfully cleared.`)
+								send_message(`${upname} queue successfully cleared.`)
 							})
 						}
 
 						else
 						{
-							send_message(`${uname} queue was already cleared.`)
+							send_message(`${upname} queue was already cleared.`)
 						}
-
-						return false
 					}
 
 					else if(arg2 === "size")
@@ -719,17 +715,24 @@ socket.on('update', function(data)
 							var s = "items"
 						}
 
-						send_message(`${uname} queue has ${n} ${s}.`)
-
-						return false
+						send_message(`${upname} queue has ${n} ${s}.`)
 					}
 
-					queue[arg1].push(arg2)
-
-					save_file("queue.json", queue, function()
+					else
 					{
-						send_message(`${uname} URL successfully queued.`)
-					})
+						if(queue[arg1].includes(arg2))
+						{
+							send_message(`That URL is already queued.`)
+							return false
+						}
+						
+						queue[arg1].push(arg2)
+
+						save_file("queue.json", queue, function()
+						{
+							send_message(`${upname} URL successfully queued.`)
+						})	
+					}
 				}
 
 				else if(cmd === "help")
