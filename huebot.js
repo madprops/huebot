@@ -559,6 +559,7 @@ socket.on('update', function(data)
 				else if(cmd === "q")
 				{
 					var error = false
+
 					var arg1
 					var arg1
 
@@ -608,7 +609,6 @@ socket.on('update', function(data)
 
 					if(arg1 === "image")
 					{
-						var lname = "images"
 						var pname = "images"
 						var uname = "Image"
 						var perm = can_images
@@ -616,7 +616,6 @@ socket.on('update', function(data)
 
 					else if(arg1 === "tv")
 					{
-						var lname = "tv"
 						var pname = "the tv"
 						var uname = "TV"
 						var perm = can_tv
@@ -624,7 +623,6 @@ socket.on('update', function(data)
 
 					else if(arg1 === "radio")
 					{
-						var lname = "radio"
 						var pname = "the radio"
 						var uname = "Radio"
 						var perm = can_radio
@@ -632,7 +630,7 @@ socket.on('update', function(data)
 
 					if(arg2 === "next")
 					{
-						if(queue[lname].length > 0)
+						if(queue[arg1].length > 0)
 						{
 							if(!perm)
 							{
@@ -640,7 +638,7 @@ socket.on('update', function(data)
 								return false
 							}
 
-							var url = queue[lname].shift()
+							var url = queue[arg1].shift()
 
 							if(arg1 === "image")
 							{
@@ -670,9 +668,9 @@ socket.on('update', function(data)
 
 					else if(arg2 === "clear")
 					{
-						if(queue[lname].length > 0)
+						if(queue[arg1].length > 0)
 						{
-							queue[lname] = []
+							queue[arg1] = []
 
 							save_file("queue.json", queue, function()
 							{
@@ -690,7 +688,7 @@ socket.on('update', function(data)
 
 					else if(arg2 === "size")
 					{
-						var n = queue[lname].length
+						var n = queue[arg1].length
 
 						if(n === 1)
 						{
@@ -707,7 +705,7 @@ socket.on('update', function(data)
 						return false
 					}
 
-					queue[lname].push(arg2)
+					queue[arg1].push(arg2)
 
 					save_file("queue.json", queue, function()
 					{
