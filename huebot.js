@@ -127,7 +127,37 @@ socket.on('update', function(data)
 
 				cmd = cmd.substring(1).trim()
 
-				if(cmd === "set")
+				if(cmd === "image")
+				{
+					if(!is_admin || !arg)
+					{
+						return false
+					}
+
+					change_image(arg)
+				}
+
+				else if(cmd === "tv")
+				{
+					if(!is_admin || !arg)
+					{
+						return false
+					}
+
+					change_tv(arg)
+				}
+
+				else if(cmd === "radio")
+				{
+					if(!is_admin || !arg)
+					{
+						return false
+					}
+
+					change_radio(arg)
+				}
+
+				else if(cmd === "set")
 				{
 					if(!is_admin)
 					{
@@ -745,6 +775,9 @@ socket.on('update', function(data)
 					var s = ""
 
 					s += "Available Commands: "
+					s += `${command_prefix}image, ` 
+					s += `${command_prefix}tv, ` 
+					s += `${command_prefix}radio, ` 
 					s += `${command_prefix}set, ` 
 					s += `${command_prefix}unset, ` 
 					s += `${command_prefix}rename, ` 
