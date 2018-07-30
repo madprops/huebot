@@ -667,7 +667,7 @@ socket.on('update', function(data)
 					{
 						var split = arg.split(' ')
 
-						if(split.length !== 2)
+						if(split.length < 2)
 						{
 							error = true
 						}
@@ -683,15 +683,7 @@ socket.on('update', function(data)
 							
 							else
 							{
-								arg2 = split[1]
-
-								if(arg2 !== "next" && arg2 !== "clear" && arg2 !== "size")
-								{
-									if(!arg2.startsWith("http://") && !arg2.startsWith("https://"))
-									{
-										error = true
-									}
-								}
+								arg2 = split.slice(1).join(" ")
 							}
 						}
 					}
@@ -798,7 +790,7 @@ socket.on('update', function(data)
 					{
 						if(queue[arg1].includes(arg2))
 						{
-							send_message(`That URL is already in the ${arg1} queue.`)
+							send_message(`That item is already in the ${arg1} queue.`)
 							return false
 						}
 						
@@ -806,7 +798,7 @@ socket.on('update', function(data)
 
 						save_file("queue.json", queue, function()
 						{
-							send_message(`${upname} URL successfully queued.`)
+							send_message(`${upname} item successfully queued.`)
 						})	
 					}
 				}
