@@ -156,6 +156,12 @@ socket.on('update', function(data)
 						return false
 					}
 
+					if(!can_images)
+					{
+						send_message("I don't have permission to change images.")
+						return false
+					}
+
 					change_image(arg)
 				}
 
@@ -166,6 +172,12 @@ socket.on('update', function(data)
 						return false
 					}
 
+					if(!can_tv)
+					{
+						send_message("I don't have permission to change the tv.")
+						return false
+					}
+
 					change_tv(arg)
 				}
 
@@ -173,6 +185,12 @@ socket.on('update', function(data)
 				{
 					if(!is_admin || !arg)
 					{
+						return false
+					}
+
+					if(!can_radio)
+					{
+						send_message("I don't have permission to change the radio.")
 						return false
 					}
 
