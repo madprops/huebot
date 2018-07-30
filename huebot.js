@@ -118,19 +118,23 @@ socket.on('update', function(data)
 				return false
 			}
 
-			var is_admin = permissions.admins.includes(data.username)
-
 			var is_protected_admin = protected_admins.includes(data.username)
+			var is_admin = permissions.admins.includes(data.username) || is_protected_admin
 
 			var msg = data.msg
 
-			if(msg === `hi ${username}` || msg === `${username} hi`)						
+			if(msg === `hi ${username}` || msg === `${username} hi`)
 			{
 				send_message(`hello ${data.username}!`)
 			}
 
 			if(msg.length > 1 && msg[0] === command_prefix && msg[1] !== command_prefix)
 			{
+				if(!is_admin)
+				{
+					return false
+				}
+
 				var a = msg.split(' ')
 
 				var cmd = a[0]
@@ -151,7 +155,7 @@ socket.on('update', function(data)
 
 				if(cmd === "image")
 				{
-					if(!is_admin || !arg)
+					if(!arg)
 					{
 						return false
 					}
@@ -167,7 +171,7 @@ socket.on('update', function(data)
 
 				else if(cmd === "tv")
 				{
-					if(!is_admin || !arg)
+					if(!arg)
 					{
 						return false
 					}
@@ -183,7 +187,7 @@ socket.on('update', function(data)
 
 				else if(cmd === "radio")
 				{
-					if(!is_admin || !arg)
+					if(!arg)
 					{
 						return false
 					}
@@ -199,11 +203,6 @@ socket.on('update', function(data)
 
 				else if(cmd === "set")
 				{
-					if(!is_admin)
-					{
-						return false
-					}
-
 					var split = arg.split(' ')
 					var command_name = split[0]
 					var command_type = split[1]
@@ -243,11 +242,6 @@ socket.on('update', function(data)
 
 				else if(cmd === "unset")
 				{
-					if(!is_admin)
-					{
-						return false
-					}
-
 					if(!arg)
 					{
 						send_message(`Correct format is --> ${command_prefix}unset [name]`)
@@ -270,11 +264,6 @@ socket.on('update', function(data)
 
 				else if(cmd === "rename")
 				{
-					if(!is_admin)
-					{
-						return false
-					}
-
 					var split = arg.split(' ')
 					var old_name = split[0]
 					var new_name = split[1]
@@ -312,11 +301,6 @@ socket.on('update', function(data)
 
 				else if(cmd === "list")
 				{
-					if(!is_admin)
-					{
-						return false
-					}
-
 					var s = list_items(commands, arg, command_prefix)
 
 					if(!s)
@@ -329,11 +313,6 @@ socket.on('update', function(data)
 
 				else if(cmd === "random")
 				{
-					if(!is_admin)
-					{
-						return false
-					}
-
 					var cmds = Object.keys(commands)
 
 					if(arg)
@@ -424,11 +403,6 @@ socket.on('update', function(data)
 
 				else if(cmd === "admins")
 				{
-					if(!is_admin)
-					{
-						return false
-					}
-
 					var s = list_items(permissions.admins, arg, "", ",")
 
 					if(!s)
@@ -441,11 +415,6 @@ socket.on('update', function(data)
 
 				else if(cmd === "themeadd")
 				{
-					if(!is_admin)
-					{
-						return false
-					}
-
 					if(!arg)
 					{
 						send_message(`Correct format is --> ${command_prefix}themeadd [name]`)
@@ -468,11 +437,6 @@ socket.on('update', function(data)
 
 				else if(cmd === "themeremove")
 				{
-					if(!is_admin)
-					{
-						return false
-					}
-
 					if(!arg)
 					{
 						send_message(`Correct format is --> ${command_prefix}themeremove [name]`)
@@ -495,11 +459,6 @@ socket.on('update', function(data)
 
 				else if(cmd === "themerename")
 				{
-					if(!is_admin)
-					{
-						return false
-					}
-
 					var split = arg.split(' ')
 					var old_name = split[0]
 					var new_name = split[1]
@@ -537,11 +496,6 @@ socket.on('update', function(data)
 
 				else if(cmd === "theme")
 				{
-					if(!is_admin)
-					{
-						return false
-					}
-
 					if(role !== "admin" && role !== "op")
 					{
 						send_message("I need operator status to do this.")
@@ -585,11 +539,6 @@ socket.on('update', function(data)
 
 				else if(cmd === "themes")
 				{
-					if(!is_admin)
-					{
-						return false
-					}
-
 					var s = list_items(themes, arg, "", ",")
 
 					if(!s)
@@ -602,11 +551,6 @@ socket.on('update', function(data)
 
 				else if(cmd === "linktitles")
 				{
-					if(!is_admin)
-					{
-						return false
-					}
-
 					if(!arg || (arg !== "on" && arg !== "off"))
 					{
 						send_message(`Correct format is --> ${command_prefix}linktitles on|off`)
@@ -648,11 +592,6 @@ socket.on('update', function(data)
 
 				else if(cmd === "q")
 				{
-					if(!is_admin)
-					{
-						return false
-					}
-
 					var error = false
 
 					var arg1
@@ -803,13 +742,13 @@ socket.on('update', function(data)
 					}
 				}
 
-				else if(cmd === "help")
+				else if(cmd === "ping")
 				{
-					if(!is_admin)
-					{
-						return false
-					}
-					
+					send_message("Pong")
+				}
+
+				else if(cmd === "help")
+				{					
 					var s = ""
 
 					s += "Available Commands: "
@@ -826,11 +765,6 @@ socket.on('update', function(data)
 
 				else if(commands[cmd] !== undefined)
 				{
-					if(!is_admin)
-					{
-						return false
-					}
-
 					run_command(cmd)
 				}
 			}
@@ -948,7 +882,8 @@ socket.on('update', function(data)
 
 		else if(data.type === 'whisper')
 		{
-			var is_admin = permissions.admins.includes(data.username)
+			var is_protected_admin = protected_admins.includes(data.username)
+			var is_admin = permissions.admins.includes(data.username) || is_protected_admin
 
 			if(!is_admin)
 			{
