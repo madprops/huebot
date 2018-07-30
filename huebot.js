@@ -21,6 +21,28 @@ const command_prefix = "."
 const command_types = ["image", "tv", "radio"]
 var protected_admins = ["mad"]
 
+var available_commands = 
+[
+	'image',
+	'tv',
+	'radio',
+	'set',
+	'unset',
+	'rename',
+	'list',
+	'random',
+	'q',
+	'adminadd',
+	'adminremove',
+	'admins',
+	'themeadd',
+	'themeremove',
+	'themerename',
+	'theme',
+	'themes',
+	'linktitles'
+]
+
 var username = ""
 var role = false
 var room_images_mode = "disabled"
@@ -172,6 +194,12 @@ socket.on('update', function(data)
 					if(!arg || split.length !== 3 || !command_types.includes(command_type))
 					{
 						send_message(`Correct format is --> ${command_prefix}set [name] ${command_types.join("|")} [url]`)
+						return false
+					}
+
+					if(available_commands.includes(command_name))
+					{
+						send_message(`Command "${command_name}" is reserved.`)
 						return false
 					}
 
@@ -775,24 +803,13 @@ socket.on('update', function(data)
 					var s = ""
 
 					s += "Available Commands: "
-					s += `${command_prefix}image, ` 
-					s += `${command_prefix}tv, ` 
-					s += `${command_prefix}radio, ` 
-					s += `${command_prefix}set, ` 
-					s += `${command_prefix}unset, ` 
-					s += `${command_prefix}rename, ` 
-					s += `${command_prefix}list, ` 
-					s += `${command_prefix}random, ` 
-					s += `${command_prefix}q, ` 
-					s += `${command_prefix}adminadd, ` 
-					s += `${command_prefix}adminremove, ` 
-					s += `${command_prefix}admins, ` 
-					s += `${command_prefix}themeadd, ` 
-					s += `${command_prefix}themeremove, ` 
-					s += `${command_prefix}themerename, ` 
-					s += `${command_prefix}theme, ` 
-					s += `${command_prefix}themes, ` 
-					s += `${command_prefix}linktitles`
+
+					for(var c of available_commands)
+					{
+						s += `${command_prefix}${c}, ` 
+					}
+
+					s = s.slice(0, -2)
 
 					send_message(s)
 				}
