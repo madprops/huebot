@@ -158,7 +158,7 @@ socket.on('update', function(data)
 
 					if(!can_images)
 					{
-						send_message("I don't have permission to change images.")
+						send_message("I don't have permission to change the image.")
 						return false
 					}
 
@@ -704,7 +704,7 @@ socket.on('update', function(data)
 
 					if(arg1 === "image")
 					{
-						var pname = "images"
+						var pname = "the image"
 						var upname = "Image"
 						var perm = can_images
 					}
