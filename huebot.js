@@ -14,6 +14,7 @@ var queue = require("./queue.json")
 const bot_email = "xxx"
 const bot_password = "xxx"
 const twitch_client_id = "xxx"
+const twitch_enabled = true
 
 const server_address = "http://localhost:3210"
 // const server_address = "https://hue.merkoba.com"
@@ -751,6 +752,11 @@ socket.on('update', function(data)
 
 				else if(cmd === "stream")
 				{
+					if(!twitch_enabled)
+					{
+						return false
+					}
+
 					fetch(`https://api.twitch.tv/helix/streams`,
 					{
 						headers:
