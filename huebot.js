@@ -13,6 +13,7 @@ var queue = require("./queue.json")
 
 const bot_email = "xxx"
 const bot_password = "xxx"
+const twitch_client_id = "xxx"
 
 const server_address = "http://localhost:3210"
 // const server_address = "https://hue.merkoba.com"
@@ -40,7 +41,8 @@ var available_commands =
 	'themerename',
 	'theme',
 	'themes',
-	'linktitles'
+	'linktitles',
+	'stream'
 ]
 
 var username = ""
@@ -745,6 +747,63 @@ socket.on('update', function(data)
 				else if(cmd === "ping")
 				{
 					send_message("Pong")
+				}
+
+				else if(cmd === "stream")
+				{
+					fetch(`https://api.twitch.tv/helix/streams`,
+					{
+						headers:
+						{
+							"Client-ID": twitch_client_id
+						}
+					})
+					
+					.then(res => 
+					{
+						return res.json()
+					})
+					
+					.then(res => 
+					{
+						if(res.data && res.data.length > 0)
+						{
+							let item = res.data[get_random_int(0, res.data.length - 1)]
+
+							fetch(`https://api.twitch.tv/helix/users?id=${item.user_id}`,
+							{
+								headers:
+								{
+									"Client-ID": twitch_client_id
+								}
+							})
+							
+							.then(res => 
+							{
+								return res.json()
+							})
+							
+							.then(res => 
+							{
+								if(res.data && res.data.length > 0)
+								{
+									let user = res.data[0]
+
+									change_tv(`https://twitch.tv/${user.display_name}`)
+								}
+							})
+
+							.catch(err =>
+							{
+								console.error(err)
+							})
+						}
+					})
+
+					.catch(err =>
+					{
+						console.error(err)
+					})
 				}
 
 				else if(cmd === "help")
