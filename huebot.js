@@ -754,6 +754,7 @@ socket.on('update', function(data)
 				{
 					if(!twitch_enabled)
 					{
+						send_message("Twitch support is not enabled.")
 						return false
 					}
 
