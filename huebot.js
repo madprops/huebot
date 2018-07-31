@@ -789,7 +789,7 @@ socket.on('update', function(data)
 								{
 									let user = res.data[0]
 
-									change_tv(`https://twitch.tv/${user.display_name}`)
+									change_tv(`https://twitch.tv/${user.login}`)
 								}
 							})
 
