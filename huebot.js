@@ -295,33 +295,51 @@ function send_message(message)
 	socket_emit('sendchat', {message:message})	
 }
 
-function change_image(src)
+function change_image(src, feedback=false)
 {
 	if(!can_images)
 	{
 		console.error("No images permission")
+		
+		if(feedback)
+		{
+			send_message("I don't have permission to change the image.")
+		}
+		
 		return false
 	}
 	
 	socket_emit('change_image_source', {src:src})
 }
 
-function change_tv(src)
+function change_tv(src, feedback=false)
 {
 	if(!can_tv)
 	{
 		console.error("No tv permission")
+		
+		if(feedback)
+		{
+			send_message("I don't have permission to change the tv.")
+		}
+
 		return false
 	}
 	
 	socket_emit('change_tv_source', {src:src})
 }
 
-function change_radio(src)
+function change_radio(src, feedback=false)
 {
 	if(!can_radio)
 	{
 		console.error("No radio permission")
+		
+		if(feedback)
+		{
+			send_message("I don't have permission to change the radio.")
+		}
+
 		return false
 	}
 	
@@ -334,17 +352,17 @@ function run_command(cmd)
 
 	if(command.type === "image")
 	{
-		change_image(command.url)
+		change_image(command.url, true)
 	}
 
 	else if(command.type === "tv")
 	{
-		change_tv(command.url)
+		change_tv(command.url, true)
 	}
 
 	else if(command.type === "radio")
 	{
-		change_radio(command.url)
+		change_radio(command.url, true)
 	}	
 }
 
@@ -757,13 +775,7 @@ function process_command(data)
 			return false
 		}
 
-		if(!can_images)
-		{
-			send_message("I don't have permission to change the image.")
-			return false
-		}
-
-		change_image(arg)
+		change_image(arg, true)
 	}
 
 	else if(cmd === "tv")
@@ -773,13 +785,7 @@ function process_command(data)
 			return false
 		}
 
-		if(!can_tv)
-		{
-			send_message("I don't have permission to change the tv.")
-			return false
-		}
-
-		change_tv(arg)
+		change_tv(arg, true)
 	}
 
 	else if(cmd === "radio")
@@ -789,13 +795,7 @@ function process_command(data)
 			return false
 		}
 
-		if(!can_radio)
-		{
-			send_message("I don't have permission to change the radio.")
-			return false
-		}
-
-		change_radio(arg)
+		change_radio(arg, true)
 	}
 
 	else if(cmd === "set")
