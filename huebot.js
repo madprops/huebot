@@ -11,6 +11,8 @@ var themes = require("./themes.json")
 var options = require("./options.json")
 var queue = require("./queue.json")
 
+var user_command_activity = []
+
 const bot_email = "xxx"
 const bot_password = "xxx"
 
@@ -46,7 +48,8 @@ var available_commands =
 	'theme',
 	'themes',
 	'linktitles',
-	'stream'
+	'stream',
+	'activity'
 ]
 
 var username = ""
@@ -117,703 +120,28 @@ socket.on('update', function(data)
 			check_permissions()
 		}
 
-		else if(data.type === 'chat_msg')
+		else if(data.type === 'chat_message')
 		{
 			if(data.username === username)
 			{
 				return false
 			}
 
-			var is_protected_admin = protected_admins.includes(data.username)
-			var is_admin = permissions.admins.includes(data.username) || is_protected_admin
-
-			var msg = data.msg
-
-			if(msg === `hi ${username}` || msg === `${username} hi`)
+			if(data.message === `hi ${username}` || data.message === `${username} hi`)
 			{
 				send_message(`hello ${data.username}!`)
 			}
 
-			if(msg.length > 1 && msg[0] === command_prefix && msg[1] !== command_prefix)
+			if(is_command(data.message))
 			{
-				if(!is_admin)
-				{
-					return false
-				}
-
-				var a = msg.split(' ')
-
-				var cmd = a[0]
-
-				if(a.length > 1)
-				{
-					cmd += ' '
-
-					var arg = clean_string2(a.slice(1).join(" "))
-				}
-
-				else
-				{
-					var arg = ""
-				}
-
-				cmd = cmd.substring(1).trim()
-
-				if(cmd === "image")
-				{
-					if(!arg)
-					{
-						return false
-					}
-
-					if(!can_images)
-					{
-						send_message("I don't have permission to change the image.")
-						return false
-					}
-
-					change_image(arg)
-				}
-
-				else if(cmd === "tv")
-				{
-					if(!arg)
-					{
-						return false
-					}
-
-					if(!can_tv)
-					{
-						send_message("I don't have permission to change the tv.")
-						return false
-					}
-
-					change_tv(arg)
-				}
-
-				else if(cmd === "radio")
-				{
-					if(!arg)
-					{
-						return false
-					}
-
-					if(!can_radio)
-					{
-						send_message("I don't have permission to change the radio.")
-						return false
-					}
-
-					change_radio(arg)
-				}
-
-				else if(cmd === "set")
-				{
-					var split = arg.split(' ')
-					var command_name = split[0]
-					var command_type = split[1]
-					var command_url = split[2]
-
-					if(!arg || split.length !== 3 || !command_types.includes(command_type))
-					{
-						send_message(`Correct format is --> ${command_prefix}set [name] ${command_types.join("|")} [url]`)
-						return false
-					}
-
-					if(available_commands.includes(command_name))
-					{
-						send_message(`Command "${command_name}" is reserved.`)
-						return false
-					}
-
-					var testobj = {}
-
-					try
-					{
-						testobj[command_name] = {type:command_type, url:command_url}
-						commands[command_name] = {type:command_type, url:command_url}
-
-						save_file("commands.json", commands, function(err)
-						{
-							send_message(`Command "${command_name}" successfully set.`)
-						})
-					}
-
-					catch(err)
-					{
-						send_message(`Can't save that command.`)
-						return false
-					}
-				}
-
-				else if(cmd === "unset")
-				{
-					if(!arg)
-					{
-						send_message(`Correct format is --> ${command_prefix}unset [name]`)
-						return false
-					}
-
-					if(commands[arg] === undefined)
-					{
-						send_message(`Command "${arg}" doesn't exist.`)
-						return false
-					}
-
-					delete commands[arg]
-
-					save_file("commands.json", commands, function(err)
-					{
-						send_message(`Command "${arg}" successfully unset.`)
-					})
-				}
-
-				else if(cmd === "rename")
-				{
-					var split = arg.split(' ')
-					var old_name = split[0]
-					var new_name = split[1]
-
-					if(!arg || split.length !== 2)
-					{
-						send_message(`Correct format is --> ${command_prefix}rename [old_name] [new_name]`)
-						return false
-					}
-
-					if(commands[old_name] === undefined)
-					{
-						send_message(`Command "${old_name}" doesn't exist.`)
-						return false
-					}
-
-					try
-					{
-						commands[new_name] = commands[old_name]
-
-						delete commands[old_name]
-
-						save_file("commands.json", commands, function(err)
-						{
-							send_message(`Command "${old_name}" successfully renamed to "${new_name}".`)
-						})
-					}
-
-					catch(err)
-					{
-						send_message(`Can't rename that command.`)
-						return false
-					}
-				}
-
-				else if(cmd === "list")
-				{
-					var s = list_items(commands, arg, command_prefix)
-
-					if(!s)
-					{
-						var s = "No commands found."
-					}
-
-					send_message(s)
-				}
-
-				else if(cmd === "random")
-				{
-					var cmds = Object.keys(commands)
-
-					if(arg)
-					{
-						if(!command_types.includes(arg))
-						{
-							return false
-						}
-						
-						cmds = cmds.filter(x => commands[x].type === arg)
-					}
-
-					var c = cmds[get_random_int(0, cmds.length - 1)]
-
-					run_command(c)
-				}
-
-				else if(cmd === "adminadd")
-				{
-					if(!is_protected_admin)
-					{
-						return false
-					}
-
-					if(!arg)
-					{
-						send_message(`Correct format is --> ${command_prefix}adminadd [username]`)
-						return false
-					}
-
-					if(arg === data.username)
-					{
-						return false
-					}
-
-					if(!permissions.admins.includes(arg))
-					{
-						permissions.admins.push(arg)
-
-						save_file("permissions.json", permissions, function(err)
-						{
-							send_message(`Username "${arg}" was successfully added as an admin.`)
-						})
-					}
-				}
-
-				else if(cmd === "adminremove")
-				{
-					if(!is_protected_admin)
-					{
-						return false
-					}
-
-					if(!arg)
-					{
-						send_message(`Correct format is --> ${command_prefix}adminremove [username]`)
-						return false
-					}
-
-					if(arg === data.username)
-					{
-						return false
-					}
-					
-					if(permissions.admins.includes(arg))
-					{
-						for(let i=0; i<permissions.admins.length; i++)
-						{
-							var admin = permissions.admins[i]
-
-							if(admin === arg)
-							{
-								permissions.admins.splice(i, 1)
-							}
-						}
-
-						save_file("permissions.json", permissions, function(err)
-						{
-							send_message(`Username "${arg}" was successfully removed as an admin.`)
-						})
-					}
-
-					else
-					{
-						send_message(`"${arg}" is not an admin. Nothing to remove.`)
-					}
-				}
-
-				else if(cmd === "admins")
-				{
-					var s = list_items(permissions.admins, arg, "", ",")
-
-					if(!s)
-					{
-						var s = "No admins found."
-					}
-
-					send_message(s)
-				}
-
-				else if(cmd === "themeadd")
-				{
-					if(!arg)
-					{
-						send_message(`Correct format is --> ${command_prefix}themeadd [name]`)
-						return false
-					}
-
-					var obj = {}
-
-					obj.theme = theme
-					obj.text_color = text_color
-					obj.text_color_mode = text_color_mode
-
-					themes[arg] = obj
-
-					save_file("themes.json", themes, function()
-					{
-						send_message(`Theme "${arg}" successfully added.`)
-					})
-				}
-
-				else if(cmd === "themeremove")
-				{
-					if(!arg)
-					{
-						send_message(`Correct format is --> ${command_prefix}themeremove [name]`)
-						return false
-					}
-
-					if(themes[arg] === undefined)
-					{
-						send_message(`Theme "${arg}" doesn't exist.`)
-						return false
-					}
-
-					delete themes[arg]
-
-					save_file("themes.json", themes, function()
-					{
-						send_message(`Theme "${arg}" successfully removed.`)
-					})
-				}
-
-				else if(cmd === "themerename")
-				{
-					var split = arg.split(' ')
-					var old_name = split[0]
-					var new_name = split[1]
-
-					if(!arg || split.length !== 2)
-					{
-						send_message(`Correct format is --> ${command_prefix}themerename [old_name] [new_name]`)
-						return false
-					}
-
-					if(themes[old_name] === undefined)
-					{
-						send_message(`Theme "${old_name}" doesn't exist.`)
-						return false
-					}
-
-					try
-					{
-						themes[new_name] = themes[old_name]
-
-						delete themes[old_name]
-
-						save_file("themes.json", themes, function(err)
-						{
-							send_message(`Theme "${old_name}" successfully renamed to "${new_name}".`)
-						})
-					}
-
-					catch(err)
-					{
-						send_message(`Can't rename that theme.`)
-						return false
-					}
-				}
-
-				else if(cmd === "theme")
-				{
-					if(role !== "admin" && role !== "op")
-					{
-						send_message("I need operator status to do this.")
-						return false
-					}
-
-					if(!arg)
-					{
-						send_message(`Correct format is --> ${command_prefix}theme [name]`)
-						return false
-					}
-
-					var obj = themes[arg]
-
-					if(obj)
-					{
-						if(obj.theme !== theme)
-						{
-							socket_emit("change_theme", {color:obj.theme})
-						}
-
-						if(obj.text_color_mode !== text_color_mode)
-						{
-							socket_emit("change_text_color_mode", {mode:obj.text_color_mode})
-						}
-
-						if(obj.text_color_mode === "custom")
-						{
-							if(obj.text_color !== text_color)
-							{
-								socket_emit("change_text_color", {color:obj.text_color})
-							}
-						}
-					}
-
-					else
-					{
-						send_message(`Theme "${arg}" doesn't exist.`)
-					}
-				}
-
-				else if(cmd === "themes")
-				{
-					var s = list_items(themes, arg, "", ",")
-
-					if(!s)
-					{
-						var s = "No themes found."
-					}
-
-					send_message(s)
-				}
-
-				else if(cmd === "linktitles")
-				{
-					if(!arg || (arg !== "on" && arg !== "off"))
-					{
-						send_message(`Correct format is --> ${command_prefix}linktitles on|off`)
-						return false
-					}
-
-					if(arg === "on")
-					{
-						if(options.link_titles)
-						{
-							send_message("Link titles are already on.")
-							return false
-						}
-
-						options.link_titles = true
-
-						save_file("options.json", options, function()
-						{
-							send_message(`Link titles are now on.`)
-						})
-					}
-
-					else if(arg === "off")
-					{
-						if(!options.link_titles)
-						{
-							send_message("Link titles are already off.")
-							return false
-						}
-
-						options.link_titles = false
-
-						save_file("options.json", options, function()
-						{
-							send_message(`Link titles are now off.`)
-						})
-					}
-				}
-
-				else if(cmd === "q")
-				{
-					var error = false
-
-					var arg1
-					var arg1
-
-					if(!arg)
-					{
-						error = true
-					}
-					
-					else
-					{
-						var split = arg.split(' ')
-
-						if(split.length < 2)
-						{
-							error = true
-						}
-
-						else
-						{
-							arg1 = split[0]
-
-							if(!command_types.includes(arg1))
-							{
-								error = true
-							}
-							
-							else
-							{
-								arg2 = split.slice(1).join(" ")
-							}
-						}
-					}
-
-					if(error)
-					{
-						send_message(`Correct format is --> ${command_prefix}q ${command_types.join("|")} [url]|next|clear|size`)
-						return false
-					}
-
-					if(arg1 === "image")
-					{
-						var pname = "the image"
-						var upname = "Image"
-						var perm = can_images
-					}
-
-					else if(arg1 === "tv")
-					{
-						var pname = "the tv"
-						var upname = "TV"
-						var perm = can_tv
-					}
-
-					else if(arg1 === "radio")
-					{
-						var pname = "the radio"
-						var upname = "Radio"
-						var perm = can_radio
-					}
-
-					if(arg2 === "next")
-					{
-						if(queue[arg1].length > 0)
-						{
-							if(!perm)
-							{
-								send_message(`I don't have permission to change ${pname}.`)
-								return false
-							}
-
-							var url = queue[arg1].shift()
-
-							if(arg1 === "image")
-							{
-								change_image(url)
-							}
-
-							else if(arg1 === "tv")
-							{
-								change_tv(url)
-							}
-
-							else if(arg1 === "radio")
-							{
-								change_radio(url)
-							}
-
-							save_file("queue.json", queue)
-						}
-
-						else
-						{
-							send_message(`${upname} queue is empty.`)
-						}
-					}
-
-					else if(arg2 === "clear")
-					{
-						if(queue[arg1].length > 0)
-						{
-							queue[arg1] = []
-
-							save_file("queue.json", queue, function()
-							{
-								send_message(`${upname} queue successfully cleared.`)
-							})
-						}
-
-						else
-						{
-							send_message(`${upname} queue was already cleared.`)
-						}
-					}
-
-					else if(arg2 === "size")
-					{
-						var n = queue[arg1].length
-
-						if(n === 1)
-						{
-							var s = "item"
-						}
-
-						else
-						{
-							var s = "items"
-						}
-
-						send_message(`${upname} queue has ${n} ${s}.`)
-					}
-
-					else
-					{
-						if(queue[arg1].includes(arg2))
-						{
-							send_message(`That item is already in the ${arg1} queue.`)
-							return false
-						}
-						
-						queue[arg1].push(arg2)
-
-						save_file("queue.json", queue, function()
-						{
-							send_message(`${upname} item successfully queued.`)
-						})	
-					}
-				}
-
-				else if(cmd === "ping")
-				{
-					send_message("Pong")
-				}
-
-				else if(cmd === "stream")
-				{
-					if(!twitch_enabled && !youtube_enabled)
-					{
-						send_message("No stream source support is enabled.")
-						return false
-					}
-
-					if(twitch_enabled && !youtube_enabled)
-					{
-						get_twitch_stream()
-					}
-
-					else if(youtube_enabled && !twitch_enabled)
-					{
-						get_youtube_stream()
-					}
-
-					else
-					{
-						var n = get_random_int(0, 1)
-
-						if(n === 0)
-						{
-							get_twitch_stream()
-						}
-
-						else
-						{
-							get_youtube_stream()
-						}
-					}
-				}
-
-				else if(cmd === "help")
-				{					
-					var s = ""
-
-					s += "Available Commands: "
-
-					for(var c of available_commands)
-					{
-						s += `${command_prefix}${c}, ` 
-					}
-
-					s = s.slice(0, -2)
-
-					send_message(s)
-				}
-
-				else if(commands[cmd] !== undefined)
-				{
-					run_command(cmd)
-				}
+				process_command(data)
 			}
 
 			else
 			{
 				if(options.link_titles)
 				{
-					var links = linkify.find(msg)
+					var links = linkify.find(data.message)
 
 					if(links)
 					{
@@ -922,20 +250,20 @@ socket.on('update', function(data)
 
 		else if(data.type === 'whisper')
 		{
-			var is_protected_admin = protected_admins.includes(data.username)
-			var is_admin = permissions.admins.includes(data.username) || is_protected_admin
-
-			if(!is_admin)
+			if(is_command(data.message))
 			{
-				return false
+				process_command(data)
 			}
 
-			socket_emit('whisper', 
+			else
 			{
-				username: data.username, 
-				message: "Hi! I hope you like my drawing :)", 
-				draw_coords: generate_random_drawing()
-			})
+				socket_emit('whisper', 
+				{
+					username: data.username, 
+					message: "Hi! I hope you like my drawing :)", 
+					draw_coords: generate_random_drawing()
+				})
+			}
 		}
 	}
 
@@ -945,16 +273,16 @@ socket.on('update', function(data)
 	}
 })
 
-function send_message(msg)
+function send_message(message)
 {
 	if(!can_chat)
 	{
 		return false
 	}
 
-	msg = msg.substring(0, max_text_length).replace(/[\n\r]+/g, '\n').replace(/\s+$/g, '')
+	message = message.substring(0, max_text_length).replace(/[\n\r]+/g, '\n').replace(/\s+$/g, '')
 	
-	socket_emit('sendchat', {msg:msg})	
+	socket_emit('sendchat', {message:message})	
 }
 
 function change_image(src)
@@ -1149,47 +477,71 @@ function save_file(name, content, callback=false)
 	})
 }
 
-function list_items(obj, arg, prep="", app="")
+function fill_defaults(args, def_args)
 {
-	arg = arg.toLowerCase()
+	for(var key in def_args)
+	{
+		var d = def_args[key]
+
+		if(args[key] === undefined)
+		{
+			args[key] = d
+		}
+	}
+}
+
+function list_items(args={})
+{
+	var def_args =
+	{
+		data: {},
+		filter: "",
+		prepend: "",
+		append: "",
+		sort_mode: "none"
+	}
+
+	fill_defaults(args, def_args)
+
+	args.filter = args.filter.toLowerCase()
 
 	var list = []
 	
-	var filter = arg ? true : false
+	var do_filter = args.filter ? true : false
 
-	if(Array.isArray(obj))
+	if(Array.isArray(args.data))
 	{
-		var props = obj
+		var props = args.data
 	}
 
 	else
 	{
-		var props = Object.keys(obj)
+		var props = Object.keys(args.data)
 	}
 
-	if(filter)
-	{
-		props.sort()
-	}
-
-	else
+	if(args.sort_mode === "random")
 	{
 		props = props.map(x => [Math.random(), x]).sort(([a], [b]) => a - b).map(([_, x]) => x)
 	}
 
+	else if(args.sort_mode === "sort")
+	{
+		props.sort()
+	}
+
 	for(var p of props)
 	{
-		if(filter)
+		if(do_filter)
 		{
-			if(p.toLowerCase().includes(arg))
+			if(p.toLowerCase().includes(args.filter))
 			{
-				list.push(`${prep}${p}${app}`)
+				list.push(`${args.prepend}${p}${args.append}`)
 			}
 		}
 
 		else
 		{
-			list.push(`${prep}${p}${app}`)
+			list.push(`${args.prepend}${p}${args.append}`)
 		}
 
 		if(list.length === 20)
@@ -1202,7 +554,7 @@ function list_items(obj, arg, prep="", app="")
 	{
 		var s = list.join(" ")
 
-		if(app)
+		if(args.append)
 		{
 			s = s.slice(0, -1)
 		}
@@ -1343,4 +695,755 @@ function get_youtube_stream()
 	{
 		console.error(err)
 	})
+}
+
+function is_command(message)
+{
+	if(message.length > 1 && message[0] === command_prefix && message[1] !== command_prefix)
+	{
+		return true
+	}
+
+	return false
+}
+
+function process_command(data)
+{
+	var is_protected_admin = protected_admins.includes(data.username)
+	var is_admin = permissions.admins.includes(data.username) || is_protected_admin
+
+	if(!is_admin)
+	{
+		return false
+	}
+
+	user_command_activity.push(data.username)
+	{
+		if(user_command_activity.length > 10)
+		{
+			user_command_activity.shift()
+		}
+	}
+
+	var a = data.message.split(' ')
+
+	var cmd = a[0]
+
+	if(a.length > 1)
+	{
+		cmd += ' '
+
+		var arg = clean_string2(a.slice(1).join(" "))
+	}
+
+	else
+	{
+		var arg = ""
+	}
+
+	cmd = cmd.substring(1).trim()
+
+	if(cmd === "image")
+	{
+		if(!arg)
+		{
+			return false
+		}
+
+		if(!can_images)
+		{
+			send_message("I don't have permission to change the image.")
+			return false
+		}
+
+		change_image(arg)
+	}
+
+	else if(cmd === "tv")
+	{
+		if(!arg)
+		{
+			return false
+		}
+
+		if(!can_tv)
+		{
+			send_message("I don't have permission to change the tv.")
+			return false
+		}
+
+		change_tv(arg)
+	}
+
+	else if(cmd === "radio")
+	{
+		if(!arg)
+		{
+			return false
+		}
+
+		if(!can_radio)
+		{
+			send_message("I don't have permission to change the radio.")
+			return false
+		}
+
+		change_radio(arg)
+	}
+
+	else if(cmd === "set")
+	{
+		var split = arg.split(' ')
+		var command_name = split[0]
+		var command_type = split[1]
+		var command_url = split[2]
+
+		if(!arg || split.length !== 3 || !command_types.includes(command_type))
+		{
+			send_message(`Correct format is --> ${command_prefix}set [name] ${command_types.join("|")} [url]`)
+			return false
+		}
+
+		if(available_commands.includes(command_name))
+		{
+			send_message(`Command "${command_name}" is reserved.`)
+			return false
+		}
+
+		var testobj = {}
+
+		try
+		{
+			testobj[command_name] = {type:command_type, url:command_url}
+			commands[command_name] = {type:command_type, url:command_url}
+
+			save_file("commands.json", commands, function(err)
+			{
+				send_message(`Command "${command_name}" successfully set.`)
+			})
+		}
+
+		catch(err)
+		{
+			send_message(`Can't save that command.`)
+			return false
+		}
+	}
+
+	else if(cmd === "unset")
+	{
+		if(!arg)
+		{
+			send_message(`Correct format is --> ${command_prefix}unset [name]`)
+			return false
+		}
+
+		if(commands[arg] === undefined)
+		{
+			send_message(`Command "${arg}" doesn't exist.`)
+			return false
+		}
+
+		delete commands[arg]
+
+		save_file("commands.json", commands, function(err)
+		{
+			send_message(`Command "${arg}" successfully unset.`)
+		})
+	}
+
+	else if(cmd === "rename")
+	{
+		var split = arg.split(' ')
+		var old_name = split[0]
+		var new_name = split[1]
+
+		if(!arg || split.length !== 2)
+		{
+			send_message(`Correct format is --> ${command_prefix}rename [old_name] [new_name]`)
+			return false
+		}
+
+		if(commands[old_name] === undefined)
+		{
+			send_message(`Command "${old_name}" doesn't exist.`)
+			return false
+		}
+
+		try
+		{
+			commands[new_name] = commands[old_name]
+
+			delete commands[old_name]
+
+			save_file("commands.json", commands, function(err)
+			{
+				send_message(`Command "${old_name}" successfully renamed to "${new_name}".`)
+			})
+		}
+
+		catch(err)
+		{
+			send_message(`Can't rename that command.`)
+			return false
+		}
+	}
+
+	else if(cmd === "list")
+	{
+		var sort_mode = "random"
+
+		if(arg)
+		{
+			sort_mode = "sort"
+		}
+
+		var s = list_items(
+		{
+			data: commands,
+			filter: arg,
+			prepend: command_prefix,
+			sort_mode: sort_mode
+		})
+
+		if(!s)
+		{
+			var s = "No commands found."
+		}
+
+		send_message(s)
+	}
+
+	else if(cmd === "random")
+	{
+		var cmds = Object.keys(commands)
+
+		if(arg)
+		{
+			if(!command_types.includes(arg))
+			{
+				return false
+			}
+			
+			cmds = cmds.filter(x => commands[x].type === arg)
+		}
+
+		var c = cmds[get_random_int(0, cmds.length - 1)]
+
+		run_command(c)
+	}
+
+	else if(cmd === "adminadd")
+	{
+		if(!is_protected_admin)
+		{
+			return false
+		}
+
+		if(!arg)
+		{
+			send_message(`Correct format is --> ${command_prefix}adminadd [username]`)
+			return false
+		}
+
+		if(arg === data.username)
+		{
+			return false
+		}
+
+		if(!permissions.admins.includes(arg))
+		{
+			permissions.admins.push(arg)
+
+			save_file("permissions.json", permissions, function(err)
+			{
+				send_message(`Username "${arg}" was successfully added as an admin.`)
+			})
+		}
+	}
+
+	else if(cmd === "adminremove")
+	{
+		if(!is_protected_admin)
+		{
+			return false
+		}
+
+		if(!arg)
+		{
+			send_message(`Correct format is --> ${command_prefix}adminremove [username]`)
+			return false
+		}
+
+		if(arg === data.username)
+		{
+			return false
+		}
+		
+		if(permissions.admins.includes(arg))
+		{
+			for(let i=0; i<permissions.admins.length; i++)
+			{
+				var admin = permissions.admins[i]
+
+				if(admin === arg)
+				{
+					permissions.admins.splice(i, 1)
+				}
+			}
+
+			save_file("permissions.json", permissions, function(err)
+			{
+				send_message(`Username "${arg}" was successfully removed as an admin.`)
+			})
+		}
+
+		else
+		{
+			send_message(`"${arg}" is not an admin. Nothing to remove.`)
+		}
+	}
+
+	else if(cmd === "admins")
+	{
+		var sort_mode = "random"
+
+		if(arg)
+		{
+			sort_mode = "sort"
+		}
+
+		var s = list_items(
+		{
+			data: permissions.admins,
+			filter: arg,
+			append: ",",
+			sort_mode: sort_mode
+		})
+
+		if(!s)
+		{
+			var s = "No admins found."
+		}
+
+		send_message(s)
+	}
+
+	else if(cmd === "themeadd")
+	{
+		if(!arg)
+		{
+			send_message(`Correct format is --> ${command_prefix}themeadd [name]`)
+			return false
+		}
+
+		var obj = {}
+
+		obj.theme = theme
+		obj.text_color = text_color
+		obj.text_color_mode = text_color_mode
+
+		themes[arg] = obj
+
+		save_file("themes.json", themes, function()
+		{
+			send_message(`Theme "${arg}" successfully added.`)
+		})
+	}
+
+	else if(cmd === "themeremove")
+	{
+		if(!arg)
+		{
+			send_message(`Correct format is --> ${command_prefix}themeremove [name]`)
+			return false
+		}
+
+		if(themes[arg] === undefined)
+		{
+			send_message(`Theme "${arg}" doesn't exist.`)
+			return false
+		}
+
+		delete themes[arg]
+
+		save_file("themes.json", themes, function()
+		{
+			send_message(`Theme "${arg}" successfully removed.`)
+		})
+	}
+
+	else if(cmd === "themerename")
+	{
+		var split = arg.split(' ')
+		var old_name = split[0]
+		var new_name = split[1]
+
+		if(!arg || split.length !== 2)
+		{
+			send_message(`Correct format is --> ${command_prefix}themerename [old_name] [new_name]`)
+			return false
+		}
+
+		if(themes[old_name] === undefined)
+		{
+			send_message(`Theme "${old_name}" doesn't exist.`)
+			return false
+		}
+
+		try
+		{
+			themes[new_name] = themes[old_name]
+
+			delete themes[old_name]
+
+			save_file("themes.json", themes, function(err)
+			{
+				send_message(`Theme "${old_name}" successfully renamed to "${new_name}".`)
+			})
+		}
+
+		catch(err)
+		{
+			send_message(`Can't rename that theme.`)
+			return false
+		}
+	}
+
+	else if(cmd === "theme")
+	{
+		if(role !== "admin" && role !== "op")
+		{
+			send_message("I need operator status to do this.")
+			return false
+		}
+
+		if(!arg)
+		{
+			send_message(`Correct format is --> ${command_prefix}theme [name]`)
+			return false
+		}
+
+		var obj = themes[arg]
+
+		if(obj)
+		{
+			if(obj.theme !== theme)
+			{
+				socket_emit("change_theme", {color:obj.theme})
+			}
+
+			if(obj.text_color_mode !== text_color_mode)
+			{
+				socket_emit("change_text_color_mode", {mode:obj.text_color_mode})
+			}
+
+			if(obj.text_color_mode === "custom")
+			{
+				if(obj.text_color !== text_color)
+				{
+					socket_emit("change_text_color", {color:obj.text_color})
+				}
+			}
+		}
+
+		else
+		{
+			send_message(`Theme "${arg}" doesn't exist.`)
+		}
+	}
+
+	else if(cmd === "themes")
+	{
+		var sort_mode = "random"
+
+		if(arg)
+		{
+			sort_mode = "sort"
+		}
+
+		var s = list_items(
+		{
+			data: themes,
+			filter: arg,
+			append: ",",
+			sort_mode: sort_mode
+		})
+
+		if(!s)
+		{
+			var s = "No themes found."
+		}
+
+		send_message(s)
+	}
+
+	else if(cmd === "linktitles")
+	{
+		if(!arg || (arg !== "on" && arg !== "off"))
+		{
+			send_message(`Correct format is --> ${command_prefix}linktitles on|off`)
+			return false
+		}
+
+		if(arg === "on")
+		{
+			if(options.link_titles)
+			{
+				send_message("Link titles are already on.")
+				return false
+			}
+
+			options.link_titles = true
+
+			save_file("options.json", options, function()
+			{
+				send_message(`Link titles are now on.`)
+			})
+		}
+
+		else if(arg === "off")
+		{
+			if(!options.link_titles)
+			{
+				send_message("Link titles are already off.")
+				return false
+			}
+
+			options.link_titles = false
+
+			save_file("options.json", options, function()
+			{
+				send_message(`Link titles are now off.`)
+			})
+		}
+	}
+
+	else if(cmd === "q")
+	{
+		var error = false
+
+		var arg1
+		var arg1
+
+		if(!arg)
+		{
+			error = true
+		}
+		
+		else
+		{
+			var split = arg.split(' ')
+
+			if(split.length < 2)
+			{
+				error = true
+			}
+
+			else
+			{
+				arg1 = split[0]
+
+				if(!command_types.includes(arg1))
+				{
+					error = true
+				}
+				
+				else
+				{
+					arg2 = split.slice(1).join(" ")
+				}
+			}
+		}
+
+		if(error)
+		{
+			send_message(`Correct format is --> ${command_prefix}q ${command_types.join("|")} [url]|next|clear|size`)
+			return false
+		}
+
+		if(arg1 === "image")
+		{
+			var pname = "the image"
+			var upname = "Image"
+			var perm = can_images
+		}
+
+		else if(arg1 === "tv")
+		{
+			var pname = "the tv"
+			var upname = "TV"
+			var perm = can_tv
+		}
+
+		else if(arg1 === "radio")
+		{
+			var pname = "the radio"
+			var upname = "Radio"
+			var perm = can_radio
+		}
+
+		if(arg2 === "next")
+		{
+			if(queue[arg1].length > 0)
+			{
+				if(!perm)
+				{
+					send_message(`I don't have permission to change ${pname}.`)
+					return false
+				}
+
+				var url = queue[arg1].shift()
+
+				if(arg1 === "image")
+				{
+					change_image(url)
+				}
+
+				else if(arg1 === "tv")
+				{
+					change_tv(url)
+				}
+
+				else if(arg1 === "radio")
+				{
+					change_radio(url)
+				}
+
+				save_file("queue.json", queue)
+			}
+
+			else
+			{
+				send_message(`${upname} queue is empty.`)
+			}
+		}
+
+		else if(arg2 === "clear")
+		{
+			if(queue[arg1].length > 0)
+			{
+				queue[arg1] = []
+
+				save_file("queue.json", queue, function()
+				{
+					send_message(`${upname} queue successfully cleared.`)
+				})
+			}
+
+			else
+			{
+				send_message(`${upname} queue was already cleared.`)
+			}
+		}
+
+		else if(arg2 === "size")
+		{
+			var n = queue[arg1].length
+
+			if(n === 1)
+			{
+				var s = "item"
+			}
+
+			else
+			{
+				var s = "items"
+			}
+
+			send_message(`${upname} queue has ${n} ${s}.`)
+		}
+
+		else
+		{
+			if(queue[arg1].includes(arg2))
+			{
+				send_message(`That item is already in the ${arg1} queue.`)
+				return false
+			}
+			
+			queue[arg1].push(arg2)
+
+			save_file("queue.json", queue, function()
+			{
+				send_message(`${upname} item successfully queued.`)
+			})	
+		}
+	}
+
+	else if(cmd === "ping")
+	{
+		send_message("Pong")
+	}
+
+	else if(cmd === "stream")
+	{
+		if(!twitch_enabled && !youtube_enabled)
+		{
+			send_message("No stream source support is enabled.")
+			return false
+		}
+
+		if(twitch_enabled && !youtube_enabled)
+		{
+			get_twitch_stream()
+		}
+
+		else if(youtube_enabled && !twitch_enabled)
+		{
+			get_youtube_stream()
+		}
+
+		else
+		{
+			var n = get_random_int(0, 1)
+
+			if(n === 0)
+			{
+				get_twitch_stream()
+			}
+
+			else
+			{
+				get_youtube_stream()
+			}
+		}
+	}
+
+	else if(cmd === "activity")
+	{
+		var s = list_items(
+		{
+			data: user_command_activity.slice(0).reverse(),
+			append: ","
+		})
+
+		if(!s)
+		{
+			var s = "No activity yet."
+		}
+
+		send_message(`Recent command activity by: ${s}`)
+	}
+
+	else if(cmd === "help")
+	{					
+		var s = ""
+
+		s += "Available Commands: "
+
+		for(var c of available_commands)
+		{
+			s += `${command_prefix}${c}, ` 
+		}
+
+		s = s.slice(0, -2)
+
+		send_message(s)
+	}
+
+	else if(commands[cmd] !== undefined)
+	{
+		run_command(cmd)
+	}
 }
