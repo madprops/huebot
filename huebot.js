@@ -54,7 +54,9 @@ var available_commands =
 	'activity',
 	'clearcommands',
 	'clearadmins',
-	'clearthemes'
+	'clearthemes',
+	'help',
+	'ping'
 ]
 
 var username = ""
@@ -346,7 +348,7 @@ function change_radio(src, feedback=false)
 	socket_emit('change_radio_source', {src:src})
 }
 
-function run_command(cmd)
+function run_command(cmd, data)
 {
 	var command = commands[cmd]
 
@@ -363,6 +365,18 @@ function run_command(cmd)
 	else if(command.type === "radio")
 	{
 		change_radio(command.url, true)
+	}	
+
+	else if(command.type === "alias")
+	{
+		let c = command.url.split(" ")[0]
+
+		if(available_commands.includes(c))
+		{
+			data.message = `${command_prefix}${command.url}`
+
+			process_command(data)
+		}
 	}	
 }
 
@@ -735,6 +749,9 @@ function is_command(message)
 	return false
 }
 
+// Must Include:
+// data.message
+// data.username
 function process_command(data)
 {
 	if(!is_admin(data.username))
@@ -767,6 +784,16 @@ function process_command(data)
 	}
 
 	cmd = cmd.substring(1).trim()
+
+	if(!available_commands.includes(cmd))
+	{
+		if(commands[cmd] !== undefined)
+		{
+			run_command(cmd, data)
+		}
+
+		return false
+	}
 
 	if(cmd === "image")
 	{
@@ -805,9 +832,9 @@ function process_command(data)
 		var command_type = split[1]
 		var command_url = split.slice(2).join(" ")
 
-		if(!arg || split.length < 3 || !command_types.includes(command_type))
+		if(!arg || split.length < 3 || (!command_types.includes(command_type) && command_type !== "alias"))
 		{
-			send_message(`Correct format is --> ${command_prefix}set [name] ${command_types.join("|")} [url]`)
+			send_message(`Correct format is --> ${command_prefix}set [name] ${command_types.join("|")}|alias [url]`)
 			return false
 		}
 
@@ -815,6 +842,17 @@ function process_command(data)
 		{
 			send_message(`Command "${command_name}" is reserved.`)
 			return false
+		}
+
+		if(command_type === "alias")
+		{
+			let c = command_url.split(" ")[0]
+			
+			if(!available_commands.includes(c))
+			{
+				send_message("Not a valid alias. Remember to not include the trigger character.")
+				return false
+			}
 		}
 
 		var testobj = {}
@@ -925,6 +963,8 @@ function process_command(data)
 	{
 		var cmds = Object.keys(commands)
 
+		cmds = cmds.filter(x => commands[x].type !== "alias")
+
 		if(arg)
 		{
 			if(!command_types.includes(arg))
@@ -939,7 +979,7 @@ function process_command(data)
 
 		if(c)
 		{
-			run_command(c)
+			run_command(c, data)
 		}
 	}
 
@@ -1495,11 +1535,6 @@ function process_command(data)
 		s = s.slice(0, -2)
 
 		send_message(s)
-	}
-
-	else if(commands[cmd] !== undefined)
-	{
-		run_command(cmd)
 	}
 }
 
