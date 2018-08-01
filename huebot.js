@@ -11,10 +11,13 @@ var themes = require("./themes.json")
 var options = require("./options.json")
 var queue = require("./queue.json")
 
-const bot_email = "xxx"
+const bot_email = "manuelchaves@gmail.com"
 const bot_password = "xxx"
+
 const twitch_client_id = "xxx"
 const twitch_enabled = true
+const youtube_client_id = "xxx"
+const youtube_enabled = true
 
 const server_address = "http://localhost:3210"
 // const server_address = "https://hue.merkoba.com"
@@ -752,65 +755,36 @@ socket.on('update', function(data)
 
 				else if(cmd === "stream")
 				{
-					if(!twitch_enabled)
+					if(!twitch_enabled && !youtube_enabled)
 					{
-						send_message("Twitch support is not enabled.")
+						send_message("No stream source support is enabled.")
 						return false
 					}
 
-					fetch(`https://api.twitch.tv/helix/streams`,
+					if(twitch_enabled && !youtube_enabled)
 					{
-						headers:
+						get_twitch_stream()
+					}
+
+					else if(youtube_enabled && !twitch_enabled)
+					{
+						get_youtube_stream()
+					}
+
+					else
+					{
+						var n = get_random_int(0, 1)
+
+						if(n === 0)
 						{
-							"Client-ID": twitch_client_id
+							get_twitch_stream()
 						}
-					})
-					
-					.then(res => 
-					{
-						return res.json()
-					})
-					
-					.then(res => 
-					{
-						if(res.data && res.data.length > 0)
+
+						else
 						{
-							let item = res.data[get_random_int(0, res.data.length - 1)]
-
-							fetch(`https://api.twitch.tv/helix/users?id=${item.user_id}`,
-							{
-								headers:
-								{
-									"Client-ID": twitch_client_id
-								}
-							})
-							
-							.then(res => 
-							{
-								return res.json()
-							})
-							
-							.then(res => 
-							{
-								if(res.data && res.data.length > 0)
-								{
-									let user = res.data[0]
-
-									change_tv(`https://twitch.tv/${user.login}`)
-								}
-							})
-
-							.catch(err =>
-							{
-								console.error(err)
-							})
+							get_youtube_stream()
 						}
-					})
-
-					.catch(err =>
-					{
-						console.error(err)
-					})
+					}
 				}
 
 				else if(cmd === "help")
@@ -1287,4 +1261,86 @@ function generate_random_drawing()
 	}
 
 	return [click_x, click_y, drag]
+}
+
+function get_twitch_stream()
+{
+	fetch(`https://api.twitch.tv/helix/streams`,
+	{
+		headers:
+		{
+			"Client-ID": twitch_client_id
+		}
+	})
+	
+	.then(res => 
+	{
+		return res.json()
+	})
+	
+	.then(res => 
+	{
+		if(res.data && res.data.length > 0)
+		{
+			let item = res.data[get_random_int(0, res.data.length - 1)]
+
+			fetch(`https://api.twitch.tv/helix/users?id=${item.user_id}`,
+			{
+				headers:
+				{
+					"Client-ID": twitch_client_id
+				}
+			})
+			
+			.then(res => 
+			{
+				return res.json()
+			})
+			
+			.then(res => 
+			{
+				if(res.data && res.data.length > 0)
+				{
+					let user = res.data[0]
+
+					change_tv(`https://twitch.tv/${user.login}`)
+				}
+			})
+
+			.catch(err =>
+			{
+				console.error(err)
+			})
+		}
+	})
+
+	.catch(err =>
+	{
+		console.error(err)
+	})
+}
+
+function get_youtube_stream()
+{
+	fetch(`https://www.googleapis.com/youtube/v3/search?videoEmbeddable=true&maxResults=20&type=video&eventType=live&videoCategoryId=20&fields=items(id(videoId))&part=snippet&key=${youtube_client_id}`)
+	
+	.then(res => 
+	{
+		return res.json()
+	})
+	
+	.then(res => 
+	{
+		if(res.items !== undefined && res.items.length > 0)
+		{
+			var id = res.items[get_random_int(0, res.items.length - 1)].id.videoId
+
+			change_tv(`https://youtube.com/watch?v=${id}`)
+		}
+	})
+
+	.catch(err =>
+	{
+		console.error(err)
+	})
 }
