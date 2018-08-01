@@ -803,9 +803,9 @@ function process_command(data)
 		var split = arg.split(' ')
 		var command_name = split[0]
 		var command_type = split[1]
-		var command_url = split[2]
+		var command_url = split.slice(2).join(" ")
 
-		if(!arg || split.length !== 3 || !command_types.includes(command_type))
+		if(!arg || split.length < 3 || !command_types.includes(command_type))
 		{
 			send_message(`Correct format is --> ${command_prefix}set [name] ${command_types.join("|")} [url]`)
 			return false
@@ -937,7 +937,10 @@ function process_command(data)
 
 		var c = cmds[get_random_int(0, cmds.length - 1)]
 
-		run_command(c)
+		if(c)
+		{
+			run_command(c)
+		}
 	}
 
 	else if(cmd === "adminadd")
