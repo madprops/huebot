@@ -11,7 +11,7 @@ var themes = require("./themes.json")
 var options = require("./options.json")
 var queue = require("./queue.json")
 
-const bot_email = "manuelchaves@gmail.com"
+const bot_email = "xxx"
 const bot_password = "xxx"
 
 const twitch_client_id = "xxx"
