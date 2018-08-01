@@ -49,7 +49,10 @@ var available_commands =
 	'themes',
 	'linktitles',
 	'stream',
-	'activity'
+	'activity',
+	'clearcommands',
+	'clearadmins',
+	'clearthemes'
 ]
 
 var username = ""
@@ -1426,6 +1429,51 @@ function process_command(data)
 		}
 
 		send_message(`Recent command activity by: ${s}`)
+	}
+
+	else if(cmd === "clearcommands")
+	{
+		if(!is_protected_admin(data.username))
+		{
+			return false
+		}
+
+		commands = {}
+
+		save_file("commands.json", commands, function()
+		{
+			send_message(`Commands list successfully cleared.`)
+		})
+	}
+
+	else if(cmd === "clearadmins")
+	{
+		if(!is_protected_admin(data.username))
+		{
+			return false
+		}
+
+		permissions.admins = [data.username]
+
+		save_file("permissions.json", permissions, function()
+		{
+			send_message(`Admins list successfully cleared.`)
+		})
+	}
+
+	else if(cmd === "clearthemes")
+	{
+		if(!is_protected_admin(data.username))
+		{
+			return false
+		}
+
+		themes = {}
+
+		save_file("themes.json", themes, function()
+		{
+			send_message(`Themes list successfully cleared.`)
+		})
 	}
 
 	else if(cmd === "help")
