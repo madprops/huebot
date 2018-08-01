@@ -248,7 +248,7 @@ socket.on('update', function(data)
 			}
 		}
 
-		else if(data.type === 'whisper')
+		else if(data.type === "whisper")
 		{
 			if(is_command(data.message))
 			{
@@ -257,6 +257,11 @@ socket.on('update', function(data)
 
 			else
 			{
+				if(!is_admin(data.username))
+				{
+					return false
+				}
+
 				socket_emit('whisper', 
 				{
 					username: data.username, 
@@ -709,10 +714,7 @@ function is_command(message)
 
 function process_command(data)
 {
-	var is_protected_admin = protected_admins.includes(data.username)
-	var is_admin = permissions.admins.includes(data.username) || is_protected_admin
-
-	if(!is_admin)
+	if(!is_admin(data.username))
 	{
 		return false
 	}
@@ -935,7 +937,7 @@ function process_command(data)
 
 	else if(cmd === "adminadd")
 	{
-		if(!is_protected_admin)
+		if(!is_protected_admin(data.username))
 		{
 			return false
 		}
@@ -964,7 +966,7 @@ function process_command(data)
 
 	else if(cmd === "adminremove")
 	{
-		if(!is_protected_admin)
+		if(!is_protected_admin(data.username))
 		{
 			return false
 		}
@@ -1446,4 +1448,14 @@ function process_command(data)
 	{
 		run_command(cmd)
 	}
+}
+
+function is_protected_admin(uname)
+{
+	return protected_admins.includes(uname)
+}
+
+function is_admin(uname)
+{
+	return permissions.admins.includes(uname) || is_protected_admin(uname)
 }
