@@ -13,6 +13,8 @@ var queue = require("./queue.json")
 
 var user_command_activity = []
 
+const room_id = "main"
+
 const bot_email = "xxx"
 const bot_password = "xxx"
 
@@ -103,7 +105,7 @@ socket.on('connect', function()
 	socket_emit('join_room', 
 	{
 		alternative: true, 
-		room_id: "main", 
+		room_id: room_id, 
 		email: bot_email, 
 		password: bot_password
 	})
