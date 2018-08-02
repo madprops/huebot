@@ -799,7 +799,14 @@ function process_command(data)
 			{
 				for(let item of and_split)
 				{
-					process_command({message:`${command_prefix}${item.trim()}`, username:data.username})
+					let c = item.trim()
+
+					if(!c.startsWith(command_prefix))
+					{
+						c = command_prefix + c
+					}
+
+					process_command({message:c, username:data.username})
 				}
 
 				return false
