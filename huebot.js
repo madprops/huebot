@@ -27,7 +27,7 @@ const server_address = "http://localhost:3210"
 // const server_address = "https://hue.merkoba.com"
 
 const command_prefix = "."
-const command_types = ["image", "tv", "radio"]
+const media_types = ["image", "tv", "radio"]
 var protected_admins = ["mad"]
 
 var available_commands = 
@@ -36,6 +36,7 @@ var available_commands =
 	'tv',
 	'radio',
 	'set',
+	'setforce',
 	'unset',
 	'rename',
 	'list',
@@ -56,7 +57,8 @@ var available_commands =
 	'clearadmins',
 	'clearthemes',
 	'help',
-	'ping'
+	'ping',
+	'whatis'
 ]
 
 var username = ""
@@ -825,16 +827,16 @@ function process_command(data)
 		change_radio(arg, true)
 	}
 
-	else if(cmd === "set")
+	else if(cmd === "set" || cmd === "setforce")
 	{
 		var split = arg.split(' ')
 		var command_name = split[0]
 		var command_type = split[1]
 		var command_url = split.slice(2).join(" ")
 
-		if(!arg || split.length < 3 || (!command_types.includes(command_type) && command_type !== "alias"))
+		if(!arg || split.length < 3 || (!media_types.includes(command_type) && command_type !== "alias"))
 		{
-			send_message(`Correct format is --> ${command_prefix}set [name] ${command_types.join("|")}|alias [url]`)
+			send_message(`Correct format is --> ${command_prefix}${cmd} [name] ${media_types.join("|")}|alias [url]`)
 			return false
 		}
 
@@ -853,6 +855,14 @@ function process_command(data)
 				send_message("Not a valid alias. Remember to not include the trigger character.")
 				return false
 			}
+		}
+
+		var oc = commands[command_name]
+
+		if(oc && cmd !== "setforce")
+		{
+			send_message(`"${command_name}" already exists. Use "${command_prefix}setforce" to overwrite.`)
+			return false
 		}
 
 		var testobj = {}
@@ -967,7 +977,7 @@ function process_command(data)
 
 		if(arg)
 		{
-			if(!command_types.includes(arg))
+			if(!media_types.includes(arg))
 			{
 				return false
 			}
@@ -980,6 +990,35 @@ function process_command(data)
 		if(c)
 		{
 			run_command(c, arg, data)
+		}
+	}
+
+	else if(cmd === "whatis")
+	{
+		if(!arg || arg.split(" ").length > 1)
+		{
+			send_message(`Correct format is --> ${command_prefix}whatis [command_name]`)
+			return false
+		}
+
+		if(available_commands.includes(arg))
+		{
+			send_message(`"${arg}" is a reserved command.`)
+		}
+
+		else
+		{
+			var command = commands[arg]
+
+			if(command)
+			{
+				send_message(`"${arg}" is of type "${command.type}" and is set to "${command.url}".`)
+			}
+
+			else
+			{
+				send_message(`Command "${arg}" doesn't exist.`)
+			}
 		}
 	}
 
@@ -1294,7 +1333,7 @@ function process_command(data)
 			{
 				arg1 = split[0]
 
-				if(!command_types.includes(arg1))
+				if(!media_types.includes(arg1))
 				{
 					error = true
 				}
@@ -1308,7 +1347,7 @@ function process_command(data)
 
 		if(error)
 		{
-			send_message(`Correct format is --> ${command_prefix}q ${command_types.join("|")} [url]|next|clear|size`)
+			send_message(`Correct format is --> ${command_prefix}q ${media_types.join("|")} [url]|next|clear|size`)
 			return false
 		}
 
