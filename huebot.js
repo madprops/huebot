@@ -789,7 +789,7 @@ function process_command(data)
 
 	if(data.message.includes(" && "))
 	{
-		if(cmd !== "set" && cmd !== "unset")
+		if(cmd !== "set" && cmd !== "setforce")
 		{
 			let full_cmd = `${cmd} ${arg}`
 
@@ -875,12 +875,18 @@ function process_command(data)
 
 		if(command_type === "alias")
 		{
-			let c = command_url.split(" ")[0]
-			
-			if(!available_commands.includes(c))
+			let and_split = command_url.split(" && ")
+
+			for(let item of and_split)
 			{
-				send_message("Not a valid alias. Remember to not include the trigger character.")
-				return false
+				let c = item.trim().split(" ")[0]
+
+				if(!available_commands.includes(c))
+				{
+					console.log(178)
+					send_message("Not a valid alias. Remember to not include the trigger character.")
+					return false
+				}
 			}
 		}
 
