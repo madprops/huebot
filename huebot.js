@@ -787,6 +787,26 @@ function process_command(data)
 
 	cmd = cmd.substring(1).trim()
 
+	if(data.message.includes(" && "))
+	{
+		if(cmd !== "set" && cmd !== "unset")
+		{
+			let full_cmd = `${cmd} ${arg}`
+
+			let and_split = full_cmd.split(" && ")
+
+			if(and_split.length > 1)
+			{
+				for(let item of and_split)
+				{
+					process_command({message:`${command_prefix}${item.trim()}`, username:data.username})
+				}
+
+				return false
+			}
+		}
+	}
+
 	if(!available_commands.includes(cmd))
 	{
 		if(commands[cmd] !== undefined)
