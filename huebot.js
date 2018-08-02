@@ -348,7 +348,7 @@ function change_radio(src, feedback=false)
 	socket_emit('change_radio_source', {src:src})
 }
 
-function run_command(cmd, data)
+function run_command(cmd, arg, data)
 {
 	var command = commands[cmd]
 
@@ -373,7 +373,7 @@ function run_command(cmd, data)
 
 		if(available_commands.includes(c))
 		{
-			data.message = `${command_prefix}${command.url}`
+			data.message = `${command_prefix}${command.url} ${arg}`
 
 			process_command(data)
 		}
@@ -789,7 +789,7 @@ function process_command(data)
 	{
 		if(commands[cmd] !== undefined)
 		{
-			run_command(cmd, data)
+			run_command(cmd, arg, data)
 		}
 
 		return false
@@ -979,7 +979,7 @@ function process_command(data)
 
 		if(c)
 		{
-			run_command(c, data)
+			run_command(c, arg, data)
 		}
 	}
 
