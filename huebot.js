@@ -156,14 +156,21 @@ socket.on('update', function(data)
 					{
 						for(let i=0; i<links.length; i++)
 						{
+							var link = links[i]
+
+							var href = link.href
+
+							if(!href.startsWith("http://") && !href.startsWith("https://"))
+							{
+								continue
+							}
+
 							if(i >= 3)
 							{
 								break
 							}
 
-							var link = links[i]
-
-							var extension = get_extension(link.href).toLowerCase()
+							var extension = get_extension(href).toLowerCase()
 
 							if(extension)
 							{
@@ -173,7 +180,7 @@ socket.on('update', function(data)
 								}
 							}
 
-							fetch(link.href)
+							fetch(href)
 							
 							.then(res => 
 							{
@@ -883,7 +890,6 @@ function process_command(data)
 
 				if(!available_commands.includes(c))
 				{
-					console.log(178)
 					send_message("Not a valid alias. Remember to not include the trigger character.")
 					return false
 				}
