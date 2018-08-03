@@ -28,7 +28,11 @@ const server_address = "http://localhost:3210"
 
 const command_prefix = "."
 const media_types = ["image", "tv", "radio"]
-var protected_admins = ["mad"]
+const protected_admins = ["mad"]
+
+var recent_twitch_streams = []
+var recent_youtube_streams = []
+var recent_streams_max_length = 5
 
 var available_commands = 
 [
@@ -685,9 +689,26 @@ function get_twitch_stream()
 	{
 		if(res.data && res.data.length > 0)
 		{
-			let item = res.data[get_random_int(0, res.data.length - 1)]
+			shuffle_array(res.data)
 
-			fetch(`https://api.twitch.tv/helix/users?id=${item.user_id}`,
+			for(var item of res.data)
+			{
+				if(!recent_twitch_streams.includes(item.user_id))
+				{
+					break
+				}
+			}
+
+			var id = item.user_id
+
+			recent_twitch_streams.push(id)
+
+			if(recent_twitch_streams.length > recent_streams_max_length)
+			{
+				recent_twitch_streams.shift()
+			}
+
+			fetch(`https://api.twitch.tv/helix/users?id=${id}`,
 			{
 				headers:
 				{
@@ -736,7 +757,24 @@ function get_youtube_stream()
 	{
 		if(res.items !== undefined && res.items.length > 0)
 		{
-			var id = res.items[get_random_int(0, res.items.length - 1)].id.videoId
+			shuffle_array(res.items)
+
+			for(var item of res.items)
+			{
+				if(!recent_youtube_streams.includes(item.id.videoId))
+				{
+					break
+				}
+			}
+
+			var id  = item.id.videoId
+
+			recent_youtube_streams.push(id)
+
+			if(recent_youtube_streams.length > recent_streams_max_length)
+			{
+				recent_youtube_streams.shift()
+			}
 
 			change_tv(`https://youtube.com/watch?v=${id}`)
 		}
@@ -1624,4 +1662,13 @@ function is_protected_admin(uname)
 function is_admin(uname)
 {
 	return permissions.admins.includes(uname) || is_protected_admin(uname)
+}
+
+function shuffle_array(array) 
+{
+	for(let i=array.length-1; i>0; i--) 
+	{
+		const j = Math.floor(Math.random() * (i + 1));
+		[array[i], array[j]] = [array[j], array[i]]; // eslint-disable-line no-param-reassign
+	}
 }
