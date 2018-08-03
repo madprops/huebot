@@ -62,7 +62,8 @@ var available_commands =
 	'clearthemes',
 	'help',
 	'ping',
-	'whatis'
+	'whatis',
+	'say'
 ]
 
 var username = ""
@@ -305,7 +306,7 @@ function send_message(message)
 		return false
 	}
 
-	message = message.substring(0, max_text_length).replace(/[\n\r]+/g, '\n').replace(/\s+$/g, '')
+	message = message.substring(0, max_text_length).replace(/[\n\r]+/g, '\n').trim()
 	
 	socket_emit('sendchat', {message:message})	
 }
@@ -1635,6 +1636,11 @@ function process_command(data)
 		{
 			send_message(`Themes list successfully cleared.`)
 		})
+	}
+
+	else if(cmd === "say")
+	{
+		send_message(arg)
 	}
 
 	else if(cmd === "help")
