@@ -306,7 +306,7 @@ function send_message(message)
 		return false
 	}
 
-	message = message.substring(0, max_text_length).replace(/[\n\r]+/g, '\n').trim()
+	message = clean_string2(message.substring(0, max_text_length))
 	
 	socket_emit('sendchat', {message:message})	
 }
