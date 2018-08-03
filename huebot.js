@@ -1640,6 +1640,11 @@ function process_command(data)
 
 	else if(cmd === "say")
 	{
+		if(!arg)
+		{
+			return false
+		}
+		
 		send_message(arg)
 	}
 
