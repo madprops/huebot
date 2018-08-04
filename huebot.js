@@ -10,6 +10,7 @@ var permissions = require("./permissions.json")
 var themes = require("./themes.json")
 var options = require("./options.json")
 var queue = require("./queue.json")
+var words = require("./words")
 
 var user_command_activity = []
 
@@ -787,6 +788,39 @@ function get_youtube_stream()
 	})
 }
 
+function youtube_search(s)
+{
+	fetch(`https://www.googleapis.com/youtube/v3/search?q=${encodeURIComponent(s)}&type=video&fields=items(id,snippet(title))&part=snippet&maxResults=10&key=${youtube_client_id}`).then(function(res)
+	{
+		return res.json()
+	})
+
+	.then(function(response)
+	{
+		if(response.items !== undefined && response.items.length > 0)
+		{
+			for(var item of response.items)
+			{
+				if(item === undefined || item.id === undefined || item.id.videoId === undefined)
+				{
+					continue
+				}
+
+				var src = `https://youtube.com/watch?v=${item.id.videoId}`
+					
+				change_tv(src, true)
+
+				return false
+			}
+		}
+	})
+
+	.catch(err =>
+	{
+		console.error(err)
+	})
+}
+
 function is_command(message)
 {
 	if(message.length > 1 && message[0] === command_prefix && message[1] !== command_prefix)
@@ -1049,25 +1083,33 @@ function process_command(data)
 
 	else if(cmd === "random")
 	{
-		var cmds = Object.keys(commands)
-
-		cmds = cmds.filter(x => commands[x].type !== "alias")
-
 		if(arg)
 		{
+			var cmds = Object.keys(commands)
+
+			cmds = cmds.filter(x => commands[x].type !== "alias")
+
 			if(!media_types.includes(arg))
 			{
 				return false
 			}
 			
 			cmds = cmds.filter(x => commands[x].type === arg)
+			
+			var c = cmds[get_random_int(0, cmds.length - 1)]
+
+			if(c)
+			{
+				run_command(c, arg, data)
+			}
 		}
 
-		var c = cmds[get_random_int(0, cmds.length - 1)]
-
-		if(c)
+		else
 		{
-			run_command(c, arg, data)
+			var word1 = words[get_random_int(0, words.length - 1)]
+			var word2 = words[get_random_int(0, words.length - 1)]
+
+			youtube_search(`${word1} ${word2}`)
 		}
 	}
 
