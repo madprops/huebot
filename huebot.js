@@ -31,6 +31,10 @@ const command_prefix = "."
 const media_types = ["image", "tv", "radio"]
 const protected_admins = ["mad"]
 
+const no_image_error = "I don't have permission to change the image."
+const no_tv_error = "I don't have permission to change the tv."
+const no_radio_error = "I don't have permission to change the radio."
+
 var recent_twitch_streams = []
 var recent_youtube_streams = []
 var recent_streams_max_length = 5
@@ -320,7 +324,7 @@ function change_image(src, feedback=false)
 		
 		if(feedback)
 		{
-			send_message("I don't have permission to change the image.")
+			send_message(no_image_error)
 		}
 		
 		return false
@@ -337,7 +341,7 @@ function change_tv(src, feedback=false)
 		
 		if(feedback)
 		{
-			send_message("I don't have permission to change the tv.")
+			send_message(no_tv_error)
 		}
 
 		return false
@@ -354,7 +358,7 @@ function change_radio(src, feedback=false)
 		
 		if(feedback)
 		{
-			send_message("I don't have permission to change the radio.")
+			send_message(no_radio_error)
 		}
 
 		return false
@@ -1106,6 +1110,12 @@ function process_command(data)
 
 		else
 		{
+			if(!can_tv)
+			{
+				send_message(no_tv_error)
+				return false
+			}
+
 			var word1 = words[get_random_int(0, words.length - 1)]
 			var word2 = words[get_random_int(0, words.length - 1)]
 
@@ -1473,21 +1483,21 @@ function process_command(data)
 
 		if(arg1 === "image")
 		{
-			var pname = "the image"
+			var error_string = no_image_error
 			var upname = "Image"
 			var perm = can_images
 		}
 
 		else if(arg1 === "tv")
 		{
-			var pname = "the tv"
+			var error_string = no_tv_error
 			var upname = "TV"
 			var perm = can_tv
 		}
 
 		else if(arg1 === "radio")
 		{
-			var pname = "the radio"
+			var error_string = no_radio_error
 			var upname = "Radio"
 			var perm = can_radio
 		}
@@ -1498,7 +1508,7 @@ function process_command(data)
 			{
 				if(!perm)
 				{
-					send_message(`I don't have permission to change ${pname}.`)
+					send_message(error_string)
 					return false
 				}
 
