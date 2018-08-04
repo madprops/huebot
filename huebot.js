@@ -153,7 +153,14 @@ socket.on('update', function(data)
 
 			if(is_command(data.message))
 			{
-				process_command(data, "public")
+				var obj = 
+				{
+					username: data.username,
+					message: data.message,
+					method: "public"
+				}
+
+				process_command(obj)
 			}
 
 			else
@@ -278,7 +285,14 @@ socket.on('update', function(data)
 		{
 			if(is_command(data.message))
 			{
-				process_command(data, "whisper")
+				var obj = 
+				{
+					username: data.username,
+					message: data.message,
+					method: "whisper"
+				}
+
+				process_command(obj)
 			}
 
 			else
@@ -299,7 +313,7 @@ socket.on('update', function(data)
 	}
 })
 
-function send_message(message)
+function send_message(message, feedback=true)
 {
 	if(!can_chat)
 	{
@@ -311,12 +325,10 @@ function send_message(message)
 	socket_emit('sendchat', {message:message})	
 }
 
-function change_image(src, feedback=false)
+function change_image(src, feedback=true)
 {
 	if(!can_images)
 	{
-		console.error("No images permission")
-		
 		if(feedback)
 		{
 			send_message(no_image_error)
@@ -328,12 +340,10 @@ function change_image(src, feedback=false)
 	socket_emit('change_image_source', {src:src})
 }
 
-function change_tv(src, feedback=false)
+function change_tv(src, feedback=true)
 {
 	if(!can_tv)
 	{
-		console.error("No tv permission")
-		
 		if(feedback)
 		{
 			send_message(no_tv_error)
@@ -345,12 +355,10 @@ function change_tv(src, feedback=false)
 	socket_emit('change_tv_source', {src:src})
 }
 
-function change_radio(src, feedback=false)
+function change_radio(src, feedback=true)
 {
 	if(!can_radio)
 	{
-		console.error("No radio permission")
-		
 		if(feedback)
 		{
 			send_message(no_radio_error)
@@ -368,17 +376,17 @@ function run_command(cmd, arg, data)
 
 	if(command.type === "image")
 	{
-		change_image(command.url, true)
+		change_image(command.url)
 	}
 
 	else if(command.type === "tv")
 	{
-		change_tv(command.url, true)
+		change_tv(command.url)
 	}
 
 	else if(command.type === "radio")
 	{
-		change_radio(command.url, true)
+		change_radio(command.url)
 	}	
 
 	else if(command.type === "alias")
@@ -807,7 +815,7 @@ function youtube_search(s)
 
 				var src = `https://youtube.com/watch?v=${item.id.videoId}`
 					
-				change_tv(src, true)
+				change_tv(src)
 
 				return false
 			}
@@ -833,7 +841,8 @@ function is_command(message)
 // Must Include:
 // data.message
 // data.username
-function process_command(data, cmd_type="public")
+// data.method
+function process_command(data)
 {
 	if(!is_admin(data.username))
 	{
@@ -885,7 +894,14 @@ function process_command(data, cmd_type="public")
 						c = command_prefix + c
 					}
 
-					process_command({message:c, username:data.username}, cmd_type)
+					var obj = 
+					{
+						username: data.username,
+						message: c,
+						method: data.method
+					}
+
+					process_command(obj)
 				}
 
 				return false
@@ -910,7 +926,7 @@ function process_command(data, cmd_type="public")
 			return false
 		}
 
-		change_image(arg, true)
+		change_image(arg)
 	}
 
 	else if(cmd === "tv")
@@ -920,7 +936,7 @@ function process_command(data, cmd_type="public")
 			return false
 		}
 
-		change_tv(arg, true)
+		change_tv(arg)
 	}
 
 	else if(cmd === "radio")
@@ -930,7 +946,7 @@ function process_command(data, cmd_type="public")
 			return false
 		}
 
-		change_radio(arg, true)
+		change_radio(arg)
 	}
 
 	else if(cmd === "set" || cmd === "setforce")
@@ -942,13 +958,13 @@ function process_command(data, cmd_type="public")
 
 		if(!arg || split.length < 3 || (!media_types.includes(command_type) && command_type !== "alias"))
 		{
-			send_message(`Correct format is --> ${command_prefix}${cmd} [name] ${media_types.join("|")}|alias [url]`)
+			process_feedback(data, `Correct format is --> ${command_prefix}${cmd} [name] ${media_types.join("|")}|alias [url]`)
 			return false
 		}
 
 		if(available_commands.includes(command_name))
 		{
-			send_message(`Command "${command_name}" is reserved.`)
+			process_feedback(data, `Command "${command_name}" is reserved.`)
 			return false
 		}
 
@@ -962,7 +978,7 @@ function process_command(data, cmd_type="public")
 
 				if(!available_commands.includes(c))
 				{
-					send_message("Not a valid alias. Remember to not include the trigger character.")
+					process_feedback(data, "Not a valid alias. Remember to not include the trigger character.")
 					return false
 				}
 			}
@@ -972,7 +988,7 @@ function process_command(data, cmd_type="public")
 
 		if(oc && cmd !== "setforce")
 		{
-			send_message(`"${command_name}" already exists. Use "${command_prefix}setforce" to overwrite.`)
+			process_feedback(data, `"${command_name}" already exists. Use "${command_prefix}setforce" to overwrite.`)
 			return false
 		}
 
@@ -991,7 +1007,7 @@ function process_command(data, cmd_type="public")
 
 		catch(err)
 		{
-			send_message(`Can't save that command.`)
+			process_feedback(data, `Can't save that command.`)
 			return false
 		}
 	}
@@ -1000,13 +1016,13 @@ function process_command(data, cmd_type="public")
 	{
 		if(!arg)
 		{
-			send_message(`Correct format is --> ${command_prefix}unset [name]`)
+			process_feedback(data, `Correct format is --> ${command_prefix}unset [name]`)
 			return false
 		}
 
 		if(commands[arg] === undefined)
 		{
-			send_message(`Command "${arg}" doesn't exist.`)
+			process_feedback(data, `Command "${arg}" doesn't exist.`)
 			return false
 		}
 
@@ -1026,13 +1042,13 @@ function process_command(data, cmd_type="public")
 
 		if(!arg || split.length !== 2)
 		{
-			send_message(`Correct format is --> ${command_prefix}rename [old_name] [new_name]`)
+			process_feedback(data, `Correct format is --> ${command_prefix}rename [old_name] [new_name]`)
 			return false
 		}
 
 		if(commands[old_name] === undefined)
 		{
-			send_message(`Command "${old_name}" doesn't exist.`)
+			process_feedback(data, `Command "${old_name}" doesn't exist.`)
 			return false
 		}
 
@@ -1050,7 +1066,7 @@ function process_command(data, cmd_type="public")
 
 		catch(err)
 		{
-			send_message(`Can't rename that command.`)
+			process_feedback(data, `Can't rename that command.`)
 			return false
 		}
 	}
@@ -1077,7 +1093,7 @@ function process_command(data, cmd_type="public")
 			var s = "No commands found."
 		}
 
-		send_message(s)
+		process_feedback(data, s)
 	}
 
 	else if(cmd === "random")
@@ -1107,7 +1123,7 @@ function process_command(data, cmd_type="public")
 		{
 			if(!can_tv)
 			{
-				send_message(no_tv_error)
+				process_feedback(data, no_tv_error)
 				return false
 			}
 
@@ -1122,13 +1138,13 @@ function process_command(data, cmd_type="public")
 	{
 		if(!arg || arg.split(" ").length > 1)
 		{
-			send_message(`Correct format is --> ${command_prefix}whatis [command_name]`)
+			process_feedback(data, `Correct format is --> ${command_prefix}whatis [command_name]`)
 			return false
 		}
 
 		if(available_commands.includes(arg))
 		{
-			send_message(`"${arg}" is a reserved command.`)
+			process_feedback(data, `"${arg}" is a reserved command.`)
 		}
 
 		else
@@ -1137,12 +1153,12 @@ function process_command(data, cmd_type="public")
 
 			if(command)
 			{
-				send_message(`"${arg}" is of type "${command.type}" and is set to "${command.url}".`)
+				process_feedback(data, `"${arg}" is of type "${command.type}" and is set to "${command.url}".`)
 			}
 
 			else
 			{
-				send_message(`Command "${arg}" doesn't exist.`)
+				process_feedback(data, `Command "${arg}" doesn't exist.`)
 			}
 		}
 	}
@@ -1156,7 +1172,7 @@ function process_command(data, cmd_type="public")
 
 		if(!arg)
 		{
-			send_message(`Correct format is --> ${command_prefix}adminadd [username]`)
+			process_feedback(data, `Correct format is --> ${command_prefix}adminadd [username]`)
 			return false
 		}
 
@@ -1185,7 +1201,7 @@ function process_command(data, cmd_type="public")
 
 		if(!arg)
 		{
-			send_message(`Correct format is --> ${command_prefix}adminremove [username]`)
+			process_feedback(data, `Correct format is --> ${command_prefix}adminremove [username]`)
 			return false
 		}
 
@@ -1214,7 +1230,7 @@ function process_command(data, cmd_type="public")
 
 		else
 		{
-			send_message(`"${arg}" is not an admin. Nothing to remove.`)
+			process_feedback(data, `"${arg}" is not an admin. Nothing to remove.`)
 		}
 	}
 
@@ -1240,14 +1256,14 @@ function process_command(data, cmd_type="public")
 			var s = "No admins found."
 		}
 
-		send_message(s)
+		process_feedback(data, s)
 	}
 
 	else if(cmd === "themeadd")
 	{
 		if(!arg)
 		{
-			send_message(`Correct format is --> ${command_prefix}themeadd [name]`)
+			process_feedback(data, `Correct format is --> ${command_prefix}themeadd [name]`)
 			return false
 		}
 
@@ -1269,13 +1285,13 @@ function process_command(data, cmd_type="public")
 	{
 		if(!arg)
 		{
-			send_message(`Correct format is --> ${command_prefix}themeremove [name]`)
+			process_feedback(data, `Correct format is --> ${command_prefix}themeremove [name]`)
 			return false
 		}
 
 		if(themes[arg] === undefined)
 		{
-			send_message(`Theme "${arg}" doesn't exist.`)
+			process_feedback(data, `Theme "${arg}" doesn't exist.`)
 			return false
 		}
 
@@ -1295,13 +1311,13 @@ function process_command(data, cmd_type="public")
 
 		if(!arg || split.length !== 2)
 		{
-			send_message(`Correct format is --> ${command_prefix}themerename [old_name] [new_name]`)
+			process_feedback(data, `Correct format is --> ${command_prefix}themerename [old_name] [new_name]`)
 			return false
 		}
 
 		if(themes[old_name] === undefined)
 		{
-			send_message(`Theme "${old_name}" doesn't exist.`)
+			process_feedback(data, `Theme "${old_name}" doesn't exist.`)
 			return false
 		}
 
@@ -1319,22 +1335,16 @@ function process_command(data, cmd_type="public")
 
 		catch(err)
 		{
-			send_message(`Can't rename that theme.`)
+			process_feedback(data, `Can't rename that theme.`)
 			return false
 		}
 	}
 
 	else if(cmd === "theme")
 	{
-		if(role !== "admin" && role !== "op")
-		{
-			send_message("I need operator status to do this.")
-			return false
-		}
-
 		if(!arg)
 		{
-			send_message(`Correct format is --> ${command_prefix}theme [name]`)
+			process_feedback(data, `Correct format is --> ${command_prefix}theme [name]`)
 			return false
 		}
 
@@ -1363,7 +1373,7 @@ function process_command(data, cmd_type="public")
 
 		else
 		{
-			send_message(`Theme "${arg}" doesn't exist.`)
+			process_feedback(data, `Theme "${arg}" doesn't exist.`)
 		}
 	}
 
@@ -1389,14 +1399,14 @@ function process_command(data, cmd_type="public")
 			var s = "No themes found."
 		}
 
-		send_message(s)
+		process_feedback(data, s)
 	}
 
 	else if(cmd === "linktitles")
 	{
 		if(!arg || (arg !== "on" && arg !== "off"))
 		{
-			send_message(`Correct format is --> ${command_prefix}linktitles on|off`)
+			process_feedback(data, `Correct format is --> ${command_prefix}linktitles on|off`)
 			return false
 		}
 
@@ -1404,7 +1414,7 @@ function process_command(data, cmd_type="public")
 		{
 			if(options.link_titles)
 			{
-				send_message("Link titles are already on.")
+				process_feedback(data, "Link titles are already on.")
 				return false
 			}
 
@@ -1420,7 +1430,7 @@ function process_command(data, cmd_type="public")
 		{
 			if(!options.link_titles)
 			{
-				send_message("Link titles are already off.")
+				process_feedback(data, "Link titles are already off.")
 				return false
 			}
 
@@ -1472,7 +1482,7 @@ function process_command(data, cmd_type="public")
 
 		if(error)
 		{
-			send_message(`Correct format is --> ${command_prefix}q ${media_types.join("|")} [url]|next|clear|size`)
+			process_feedback(data, `Correct format is --> ${command_prefix}q ${media_types.join("|")} [url]|next|clear|size`)
 			return false
 		}
 
@@ -1503,7 +1513,7 @@ function process_command(data, cmd_type="public")
 			{
 				if(!perm)
 				{
-					send_message(error_string)
+					process_feedback(data, error_string)
 					return false
 				}
 
@@ -1529,7 +1539,7 @@ function process_command(data, cmd_type="public")
 
 			else
 			{
-				send_message(`${upname} queue is empty.`)
+				process_feedback(data, `${upname} queue is empty.`)
 			}
 		}
 
@@ -1547,7 +1557,7 @@ function process_command(data, cmd_type="public")
 
 			else
 			{
-				send_message(`${upname} queue was already cleared.`)
+				process_feedback(data, `${upname} queue was already cleared.`)
 			}
 		}
 
@@ -1565,14 +1575,14 @@ function process_command(data, cmd_type="public")
 				var s = "items"
 			}
 
-			send_message(`${upname} queue has ${n} ${s}.`)
+			process_feedback(data, `${upname} queue has ${n} ${s}.`)
 		}
 
 		else
 		{
 			if(queue[arg1].includes(arg2))
 			{
-				send_message(`That item is already in the ${arg1} queue.`)
+				process_feedback(data, `That item is already in the ${arg1} queue.`)
 				return false
 			}
 			
@@ -1587,22 +1597,14 @@ function process_command(data, cmd_type="public")
 
 	else if(cmd === "ping")
 	{
-		if(cmd_type === "whisper")
-		{
-			send_whisper(data.username, "Pong", false)
-		}
-
-		else
-		{
-			send_message("Pong")
-		}
+		process_feedback(data, "Pong")
 	}
 
 	else if(cmd === "stream")
 	{
 		if(!twitch_enabled && !youtube_enabled)
 		{
-			send_message("No stream source support is enabled.")
+			process_feedback(data, "No stream source support is enabled.")
 			return false
 		}
 
@@ -1645,7 +1647,7 @@ function process_command(data, cmd_type="public")
 			var s = "No activity yet."
 		}
 
-		send_message(`Recent command activity by: ${s}`)
+		process_feedback(data, `Recent command activity by: ${s}`)
 	}
 
 	else if(cmd === "clearcommands")
@@ -1716,15 +1718,7 @@ function process_command(data, cmd_type="public")
 
 		s = s.slice(0, -2)
 
-		if(cmd_type === "whisper")
-		{
-			send_whisper(data.username, s, false)
-		}
-
-		else
-		{
-			send_message(s)
-		}
+		process_feedback(data, s)
 	}
 }
 
@@ -1755,4 +1749,17 @@ function send_whisper(uname, message, coords=false)
 		message: message, 
 		draw_coords: coords
 	})
+}
+
+function process_feedback(data, s)
+{
+	if(data.method === "whisper")
+	{
+		send_whisper(data.username, s, false)
+	}
+
+	else
+	{
+		send_message(s)
+	}
 }
