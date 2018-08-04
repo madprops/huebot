@@ -153,7 +153,7 @@ socket.on('update', function(data)
 
 			if(is_command(data.message))
 			{
-				process_command(data)
+				process_command(data, "public")
 			}
 
 			else
@@ -278,7 +278,7 @@ socket.on('update', function(data)
 		{
 			if(is_command(data.message))
 			{
-				process_command(data)
+				process_command(data, "whisper")
 			}
 
 			else
@@ -288,12 +288,7 @@ socket.on('update', function(data)
 					return false
 				}
 
-				socket_emit('whisper', 
-				{
-					username: data.username, 
-					message: "Hi! I hope you like my drawing :)", 
-					draw_coords: generate_random_drawing()
-				})
+				send_whisper(data.username, "Hi! I hope you like my drawing :)", generate_random_drawing())
 			}
 		}
 	}
@@ -838,7 +833,7 @@ function is_command(message)
 // Must Include:
 // data.message
 // data.username
-function process_command(data)
+function process_command(data, cmd_type="public")
 {
 	if(!is_admin(data.username))
 	{
@@ -890,7 +885,7 @@ function process_command(data)
 						c = command_prefix + c
 					}
 
-					process_command({message:c, username:data.username})
+					process_command({message:c, username:data.username}, cmd_type)
 				}
 
 				return false
@@ -1592,7 +1587,15 @@ function process_command(data)
 
 	else if(cmd === "ping")
 	{
-		send_message("Pong")
+		if(cmd_type === "whisper")
+		{
+			send_whisper(data.username, "Pong", false)
+		}
+
+		else
+		{
+			send_message("Pong")
+		}
 	}
 
 	else if(cmd === "stream")
@@ -1713,7 +1716,15 @@ function process_command(data)
 
 		s = s.slice(0, -2)
 
-		send_message(s)
+		if(cmd_type === "whisper")
+		{
+			send_whisper(data.username, s, false)
+		}
+
+		else
+		{
+			send_message(s)
+		}
 	}
 }
 
@@ -1734,4 +1745,14 @@ function shuffle_array(array)
 		const j = Math.floor(Math.random() * (i + 1));
 		[array[i], array[j]] = [array[j], array[i]]; // eslint-disable-line no-param-reassign
 	}
+}
+
+function send_whisper(uname, message, coords=false)
+{
+	socket_emit('whisper', 
+	{
+		username: uname, 
+		message: message, 
+		draw_coords: coords
+	})
 }
