@@ -180,11 +180,11 @@ For instance ".topicadd music the beatles", ".topicadd music pink floyd"
 
 music = ["the beatles", "pink floyd"]
 
-Then calling .subject music will create a search string consisting of the name of the subject, a random item, and a random word from words.json
+Then calling .subject music will create a search string consisting of a random keywords item, and a random word from words.json
 
-For instance it could search youtube for "music pink floyd butter".
+For instance it could search youtube for "pink floyd butter".
 
-This is why having a proper subject name could be important.
+The random word is needed so it doesn't show the same results all the time.
 
 Subject names can't have spaces.
 

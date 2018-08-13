@@ -1519,7 +1519,7 @@ function process_command(data)
 			return false
 		}
 
-		var keywords = `${name} ${list[get_random_int(0, list.length - 1)]} ${words[get_random_int(0, words.length - 1)]}`
+		var keywords = `${list[get_random_int(0, list.length - 1)]} ${words[get_random_int(0, words.length - 1)]}`
 
 		if(type)
 		{
