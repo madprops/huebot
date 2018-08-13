@@ -215,3 +215,11 @@ Removes an item from a subject list.
 >subjects
 
 Shows a list of subjects. Can be filtered with an argument.
+
+# More
+
+The bot accepts and processes private messages (whispers) if the user is an admin.
+
+Which can be useful to make more direct calls to the bot (without spamming the chat).
+
+For instance "/whisper2 myBot > .q tv next".
