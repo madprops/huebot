@@ -176,15 +176,11 @@ Makes the bot say something.
 
 Subjects are lists of keywords, that can be used to find random videos limited to a certain topic.
 
-For instance ".topicadd music the beatles", ".topicadd music pink floyd"
+For instance ".topicadd music"
 
-music = ["the beatles", "pink floyd"]
+music = []
 
-Then calling .subject music will create a search string consisting of a random keyword item, and a random word from words.json
-
-For instance it could search youtube for "pink floyd butter".
-
-The random word is needed so it doesn't show the same results all the time.
+The music list can be added with keywords to search for using .topickeywordsadd
 
 Subject names can't have spaces.
 
@@ -198,19 +194,33 @@ Renames a subject.
 
 >subject
 
-Used to change the tv (or image, or radio, if specified), using the generated search string.
+Used to change the tv (or image, or radio, if specified) using a subject.
 
->subjectlist
+The search string used to find media is made from the subject name, a random keyword, and a random word from words.json
 
-Shows the list of a subject. 
+For instance if subject music has "the beatles", and "pink floyd":
 
-For instance ".subjectlist music" will show "the beatles, pink floyd".
+A search string could be "music pink floyd earth"
 
->subjectlistremove
+>subjectkeywords
 
-Removes an item from a subject list.
+Shows the keywords of a subject. 
 
-".subjectlistremove music the beatles".
+For instance ".subjectkeywords music" may show "the beatles, pink floyd".
+
+Can be filtered with an argument.
+
+>subjectkeywordsadd
+
+Adds a keyword to a subject's keywords list.
+
+".subjectkeywordsadd music the beatles".
+
+>subjectkeywordsremove
+
+Removes an item from a subject's keywords list.
+
+".subjectkeywordsremove music the beatles".
 
 >subjects
 

@@ -22,7 +22,7 @@ const bot_password = "xxx"
 
 const twitch_client_id = "xxx"
 const twitch_enabled = true
-const youtube_client_id = "xxx"
+const youtube_client_id = "xxx0"
 const youtube_enabled = true
 
 const server_address = "http://localhost:3210"
@@ -74,9 +74,10 @@ var available_commands =
 	'subjectadd',
 	'subjectremove',
 	'subjectrename',
+	'subjectkeywords',
+	'subjectkeywordsadd',
+	'subjectkeywordsremove',
 	'subject',
-	'subjectlist',
-	'subjectlistremove',
 	'subjects'
 ]
 
@@ -324,6 +325,11 @@ socket.on('update', function(data)
 
 function send_message(message, feedback=true)
 {
+	if(!message)
+	{
+		return false
+	}
+
 	if(!can_chat)
 	{
 		return false
@@ -336,6 +342,11 @@ function send_message(message, feedback=true)
 
 function change_image(src, feedback=true)
 {
+	if(!src)
+	{
+		return false
+	}
+
 	if(!can_images)
 	{
 		if(feedback)
@@ -351,6 +362,11 @@ function change_image(src, feedback=true)
 
 function change_tv(src, feedback=true)
 {
+	if(!src)
+	{
+		return false
+	}
+
 	if(!can_tv)
 	{
 		if(feedback)
@@ -366,6 +382,11 @@ function change_tv(src, feedback=true)
 
 function change_radio(src, feedback=true)
 {
+	if(!src)
+	{
+		return false
+	}
+
 	if(!can_radio)
 	{
 		if(feedback)
@@ -1389,16 +1410,7 @@ function process_command(data)
 
 		if(!error)
 		{
-			var split = arg.split(" ")
-			var name = split[0].toLowerCase()
-			var keyword = split.slice(1).join(" ").toLowerCase()
-			
-			if(!name || !keyword)
-			{
-				error = true
-			}
-
-			if(keyword.includes("http://") || keyword.includes("https://"))
+			if(arg.split(" ").length > 1)
 			{
 				error = true
 			}
@@ -1406,30 +1418,26 @@ function process_command(data)
 
 		if(error)
 		{
-			process_feedback(data, `Correct format is --> ${command_prefix}subjectadd [name] [keyword]`)
+			process_feedback(data, `Correct format is --> ${command_prefix}subjectadd [name:no_spaces]`)
 			return false
 		}
+
+		var name = arg.toLowerCase()
 
 		if(subjects[name] === undefined)
 		{
 			subjects[name] = []
-		}
 
-		for(var kw of subjects[name])
-		{
-			if(kw === keyword)
+			save_file("subjects.json", subjects, function()
 			{
-				process_feedback(data, `"${keyword}" is already part of subject "${name}"`)
-				return false
-			}
+				send_message(`Subject "${name}" successfully added.`)
+			})
 		}
 
-		subjects[name].push(keyword)
-
-		save_file("subjects.json", subjects, function()
+		else
 		{
-			send_message(`"${keyword}" successfully added to subject "${name}".`)
-		})
+			process_feedback(data, `Subject "${name}" already exists.`)
+		}
 	}
 
 	else if(cmd === "subjectremove")
@@ -1464,7 +1472,7 @@ function process_command(data)
 
 		if(!arg || split.length !== 2)
 		{
-			process_feedback(data, `Correct format is --> ${command_prefix}subjectrename [old_name] [new_name]`)
+			process_feedback(data, `Correct format is --> ${command_prefix}subjectrename [old_name:no_spaces] [new_name:no_spaces]`)
 			return false
 		}
 
@@ -1493,63 +1501,11 @@ function process_command(data)
 		}
 	}
 
-	else if(cmd === "subject")
+	else if(cmd === "subjectkeywords")
 	{
 		if(!arg)
 		{
-			process_feedback(data, `Correct format is --> ${command_prefix}subject [name] ${media_types.join("|")}`)
-			return false
-		}
-
-		var split = arg.split(" ")
-		var name = split[0].toLowerCase()
-		var type = split.slice(1).join(" ").toLowerCase()
-
-		if(subjects[name] === undefined)
-		{
-			process_feedback(data, `Subject "${name}" doesn't exist.`)
-			return false
-		}
-
-		var list = subjects[name]
-
-		if(list.length === 0)
-		{
-			process_feedback(data, `Subject "${name}" is empty.`)
-			return false
-		}
-
-		var keyword = `${list[get_random_int(0, list.length - 1)]} ${words[get_random_int(0, words.length - 1)]}`
-
-		if(type)
-		{
-			if(type === "image")
-			{
-				change_image(keyword)
-			}
-
-			else if(type === "tv")
-			{
-				change_tv(keyword)
-			}
-
-			else if(type === "radio")
-			{
-				change_radio(keyword)
-			}
-		}
-
-		else
-		{
-			change_tv(keyword)
-		}
-	}
-
-	else if(cmd === "subjectlist")
-	{
-		if(!arg)
-		{
-			process_feedback(data, `Correct format is --> ${command_prefix}subjectlist [name]`)
+			process_feedback(data, `Correct format is --> ${command_prefix}subjectkeywords [name:no_spaces]`)
 			return false
 		}
 
@@ -1594,11 +1550,48 @@ function process_command(data)
 		process_feedback(data, s)
 	}
 
-	else if(cmd === "subjectlistremove")
+	else if(cmd === "subjectkeywordsadd")
 	{
 		if(!arg)
 		{
-			process_feedback(data, `Correct format is --> ${command_prefix}subjectlistremove [name] [keyword]`)
+			process_feedback(data, `Correct format is --> ${command_prefix}subjectkeywordsadd [name:no_spaces] [keyword]`)
+			return false
+		}
+
+		var split = arg.split(" ")
+		var name = split[0].toLowerCase()
+		var keyword = split.slice(1).join(" ").toLowerCase()
+
+		if(subjects[name] === undefined)
+		{
+			process_feedback(data, `Subject "${name}" doesn't exist.`)
+			return false
+		}
+
+		var list = subjects[name]
+
+		for(let i of list)
+		{
+			if(i === keyword)
+			{
+				process_feedback(data, `"${keyword}" is already part of subject "${name}".`)
+				return false
+			}
+		}
+
+		list.push(keyword)
+
+		save_file("subjects.json", subjects, function(err)
+		{
+			send_message(`"${keyword}" successfully added to subject "${name}".`)
+		})
+	}
+
+	else if(cmd === "subjectkeywordsremove")
+	{
+		if(!arg)
+		{
+			process_feedback(data, `Correct format is --> ${command_prefix}subjectkeywordsremove [name:no_spaces] [keyword]`)
 			return false
 		}
 
@@ -1627,12 +1620,70 @@ function process_command(data)
 			if(kw === keyword)
 			{
 				list.splice(i, 1)
-				process_feedback(data, `"${keyword}" was removed from subject "${name}".`)
+
+				save_file("subjects.json", subjects, function(err)
+				{
+					send_message(`"${keyword}" was removed from subject "${name}".`)
+					return true
+				})
+				
 				return true
 			}
 		}
 
 		process_feedback(data, `"${keyword}" is not part of subject "${name}".`)
+	}
+
+	else if(cmd === "subject")
+	{
+		if(!arg)
+		{
+			process_feedback(data, `Correct format is --> ${command_prefix}subject [name:no_spaces] ${media_types.join("|")} : optional`)
+			return false
+		}
+
+		var split = arg.split(" ")
+		var name = split[0].toLowerCase()
+		var type = split.slice(1).join(" ").toLowerCase()
+
+		if(subjects[name] === undefined)
+		{
+			process_feedback(data, `Subject "${name}" doesn't exist.`)
+			return false
+		}
+
+		var list = subjects[name]
+
+		if(list.length === 0)
+		{
+			process_feedback(data, `Subject "${name}" has no items.`)
+			return false
+		}
+
+		var query = `${name} ${list[get_random_int(0, list.length - 1)]} ${words[get_random_int(0, words.length - 1)]}`
+
+		if(type)
+		{
+			if(type === "image")
+			{
+				change_image(query)
+			}
+
+			else if(type === "tv")
+			{
+				change_tv(query)
+			}
+
+			else if(type === "radio")
+			{
+				change_radio(query)
+			}
+		}
+
+		else
+		{
+			change_tv(query)
+		}
 	}
 
 	else if(cmd === "subjects")
