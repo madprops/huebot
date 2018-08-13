@@ -22,7 +22,7 @@ const bot_password = "xxx"
 
 const twitch_client_id = "xxx"
 const twitch_enabled = true
-const youtube_client_id = "xxx0"
+const youtube_client_id = "xxx"
 const youtube_enabled = true
 
 const server_address = "http://localhost:3210"
@@ -1552,15 +1552,30 @@ function process_command(data)
 
 	else if(cmd === "subjectkeywordsadd")
 	{
+		var error = false
+		
 		if(!arg)
+		{
+			error = true
+		}
+
+		if(!error)
+		{
+			var split = arg.split(" ")
+			var name = split[0].toLowerCase()
+			var keyword = split.slice(1).join(" ").toLowerCase()
+
+			if(!name || !keyword)
+			{
+				error = true
+			}
+		}
+
+		if(error)
 		{
 			process_feedback(data, `Correct format is --> ${command_prefix}subjectkeywordsadd [name:no_spaces] [keyword]`)
 			return false
 		}
-
-		var split = arg.split(" ")
-		var name = split[0].toLowerCase()
-		var keyword = split.slice(1).join(" ").toLowerCase()
 
 		if(subjects[name] === undefined)
 		{
@@ -1589,15 +1604,30 @@ function process_command(data)
 
 	else if(cmd === "subjectkeywordsremove")
 	{
+		var error = false
+		
 		if(!arg)
+		{
+			error = true
+		}
+
+		if(!error)
+		{
+			var split = arg.split(" ")
+			var name = split[0].toLowerCase()
+			var keyword = split.slice(1).join(" ").toLowerCase()
+
+			if(!name || !keyword)
+			{
+				error = true
+			}
+		}
+
+		if(error)
 		{
 			process_feedback(data, `Correct format is --> ${command_prefix}subjectkeywordsremove [name:no_spaces] [keyword]`)
 			return false
 		}
-
-		var split = arg.split(" ")
-		var name = split[0].toLowerCase()
-		var keyword = split.slice(1).join(" ").toLowerCase()
 
 		if(subjects[name] === undefined)
 		{
