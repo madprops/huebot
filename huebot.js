@@ -1395,7 +1395,7 @@ function process_command(data)
 			
 			if(!name || !keyword)
 			{
-				error =true
+				error = true
 			}
 
 			if(keyword.includes("http://") || keyword.includes("https://"))
