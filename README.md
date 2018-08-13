@@ -180,7 +180,7 @@ For instance ".topicadd music the beatles", ".topicadd music pink floyd"
 
 music = ["the beatles", "pink floyd"]
 
-Then calling .subject music will create a search string consisting of a random keywords item, and a random word from words.json
+Then calling .subject music will create a search string consisting of a random keyword item, and a random word from words.json
 
 For instance it could search youtube for "pink floyd butter".
 

@@ -1391,14 +1391,14 @@ function process_command(data)
 		{
 			var split = arg.split(" ")
 			var name = split[0].toLowerCase()
-			var keywords = split.slice(1).join(" ").toLowerCase()
+			var keyword = split.slice(1).join(" ").toLowerCase()
 			
-			if(!name || !keywords)
+			if(!name || !keyword)
 			{
 				error =true
 			}
 
-			if(keywords.includes("http://") || keywords.includes("https://"))
+			if(keyword.includes("http://") || keyword.includes("https://"))
 			{
 				error = true
 			}
@@ -1406,7 +1406,7 @@ function process_command(data)
 
 		if(error)
 		{
-			process_feedback(data, `Correct format is --> ${command_prefix}subjectadd [name] [keywords]`)
+			process_feedback(data, `Correct format is --> ${command_prefix}subjectadd [name] [keyword]`)
 			return false
 		}
 
@@ -1417,18 +1417,18 @@ function process_command(data)
 
 		for(var kw of subjects[name])
 		{
-			if(kw === keywords)
+			if(kw === keyword)
 			{
-				process_feedback(data, `"${keywords}" is already part of subject "${name}"`)
+				process_feedback(data, `"${keyword}" is already part of subject "${name}"`)
 				return false
 			}
 		}
 
-		subjects[name].push(keywords)
+		subjects[name].push(keyword)
 
 		save_file("subjects.json", subjects, function()
 		{
-			send_message(`"${keywords}" successfully added to subject "${name}".`)
+			send_message(`"${keyword}" successfully added to subject "${name}".`)
 		})
 	}
 
@@ -1519,29 +1519,29 @@ function process_command(data)
 			return false
 		}
 
-		var keywords = `${list[get_random_int(0, list.length - 1)]} ${words[get_random_int(0, words.length - 1)]}`
+		var keyword = `${list[get_random_int(0, list.length - 1)]} ${words[get_random_int(0, words.length - 1)]}`
 
 		if(type)
 		{
 			if(type === "image")
 			{
-				change_image(keywords)
+				change_image(keyword)
 			}
 
 			else if(type === "tv")
 			{
-				change_tv(keywords)
+				change_tv(keyword)
 			}
 
 			else if(type === "radio")
 			{
-				change_radio(keywords)
+				change_radio(keyword)
 			}
 		}
 
 		else
 		{
-			change_tv(keywords)
+			change_tv(keyword)
 		}
 	}
 
@@ -1598,13 +1598,13 @@ function process_command(data)
 	{
 		if(!arg)
 		{
-			process_feedback(data, `Correct format is --> ${command_prefix}subjectlistremove [name] [keywords]`)
+			process_feedback(data, `Correct format is --> ${command_prefix}subjectlistremove [name] [keyword]`)
 			return false
 		}
 
 		var split = arg.split(" ")
 		var name = split[0].toLowerCase()
-		var keywords = split.slice(1).join(" ").toLowerCase()
+		var keyword = split.slice(1).join(" ").toLowerCase()
 
 		if(subjects[name] === undefined)
 		{
@@ -1624,15 +1624,15 @@ function process_command(data)
 		{	
 			let kw = list[i]
 
-			if(kw === keywords)
+			if(kw === keyword)
 			{
 				list.splice(i, 1)
-				process_feedback(data, `"${keywords}" was removed from subject "${name}".`)
+				process_feedback(data, `"${keyword}" was removed from subject "${name}".`)
 				return true
 			}
 		}
 
-		process_feedback(data, `"${keywords}" is not part of subject "${name}".`)
+		process_feedback(data, `"${keyword}" is not part of subject "${name}".`)
 	}
 
 	else if(cmd === "subjects")
