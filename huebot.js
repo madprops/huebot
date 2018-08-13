@@ -1430,7 +1430,7 @@ function process_command(data)
 
 			save_file("subjects.json", subjects, function()
 			{
-				send_message(`Subject "${name}" successfully added.`)
+				send_message(`Subject "${name}" successfully added. Use ${command_prefix}subjectkeywordsadd to add additional keywords to the subject.`)
 			})
 		}
 
