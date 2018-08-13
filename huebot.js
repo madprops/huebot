@@ -11,6 +11,7 @@ var themes = require("./themes.json")
 var options = require("./options.json")
 var queue = require("./queue.json")
 var words = require("./words")
+var subjects = require("./subjects")
 
 var user_command_activity = []
 
@@ -68,7 +69,14 @@ var available_commands =
 	'help',
 	'ping',
 	'whatis',
-	'say'
+	'say',
+	'subjectadd',
+	'subjectremove',
+	'subjectrename',
+	'subject',
+	'subjectlist',
+	'subjectlistremove',
+	'subjects'
 ]
 
 var username = ""
@@ -795,39 +803,6 @@ function get_youtube_stream()
 	})
 }
 
-function youtube_search(s)
-{
-	fetch(`https://www.googleapis.com/youtube/v3/search?q=${encodeURIComponent(s)}&type=video&fields=items(id,snippet(title))&part=snippet&maxResults=10&key=${youtube_client_id}`).then(function(res)
-	{
-		return res.json()
-	})
-
-	.then(function(response)
-	{
-		if(response.items !== undefined && response.items.length > 0)
-		{
-			for(var item of response.items)
-			{
-				if(item === undefined || item.id === undefined || item.id.videoId === undefined)
-				{
-					continue
-				}
-
-				var src = `https://youtube.com/watch?v=${item.id.videoId}`
-					
-				change_tv(src)
-
-				return false
-			}
-		}
-	})
-
-	.catch(err =>
-	{
-		console.error(err)
-	})
-}
-
 function is_command(message)
 {
 	if(message.length > 1 && message[0] === command_prefix && message[1] !== command_prefix)
@@ -1130,7 +1105,7 @@ function process_command(data)
 			var word1 = words[get_random_int(0, words.length - 1)]
 			var word2 = words[get_random_int(0, words.length - 1)]
 
-			youtube_search(`${word1} ${word2}`)
+			change_tv(`${word1} ${word2}`)
 		}
 	}
 
@@ -1397,6 +1372,288 @@ function process_command(data)
 		if(!s)
 		{
 			var s = "No themes found."
+		}
+
+		process_feedback(data, s)
+	}
+
+	else if(cmd === "subjectadd")
+	{
+		var error = false
+
+		if(!arg)
+		{
+			error = true
+		}
+
+		if(!error)
+		{
+			var split = arg.split(" ")
+			var name = split[0].toLowerCase()
+			var keywords = split.slice(1).join(" ").toLowerCase()
+			
+			if(!name || !keywords)
+			{
+				error =true
+			}
+
+			if(keywords.includes("http://") || keywords.includes("https://"))
+			{
+				error = true
+			}
+		}
+
+		if(error)
+		{
+			process_feedback(data, `Correct format is --> ${command_prefix}subjectadd [name] [keywords]`)
+			return false
+		}
+
+		if(subjects[name] === undefined)
+		{
+			subjects[name] = []
+		}
+
+		for(var kw of subjects[name])
+		{
+			if(kw === keywords)
+			{
+				process_feedback(data, `"${keywords}" is already part of subject "${name}"`)
+				return false
+			}
+		}
+
+		subjects[name].push(keywords)
+
+		save_file("subjects.json", subjects, function()
+		{
+			send_message(`"${keywords}" successfully added to subject "${name}".`)
+		})
+	}
+
+	else if(cmd === "subjectremove")
+	{
+		if(!arg)
+		{
+			process_feedback(data, `Correct format is --> ${command_prefix}subjectremove [name]`)
+			return false
+		}
+
+		var name = arg.toLowerCase()
+
+		if(subjects[name] === undefined)
+		{
+			process_feedback(data, `Subject "${name}" doesn't exist.`)
+			return false
+		}
+
+		delete subjects[name]
+
+		save_file("subjects.json", subjects, function()
+		{
+			send_message(`Subject "${name}" successfully removed.`)
+		})
+	}
+
+	else if(cmd === "subjectrename")
+	{
+		var split = arg.split(' ')
+		var old_name = split[0].toLowerCase()
+		var new_name = split.slice(1).join(" ").toLowerCase()
+
+		if(!arg || split.length !== 2)
+		{
+			process_feedback(data, `Correct format is --> ${command_prefix}subjectrename [old_name] [new_name]`)
+			return false
+		}
+
+		if(subjects[old_name] === undefined)
+		{
+			process_feedback(data, `Subject "${old_name}" doesn't exist.`)
+			return false
+		}
+
+		try
+		{
+			subjects[new_name] = subjects[old_name]
+
+			delete subjects[old_name]
+
+			save_file("subjects.json", subjects, function(err)
+			{
+				send_message(`Subject "${old_name}" successfully renamed to "${new_name}".`)
+			})
+		}
+
+		catch(err)
+		{
+			process_feedback(data, `Can't rename that subject.`)
+			return false
+		}
+	}
+
+	else if(cmd === "subject")
+	{
+		if(!arg)
+		{
+			process_feedback(data, `Correct format is --> ${command_prefix}subject [name] ${media_types.join("|")}`)
+			return false
+		}
+
+		var split = arg.split(" ")
+		var name = split[0].toLowerCase()
+		var type = split.slice(1).join(" ").toLowerCase()
+
+		if(subjects[name] === undefined)
+		{
+			process_feedback(data, `Subject "${name}" doesn't exist.`)
+			return false
+		}
+
+		var list = subjects[name]
+
+		if(list.length === 0)
+		{
+			process_feedback(data, `Subject "${name}" is empty.`)
+			return false
+		}
+
+		var keywords = `${name} ${list[get_random_int(0, list.length - 1)]} ${words[get_random_int(0, words.length - 1)]}`
+
+		if(type)
+		{
+			if(type === "image")
+			{
+				change_image(keywords)
+			}
+
+			else if(type === "tv")
+			{
+				change_tv(keywords)
+			}
+
+			else if(type === "radio")
+			{
+				change_radio(keywords)
+			}
+		}
+
+		else
+		{
+			change_tv(keywords)
+		}
+	}
+
+	else if(cmd === "subjectlist")
+	{
+		if(!arg)
+		{
+			process_feedback(data, `Correct format is --> ${command_prefix}subjectlist [name]`)
+			return false
+		}
+
+		var split = arg.split(" ")
+		var name = split[0].toLowerCase()
+		var filter = split.slice(1).join(" ").toLowerCase()
+
+		if(subjects[name] === undefined)
+		{
+			process_feedback(data, `Subject "${name}" doesn't exist.`)
+			return false
+		}
+
+		var list = subjects[name]
+
+		if(list.length === 0)
+		{
+			process_feedback(data, `Subject "${name}" is empty.`)
+			return false
+		}
+
+		var sort_mode = "random"
+
+		if(filter)
+		{
+			sort_mode = "sort"
+		}
+
+		var s = list_items(
+		{
+			data: list,
+			filter: filter,
+			append: ",",
+			sort_mode: sort_mode
+		})
+
+		if(!s)
+		{
+			var s = "No subjects found."
+		}
+
+		process_feedback(data, s)
+	}
+
+	else if(cmd === "subjectlistremove")
+	{
+		if(!arg)
+		{
+			process_feedback(data, `Correct format is --> ${command_prefix}subjectlistremove [name] [keywords]`)
+			return false
+		}
+
+		var split = arg.split(" ")
+		var name = split[0].toLowerCase()
+		var keywords = split.slice(1).join(" ").toLowerCase()
+
+		if(subjects[name] === undefined)
+		{
+			process_feedback(data, `Subject "${name}" doesn't exist.`)
+			return false
+		}
+
+		var list = subjects[name]
+
+		if(list.length === 0)
+		{
+			process_feedback(data, `Subject "${name}" is empty.`)
+			return false
+		}
+
+		for(let i=0; i<list.length; i++)
+		{	
+			let kw = list[i]
+
+			if(kw === keywords)
+			{
+				list.splice(i, 1)
+				process_feedback(data, `"${keywords}" was removed from subject "${name}".`)
+				return true
+			}
+		}
+
+		process_feedback(data, `"${keywords}" is not part of subject "${name}".`)
+	}
+
+	else if(cmd === "subjects")
+	{
+		var sort_mode = "random"
+
+		if(arg)
+		{
+			sort_mode = "sort"
+		}
+
+		var s = list_items(
+		{
+			data: subjects,
+			filter: arg,
+			append: ",",
+			sort_mode: sort_mode
+		})
+
+		if(!s)
+		{
+			var s = "No subjects found."
 		}
 
 		process_feedback(data, s)
