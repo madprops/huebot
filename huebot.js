@@ -1686,11 +1686,13 @@ function process_command(data)
 
 		if(list.length === 0)
 		{
-			process_feedback(data, `Subject "${name}" has no items.`)
-			return false
+			var query = `${name} ${words[get_random_int(0, words.length - 1)]}`
 		}
 
-		var query = `${name} ${list[get_random_int(0, list.length - 1)]} ${words[get_random_int(0, words.length - 1)]}`
+		else
+		{
+			var query = `${name} ${list[get_random_int(0, list.length - 1)]} ${words[get_random_int(0, words.length - 1)]}`
+		}
 
 		if(type)
 		{
