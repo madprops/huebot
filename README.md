@@ -202,6 +202,8 @@ For instance if subject music has "the beatles", and "pink floyd":
 
 A search string could be "music pink floyd earth"
 
+This is why having a subject name that describes what you want is important.
+
 >subjectkeywords
 
 Shows the keywords of a subject. 
