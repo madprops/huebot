@@ -66,6 +66,7 @@ var available_commands =
 	'clearcommands',
 	'clearadmins',
 	'clearthemes',
+	'clearsubjects',
 	'help',
 	'ping',
 	'whatis',
@@ -1949,6 +1950,21 @@ function process_command(data)
 		save_file("themes.json", themes, function()
 		{
 			send_message(`Themes list successfully cleared.`)
+		})
+	}
+
+	else if(cmd === "clearsubjects")
+	{
+		if(!is_protected_admin(data.username))
+		{
+			return false
+		}
+
+		subjects = {}
+
+		save_file("subjects.json", subjects, function()
+		{
+			send_message(`Subjects list successfully cleared.`)
 		})
 	}
 
