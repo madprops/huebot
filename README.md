@@ -1,6 +1,44 @@
 # Installation
 
-To use simply do "npm install" inside the directory, change the login details in huebot.js, then run huebot.js with node.
+To use simply do "npm install" inside the directory, change the details in huebot.js, then run huebot.js with node.
+
+# Configuration
+
+The following are the details that should be edited.
+
+They can be found near the top of the file.
+
+>bot_email
+
+The bot's account email, used to log in.
+
+>bot_password
+
+The bot's account password, used to log in.
+
+>twitch_client_id
+
+A Twitch dev api client id so Twitch based features can work.
+
+>twitch_enabled
+
+If false, it will avoid using Twitch altogether.
+
+>youtube_client_id
+
+A YouTube dev api client id so YouTube based features can work.
+
+>youtube_enabled
+
+If false, it will avoid using YouTube altogether.
+
+>server_address
+
+The address of the Hue server.
+
+>room_ids
+
+List of rooms to connect at startup.
 
 # Commands
 
@@ -228,6 +266,20 @@ Removes an item from a subject's keywords list.
 
 Shows a list of subjects. Can be filtered with an argument.
 
+>join
+
+Makes the bot join a room with a certain ID. 
+
+The bot will try to keep an idea of what rooms it's connected to.
+
+It will throw a warning if trying to join a room that it's already in, and not connect. 
+
+This is to avoid multiple connections.
+
+>leave
+
+Makes the bot leave the current room.
+
 # More
 
 The bot accepts and processes private messages (whispers) if the user is an admin.
@@ -235,3 +287,5 @@ The bot accepts and processes private messages (whispers) if the user is an admi
 Which can be useful to make more direct calls to the bot (without spamming the chat).
 
 For instance "/whisper2 myBot > .q tv next".
+
+The bot can join multiple rooms at startup if the id is included in room_ids. To join or leave rooms after it's started you can use .join or .leave
