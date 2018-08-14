@@ -8,7 +8,6 @@ const youtube_client_id = "xxx"
 const youtube_enabled = true
 const server_address = "http://localhost:3210"
 const room_ids = ["main"]
-const files_location = "./"
 const command_prefix = "."
 
 // ----------
@@ -20,13 +19,13 @@ const fetch = require("node-fetch")
 const cheerio = require("cheerio")
 const linkify = require("linkifyjs")
 
-var commands = require(`${files_location}commands.json`)
-var permissions = require(`${files_location}permissions.json`)
-var themes = require(`${files_location}themes.json`)
-var options = require(`${files_location}options.json`)
-var queue = require(`${files_location}queue.json`)
-var words = require(`${files_location}words`)
-var subjects = require(`${files_location}subjects`)
+var commands = require("./commands.json")
+var permissions = require("./permissions.json")
+var themes = require("./themes.json")
+var options = require("./options.json")
+var queue = require("./queue.json")
+var words = require("./words")
+var subjects = require("./subjects")
 
 var user_command_activity = []
 var max_user_command_activity = 20
@@ -577,7 +576,7 @@ function start_connection(room_id)
 
 	function save_file(name, content, callback=false)
 	{
-		fs.writeFile(path.join(files_location, name), JSON.stringify(content), 'utf8', function(err)
+		fs.writeFile(path.join(__dirname, name), JSON.stringify(content), 'utf8', function(err)
 		{
 			if(err)
 			{
