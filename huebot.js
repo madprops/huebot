@@ -2155,6 +2155,11 @@ function start_connection(room_id)
 			{
 				send_whisper(data.username, s, false)
 			}
+
+			else
+			{
+				send_whisper(data.username, "Nothing found.", false)
+			}
 		}
 	}
 
