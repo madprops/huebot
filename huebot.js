@@ -2124,19 +2124,37 @@ function start_connection(room_id)
 		}
 
 		else if(cmd === "help")
-		{					
+		{
 			var s = ""
 
-			s += "Available Commands: "
-
-			for(var c of available_commands)
+			if(arg)
 			{
-				s += `${command_prefix}${c}, ` 
+				s = list_items(
+				{
+					data: available_commands,
+					filter: arg,
+					prepend: command_prefix,
+					append: ",",
+					sort_mode: "sort"
+				})
 			}
 
-			s = s.slice(0, -2)
+			else
+			{
+				s += "Available Commands: "
 
-			send_whisper(data.username, s, false)
+				for(var c of available_commands)
+				{
+					s += `${command_prefix}${c}, ` 
+				}
+				
+				s = s.slice(0, -2)
+			}
+
+			if(s)
+			{
+				send_whisper(data.username, s, false)
+			}
 		}
 	}
 
