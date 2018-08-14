@@ -2136,7 +2136,7 @@ function start_connection(room_id)
 
 			s = s.slice(0, -2)
 
-			process_feedback(data, s)
+			send_whisper(data.username, s, false)
 		}
 	}
 
