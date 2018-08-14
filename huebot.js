@@ -36,6 +36,7 @@ const command_prefix = "."
 const media_types = ["image", "tv", "radio"]
 const protected_admins = ["mad"]
 var recent_streams_max_length = 5
+var connected_rooms = {}
 
 const no_image_error = "I don't have permission to change the image."
 const no_tv_error = "I don't have permission to change the tv."
@@ -153,6 +154,8 @@ function start_connection(room_id)
 		{
 			if(data.type === 'joined')
 			{
+				connected_rooms[room_id] = true
+
 				set_username(data.username)
 				set_role(data.role)
 				set_room_enables(data)
@@ -333,6 +336,11 @@ function start_connection(room_id)
 		{
 			console.error(err)
 		}
+	})
+
+	socket.on('disconnect', function(data) 
+	{
+		delete connected_rooms[room_id]
 	})
 
 	function send_message(message, feedback=true)
@@ -2093,6 +2101,12 @@ function start_connection(room_id)
 			if(!arg)
 			{
 				process_feedback(data, `Argument must be a room ID.`)
+				return false
+			}
+
+			if(connected_rooms[arg] !== undefined)
+			{
+				process_feedback(data, "It seems I'm already in that room.")
 				return false
 			}
 
