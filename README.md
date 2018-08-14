@@ -40,6 +40,18 @@ The address of the Hue server.
 
 List of rooms to connect at startup.
 
+>files_location
+
+This is if you want to have multiple bots sharing the same files.
+
+You can set this to a specific shared location.
+
+There must be a slash at the end.
+
+>command_prefix
+
+The character to trigger/identify commands.
+
 # Commands
 
 >image

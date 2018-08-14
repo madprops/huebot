@@ -1,14 +1,24 @@
+// Configuration
+
+const bot_email = "xxx"
+const bot_password = "xxx"
+const twitch_client_id = "xxx"
+const twitch_enabled = true
+const youtube_client_id = "xxx"
+const youtube_enabled = true
+const server_address = "http://localhost:3210"
+const room_ids = ["main"]
+const files_location = "./"
+const command_prefix = "."
+
+// ----------
+
 const path = require('path')
 const fs = require("fs")
 const io = require("socket.io-client")
 const fetch = require("node-fetch")
 const cheerio = require("cheerio")
 const linkify = require("linkifyjs")
-
-// This is if you want to have multiple bots sharing the same files
-// You can set this to a specific shared location
-// There must be a slash at the end
-const files_location = "./"
 
 var commands = require(`${files_location}commands.json`)
 var permissions = require(`${files_location}permissions.json`)
@@ -21,18 +31,6 @@ var subjects = require(`${files_location}subjects`)
 var user_command_activity = []
 var max_user_command_activity = 20
 
-const bot_email = "xxx"
-const bot_password = "xxx"
-
-const twitch_client_id = "xxx"
-const twitch_enabled = true
-const youtube_client_id = "xxx"
-const youtube_enabled = true
-
-const server_address = "http://localhost:3210"
-const room_ids = ["main"]
-
-const command_prefix = "."
 const media_types = ["image", "tv", "radio"]
 const protected_admins = ["mad"]
 var recent_streams_max_length = 5
