@@ -30,7 +30,7 @@ const youtube_client_id = "xxx"
 const youtube_enabled = true
 
 const server_address = "http://localhost:3210"
-// const server_address = "https://hue.merkoba.com"
+const room_ids = ["main"]
 
 const command_prefix = "."
 const media_types = ["image", "tv", "radio"]
@@ -83,8 +83,6 @@ var available_commands =
 	"leave",
 	"join"
 ]
-
-const room_ids = ["main"]
 
 for(var room_id of room_ids)
 {
