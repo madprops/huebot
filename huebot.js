@@ -5,13 +5,18 @@ const fetch = require("node-fetch")
 const cheerio = require("cheerio")
 const linkify = require("linkifyjs")
 
-var commands = require("./commands.json")
-var permissions = require("./permissions.json")
-var themes = require("./themes.json")
-var options = require("./options.json")
-var queue = require("./queue.json")
-var words = require("./words")
-var subjects = require("./subjects")
+// This is if you want to have multiple bots sharing the same files
+// You can set this to a specific shared location
+// There must be a slash at the end
+const files_location = "./"
+
+var commands = require(`${files_location}commands.json`)
+var permissions = require(`${files_location}permissions.json`)
+var themes = require(`${files_location}themes.json`)
+var options = require(`${files_location}options.json`)
+var queue = require(`${files_location}queue.json`)
+var words = require(`${files_location}words`)
+var subjects = require(`${files_location}subjects`)
 
 var user_command_activity = []
 
@@ -554,7 +559,7 @@ function set_theme(data)
 
 function save_file(name, content, callback=false)
 {
-	fs.writeFile(path.join(__dirname, name), JSON.stringify(content), 'utf8', function(err)
+	fs.writeFile(path.join(files_location, name), JSON.stringify(content), 'utf8', function(err)
 	{
 		if(err)
 		{
