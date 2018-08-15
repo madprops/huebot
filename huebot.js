@@ -9,7 +9,7 @@ const youtube_enabled = true
 const server_address = "http://localhost:3210"
 const room_ids = ["main"]
 const protected_admins = ["mad"]
-const files_location = "./"
+const files_location = "./files/"
 const command_prefix = "."
 
 // ----------
