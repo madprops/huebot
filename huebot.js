@@ -8,6 +8,7 @@ const youtube_client_id = "xxx"
 const youtube_enabled = true
 const server_address = "http://localhost:3210"
 const room_ids = ["main"]
+const protected_admins = ["mad"]
 const files_location = "./"
 const command_prefix = "."
 
@@ -22,21 +23,21 @@ const linkify = require("linkifyjs")
 
 const files_path = path.normalize(path.resolve(__dirname, files_location) + "/")
 
-const commands = require(`${files_path}commands.json`)
-const permissions = require(`${files_path}permissions.json`)
-const themes = require(`${files_path}themes.json`)
-const options = require(`${files_path}options.json`)
-const queue = require(`${files_path}queue.json`)
-const words = require(`${files_path}words`)
-const subjects = require(`${files_path}subjects`)
+var commands = require(`${files_path}commands.json`)
+var permissions = require(`${files_path}permissions.json`)
+var themes = require(`${files_path}themes.json`)
+var options = require(`${files_path}options.json`)
+var queue = require(`${files_path}queue.json`)
+var words = require(`${files_path}words`)
+var subjects = require(`${files_path}subjects`)
 
-const user_command_activity = []
+var user_command_activity = []
 const max_user_command_activity = 20
 
 const media_types = ["image", "tv", "radio"]
-const protected_admins = ["mad"]
 const recent_streams_max_length = 5
-const connected_rooms = {}
+
+var connected_rooms = {}
 
 const no_image_error = "I don't have permission to change the image."
 const no_tv_error = "I don't have permission to change the tv."

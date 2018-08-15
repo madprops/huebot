@@ -40,6 +40,16 @@ The address of the Hue server.
 
 List of rooms to connect at startup.
 
+>protected_admins
+
+These is the list of "superusers". 
+
+These are admins that can't be removed through commands. 
+
+Only they can add or remove more normal admins.
+
+Can't be edited programatically, it's hardcoded.
+
 >files_location
 
 This is if you want to have multiple bots sharing the same files.
