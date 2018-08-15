@@ -300,6 +300,20 @@ This is to avoid multiple connections.
 
 Makes the bot leave the current room.
 
+# Replacements
+
+Strings in some cases can get replaced to certain things depending on the keyword.
+
+For instance ".tv blue $word$" could search youtube for "blue bird".
+
+These replacements happen at the moment of sending a message or changing media.
+
+These replacements exist:
+
+$word$ = A random word from words.json
+
+$user$ = A random username from the list of connected users.
+
 # More
 
 The bot accepts and processes private messages (whispers) if the user is an admin.

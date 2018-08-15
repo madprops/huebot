@@ -112,6 +112,7 @@ function start_connection(room_id)
 	var max_title_length = 250
 	var recent_twitch_streams = []
 	var recent_youtube_streams = []
+	var userlist = []
 
 	vpermissions.voice1_chat_permission = false
 	vpermissions.voice1_images_permission = false
@@ -162,6 +163,7 @@ function start_connection(room_id)
 				set_room_enables(data)
 				set_permissions(data)
 				set_theme(data)
+				set_userlist(data)
 				check_permissions()
 			}
 
@@ -275,12 +277,24 @@ function start_connection(room_id)
 				check_permissions()
 			}
 
+			else if(data.type === "userjoin")
+			{
+				add_to_userlist(data.username)
+			}
+
+			else if(data.type === "userdisconnect")
+			{
+				remove_from_userlist(data.username)
+			}
+
 			else if(data.type === 'new_username')
 			{
 				if(username === data.old_username)
 				{
 					set_username(data.username)
 				}
+
+				replace_in_userlist(data.old_username, data.username)
 			}
 
 			else if(data.type === 'theme_change')
@@ -356,6 +370,8 @@ function start_connection(room_id)
 			return false
 		}
 
+		message = do_replacements(message)
+
 		message = clean_string2(message.substring(0, max_text_length))
 		
 		socket_emit('sendchat', {message:message})	
@@ -377,6 +393,8 @@ function start_connection(room_id)
 			
 			return false
 		}
+
+		src = do_replacements(src)
 		
 		socket_emit('change_image_source', {src:src})
 	}
@@ -397,6 +415,8 @@ function start_connection(room_id)
 
 			return false
 		}
+
+		src = do_replacements(src)
 		
 		socket_emit('change_tv_source', {src:src})
 	}
@@ -417,6 +437,8 @@ function start_connection(room_id)
 
 			return false
 		}
+
+		src = do_replacements(src)
 		
 		socket_emit('change_radio_source', {src:src})
 	}
@@ -576,6 +598,57 @@ function start_connection(room_id)
 		theme = data.theme
 		text_color_mode = data.text_color_mode
 		text_color = data.text_color
+	}
+
+	function set_userlist(data)
+	{
+		userlist = []
+
+		for(let user of data.userlist)
+		{
+			userlist.push(user.username)
+		}
+	}
+
+	function add_to_userlist(uname)
+	{
+		for(let u of userlist)
+		{
+			if(u === uname)
+			{
+				return false
+			}
+		}
+
+		userlist.push(uname)
+	}
+
+	function remove_from_userlist(uname)
+	{
+		for(let i=0; i<userlist.length; i++)
+		{
+			let u = userlist[i]
+
+			if(u === uname)
+			{
+				userlist.splice(i, 1)
+				return
+			}
+		}
+	}
+
+	function replace_in_userlist(old_uname, new_uname)
+	{
+		for(let i=0; i<userlist.length; i++)
+		{
+			let u = userlist[i]
+
+			if(u === old_uname)
+			{
+				userlist[i] = new_uname
+				return
+			}
+		}
 	}
 
 	function save_file(name, content, callback=false)
@@ -879,15 +952,15 @@ function start_connection(room_id)
 			user_command_activity.shift()
 		}
 
-		var a = data.message.split(' ')
+		var split = data.message.split(' ')
 
-		var cmd = a[0]
+		var cmd = split[0]
 
-		if(a.length > 1)
+		if(split.length > 1)
 		{
 			cmd += ' '
 
-			var arg = clean_string2(a.slice(1).join(" "))
+			var arg = clean_string2(split.slice(1).join(" "))
 		}
 
 		else
@@ -1175,7 +1248,7 @@ function start_connection(room_id)
 
 				if(command)
 				{
-					process_feedback(data, `"${arg}" is of type "${command.type}" and is set to "${command.url}".`)
+					process_feedback(data, `"${arg}" is of type "${command.type}" and is set to "${safe_replacements(command.url)}".`)
 				}
 
 				else
@@ -2187,6 +2260,8 @@ function start_connection(room_id)
 
 	function send_whisper(uname, message, coords=false)
 	{
+		message = do_replacements(message)
+
 		socket_emit('whisper', 
 		{
 			username: uname, 
@@ -2206,5 +2281,28 @@ function start_connection(room_id)
 		{
 			send_message(s)
 		}
+	}
+
+	function do_replacements(s)
+	{
+		s = s.replace(/\$word\$/gi, function()
+		{
+			return words[get_random_int(0, words.length - 1)]
+		})
+
+		s = s.replace(/\$user\$/gi, function()
+		{
+			return userlist[get_random_int(0, userlist.length - 1)]
+		})
+
+		return s
+	}
+
+	function safe_replacements(s)
+	{
+		s = s.replace(/\$word\$/gi, "[random word]")
+		s = s.replace(/\$user\$/gi, "[random user]")
+
+		return s
 	}
 }
