@@ -31,14 +31,16 @@ var queue = require(`${files_path}queue.json`)
 var words = require(`${files_path}words`)
 var subjects = require(`${files_path}subjects`)
 
+var connected_rooms = {}
 var user_command_activity = []
+
+const socket_emit_throttle = 10
+const max_text_length = 2000
+const max_title_length = 250
+const recent_streams_max_length = 5
 const max_user_command_activity = 20
 
 const media_types = ["image", "tv", "radio"]
-const recent_streams_max_length = 5
-
-var connected_rooms = {}
-
 const no_image_error = "I don't have permission to change the image."
 const no_tv_error = "I don't have permission to change the tv."
 const no_radio_error = "I don't have permission to change the radio."
@@ -107,9 +109,6 @@ function start_connection(room_id)
 	var text_color_mode
 	var emit_queue_timeout
 	var emit_queue = []
-	var socket_emit_throttle = 10
-	var max_text_length = 2000
-	var max_title_length = 250
 	var recent_twitch_streams = []
 	var recent_youtube_streams = []
 	var userlist = []
