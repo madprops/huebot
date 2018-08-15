@@ -8,6 +8,7 @@ const youtube_client_id = "xxx"
 const youtube_enabled = true
 const server_address = "http://localhost:3210"
 const room_ids = ["main"]
+const files_location = "./"
 const command_prefix = "."
 
 // ----------
@@ -19,13 +20,15 @@ const fetch = require("node-fetch")
 const cheerio = require("cheerio")
 const linkify = require("linkifyjs")
 
-var commands = require("./commands.json")
-var permissions = require("./permissions.json")
-var themes = require("./themes.json")
-var options = require("./options.json")
-var queue = require("./queue.json")
-var words = require("./words")
-var subjects = require("./subjects")
+const files_path = path.normalize(path.resolve(__dirname, files_location) + "/")
+
+var commands = require(`${files_path}commands.json`)
+var permissions = require(`${files_path}permissions.json`)
+var themes = require(`${files_path}themes.json`)
+var options = require(`${files_path}options.json`)
+var queue = require(`${files_path}queue.json`)
+var words = require(`${files_path}words`)
+var subjects = require(`${files_path}subjects`)
 
 var user_command_activity = []
 var max_user_command_activity = 20
@@ -576,7 +579,7 @@ function start_connection(room_id)
 
 	function save_file(name, content, callback=false)
 	{
-		fs.writeFile(path.join(__dirname, name), JSON.stringify(content), 'utf8', function(err)
+		fs.writeFile(path.join(files_path, name), JSON.stringify(content), 'utf8', function(err)
 		{
 			if(err)
 			{
@@ -2204,4 +2207,3 @@ function start_connection(room_id)
 		}
 	}
 }
-
