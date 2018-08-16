@@ -2299,9 +2299,15 @@ function start_connection(room_id)
 				return false
 			}
 
+			if(background_mode !== "normal" && background_mode !== "tiled")
+			{
+				process_feedback(data, "Only backgrounds that use an image can be saved.")
+				return false	
+			}
+
 			if(!background_image.startsWith("http://") && !background_image.startsWith("https://"))
 			{
-				process_feedback(data, "Only backgrounds with external images can be saved. This seems to be using an uploaded image.")
+				process_feedback(data, "Only backgrounds that use external images can be saved.")
 				return false
 			}
 
@@ -2396,12 +2402,9 @@ function start_connection(room_id)
 
 			if(obj)
 			{
-				if(obj.mode === "normal" || obj.mode === "tiled")
+				if(obj.image !== background_image)
 				{
-					if(obj.image !== background_image)
-					{
-						socket_emit("change_background_image_source", {src:obj.image})
-					}
+					socket_emit("change_background_image_source", {src:obj.image})
 				}
 
 				if(obj.mode !== background_mode)
