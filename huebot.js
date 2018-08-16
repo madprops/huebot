@@ -378,6 +378,20 @@ function start_connection(room_id)
 		socket_emit('sendchat', {message:message})	
 	}
 
+	function send_whisper(uname, message, coords=false)
+	{
+		message = do_replacements(message)
+
+		message = clean_string2(message.substring(0, max_text_length))
+
+		socket_emit('whisper', 
+		{
+			username: uname, 
+			message: message, 
+			draw_coords: coords
+		})
+	}
+
 	function change_image(src, feedback=true)
 	{
 		if(!src)
@@ -401,6 +415,8 @@ function start_connection(room_id)
 		}
 
 		src = do_replacements(src)
+
+		src = clean_string2(src)
 		
 		socket_emit('change_image_source', {src:src})
 	}
@@ -428,6 +444,8 @@ function start_connection(room_id)
 		}
 
 		src = do_replacements(src)
+
+		src = clean_string2(src)
 		
 		socket_emit('change_tv_source', {src:src})
 	}
@@ -455,6 +473,8 @@ function start_connection(room_id)
 		}
 
 		src = do_replacements(src)
+
+		src = clean_string2(src)
 		
 		socket_emit('change_radio_source', {src:src})
 	}
@@ -2287,18 +2307,6 @@ function start_connection(room_id)
 			const j = Math.floor(Math.random() * (i + 1));
 			[array[i], array[j]] = [array[j], array[i]]; // eslint-disable-line no-param-reassign
 		}
-	}
-
-	function send_whisper(uname, message, coords=false)
-	{
-		message = do_replacements(message)
-
-		socket_emit('whisper', 
-		{
-			username: uname, 
-			message: message, 
-			draw_coords: coords
-		})
 	}
 
 	function process_feedback(data, s)
