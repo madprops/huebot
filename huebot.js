@@ -30,6 +30,7 @@ var options = require(`${files_path}options.json`)
 var queue = require(`${files_path}queue.json`)
 var words = require(`${files_path}words`)
 var subjects = require(`${files_path}subjects`)
+var backgrounds = require(`${files_path}backgrounds`)
 
 var connected_rooms = {}
 var user_command_activity = []
@@ -87,7 +88,11 @@ var available_commands =
 	'subjects',
 	"leave",
 	"join",
-	"background"
+	"backgroundadd",
+	"backgroundremove",
+	"backgroundrename",
+	"background",
+	"backgrounds"
 ]
 
 for(var room_id of room_ids)
@@ -114,6 +119,9 @@ function start_connection(room_id)
 	var recent_twitch_streams = []
 	var recent_youtube_streams = []
 	var userlist = []
+	var background_image
+	var background_mode
+	var background_tile_dimensions
 
 	vpermissions.voice1_chat_permission = false
 	vpermissions.voice1_images_permission = false
@@ -164,6 +172,9 @@ function start_connection(room_id)
 				set_room_enables(data)
 				set_permissions(data)
 				set_theme(data)
+				set_background_image(data.background_image)
+				set_background_mode(data.background_mode)
+				set_background_tile_dimensions(data.background_tile_dimensions)
 				set_userlist(data)
 				check_permissions()
 			}
@@ -346,6 +357,21 @@ function start_connection(room_id)
 					send_whisper(data.username, "Hi! I hope you like my drawing :)", generate_random_drawing())
 				}
 			}
+
+			else if(data.type === 'background_image_change')
+			{
+				set_background_image(data.background_image)
+			}
+
+			else if(data.type === 'background_mode_changed')
+			{
+				set_background_mode(data.mode)
+			}
+
+			else if(data.type === 'background_tile_dimensions_changed')
+			{
+				set_background_tile_dimensions(data.dimensions)
+			}
 		}
 
 		catch(err)
@@ -477,31 +503,6 @@ function start_connection(room_id)
 		src = clean_string2(src)
 		
 		socket_emit('change_radio_source', {src:src})
-	}
-
-	function change_background(src, feedback=true)
-	{
-		if(!src)
-		{
-			return false
-		}
-
-		if(src.length > max_media_source_length)
-		{
-			return false
-		}
-
-		if(!is_admin_or_op(role))
-		{
-			if(feedback)
-			{
-				send_message("I need to be an operator to do that.")
-			}
-
-			return false
-		}
-		
-		socket_emit('change_background_image_source', {src:src})
 	}
 
 	function run_command(cmd, arg, data)
@@ -659,6 +660,21 @@ function start_connection(room_id)
 		theme = data.theme
 		text_color_mode = data.text_color_mode
 		text_color = data.text_color
+	}
+
+	function set_background_image(image)
+	{
+		background_image = image
+	}
+
+	function set_background_mode(mode)
+	{
+		background_mode = mode
+	}
+
+	function set_background_tile_dimensions(dimensions)
+	{
+		background_tile_dimensions = dimensions
 	}
 
 	function set_userlist(data)
@@ -1090,9 +1106,19 @@ function start_connection(room_id)
 			change_radio(arg)
 		}
 
-		else if(cmd === "background")
+		else if(cmd === "backgroundimage")
 		{
-			change_background(arg)
+			change_background_image(arg)
+		}
+
+		else if(cmd === "backgroundmode")
+		{
+			change_background_mode(arg)
+		}
+
+		else if(cmd === "tiledimensions")
+		{
+			change_background_tile_dimensions(arg)
 		}
 
 		else if(cmd === "set" || cmd === "setforce")
@@ -2206,6 +2232,21 @@ function start_connection(room_id)
 			})
 		}
 
+		else if(cmd === "clearbackgrounds")
+		{
+			if(!is_protected_admin(data.username))
+			{
+				return false
+			}
+
+			backgrounds = {}
+
+			save_file("backgrounds.json", backgrounds, function()
+			{
+				send_message(`Backgrounds list successfully cleared.`)
+			})
+		}
+
 		else if(cmd === "say")
 		{
 			if(!arg)
@@ -2248,6 +2289,164 @@ function start_connection(room_id)
 
 			process_feedback(data, "Good bye!")
 			socket.disconnect()
+		}
+
+		else if(cmd === "backgroundadd")
+		{
+			if(!arg)
+			{
+				process_feedback(data, `Correct format is --> ${command_prefix}backgroundadd [name]`)
+				return false
+			}
+
+			if(!background_image.startsWith("http://") && !background_image.startsWith("https://"))
+			{
+				process_feedback(data, "Only backgrounds with external images can be saved. This seems to be using an uploaded image.")
+				return false
+			}
+
+			var obj = {}
+
+			obj.image = background_image
+			obj.mode = background_mode
+			obj.tile_dimensions = background_tile_dimensions
+
+			backgrounds[arg] = obj
+
+			save_file("backgrounds.json", backgrounds, function()
+			{
+				send_message(`Background "${arg}" successfully added.`)
+			})
+		}
+
+		else if(cmd === "backgroundremove")
+		{
+			if(!arg)
+			{
+				process_feedback(data, `Correct format is --> ${command_prefix}backgroundremove [name]`)
+				return false
+			}
+
+			if(backgrounds[arg] === undefined)
+			{
+				process_feedback(data, `Background "${arg}" doesn't exist.`)
+				return false
+			}
+
+			delete backgrounds[arg]
+
+			save_file("backgrounds.json", themes, function()
+			{
+				send_message(`Background "${arg}" successfully removed.`)
+			})
+		}
+
+		else if(cmd === "backgroundrename")
+		{
+			var split = arg.split(' ')
+			var old_name = split[0]
+			var new_name = split[1]
+
+			if(!arg || split.length !== 2)
+			{
+				process_feedback(data, `Correct format is --> ${command_prefix}backgroundrename [old_name] [new_name]`)
+				return false
+			}
+
+			if(backgrounds[old_name] === undefined)
+			{
+				process_feedback(data, `Background "${old_name}" doesn't exist.`)
+				return false
+			}
+
+			try
+			{
+				backgrounds[new_name] = backgrounds[old_name]
+
+				delete backgrounds[old_name]
+
+				save_file("backgrounds.json", backgrounds, function(err)
+				{
+					send_message(`Background "${old_name}" successfully renamed to "${new_name}".`)
+				})
+			}
+
+			catch(err)
+			{
+				process_feedback(data, `Can't rename that background.`)
+				return false
+			}
+		}
+
+		else if(cmd === "background")
+		{
+			if(!arg)
+			{
+				process_feedback(data, `Correct format is --> ${command_prefix}background [name]`)
+				return false
+			}
+
+			if(!is_admin_or_op(role))
+			{
+				process_feedback(data, "I need to be an operator to do that.")
+				return false
+			}
+
+			var obj = backgrounds[arg]
+
+			if(obj)
+			{
+				if(obj.mode === "normal" || obj.mode === "tiled")
+				{
+					if(obj.image !== background_image)
+					{
+						socket_emit("change_background_image_source", {src:obj.image})
+					}
+				}
+
+				if(obj.mode !== background_mode)
+				{
+					socket_emit("change_background_mode", {mode:obj.mode})
+				}
+
+				if(obj.mode === "tiled")
+				{
+					if(obj.tile_dimensions !== background_tile_dimensions)
+					{
+						socket_emit("change_background_tile_dimensions", {dimensions:obj.tile_dimensions})
+					}
+				}
+			}
+
+			else
+			{
+				process_feedback(data, `Background "${arg}" doesn't exist.`)
+			}
+		}
+
+		else if(cmd === "backgrounds")
+		{
+			var sort_mode = "random"
+
+			if(arg)
+			{
+				sort_mode = "sort"
+			}
+
+			var s = list_items(
+			{
+				data: backgrounds,
+				filter: arg,
+				append: ",",
+				sort_mode: sort_mode
+			})
+
+			if(!s)
+			{
+				var s = "No backgrounds found."
+			}
+
+			process_feedback(data, s)
 		}
 
 		else if(cmd === "help")

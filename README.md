@@ -300,6 +300,34 @@ This is to avoid multiple connections.
 
 Makes the bot leave the current room.
 
+>backgroundadd
+
+The state of the room's background can be saved to be changed later.
+
+For example ".backgroundadd funny" will save the current background image, background mode, and background tile dimensions.
+
+When ".background funny" is used, it will change it back to those.
+
+This can be used in conjunction with themes to fully customize the look of a room.
+
+Backgrounds will only be saved if the background image is not hosted by the system, since those get deleted after they're changed.
+
+>backgroundremove
+
+Removes a background.
+
+>backgroundrename
+
+Renames a background.
+
+>background
+
+Used to change the background.
+
+>backgrounds
+
+List of backgrounds. Can be filtered with an argument.
+
 # Replacements
 
 Strings in some cases can get replaced to certain things depending on the keyword.
