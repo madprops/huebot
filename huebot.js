@@ -39,6 +39,7 @@ const max_text_length = 2000
 const max_title_length = 250
 const recent_streams_max_length = 5
 const max_user_command_activity = 20
+const max_media_source_length = 800
 
 const media_types = ["image", "tv", "radio"]
 const no_image_error = "I don't have permission to change the image."
@@ -85,7 +86,8 @@ var available_commands =
 	'subject',
 	'subjects',
 	"leave",
-	"join"
+	"join",
+	"background"
 ]
 
 for(var room_id of room_ids)
@@ -383,6 +385,11 @@ function start_connection(room_id)
 			return false
 		}
 
+		if(src.length > max_media_source_length)
+		{
+			return false
+		}
+
 		if(!can_images)
 		{
 			if(feedback)
@@ -401,6 +408,11 @@ function start_connection(room_id)
 	function change_tv(src, feedback=true)
 	{
 		if(!src)
+		{
+			return false
+		}
+
+		if(src.length > max_media_source_length)
 		{
 			return false
 		}
@@ -427,6 +439,11 @@ function start_connection(room_id)
 			return false
 		}
 
+		if(src.length > max_media_source_length)
+		{
+			return false
+		}
+
 		if(!can_radio)
 		{
 			if(feedback)
@@ -440,6 +457,31 @@ function start_connection(room_id)
 		src = do_replacements(src)
 		
 		socket_emit('change_radio_source', {src:src})
+	}
+
+	function change_background(src, feedback=true)
+	{
+		if(!src)
+		{
+			return false
+		}
+
+		if(src.length > max_media_source_length)
+		{
+			return false
+		}
+
+		if(!is_admin_or_op(role))
+		{
+			if(feedback)
+			{
+				send_message("I need to be an operator to do that.")
+			}
+
+			return false
+		}
+		
+		socket_emit('change_background_image_source', {src:src})
 	}
 
 	function run_command(cmd, arg, data)
@@ -1015,32 +1057,22 @@ function start_connection(room_id)
 
 		if(cmd === "image")
 		{
-			if(!arg)
-			{
-				return false
-			}
-
 			change_image(arg)
 		}
 
 		else if(cmd === "tv")
 		{
-			if(!arg)
-			{
-				return false
-			}
-
 			change_tv(arg)
 		}
 
 		else if(cmd === "radio")
 		{
-			if(!arg)
-			{
-				return false
-			}
-
 			change_radio(arg)
+		}
+
+		else if(cmd === "background")
+		{
+			change_background(arg)
 		}
 
 		else if(cmd === "set" || cmd === "setforce")
