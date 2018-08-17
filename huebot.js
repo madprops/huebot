@@ -122,6 +122,9 @@ function start_connection(room_id)
 	var background_image
 	var background_mode
 	var background_tile_dimensions
+	var current_image_source
+	var current_tv_source
+	var current_radio_source
 
 	vpermissions.voice1_chat_permission = false
 	vpermissions.voice1_images_permission = false
@@ -176,6 +179,9 @@ function start_connection(room_id)
 				set_background_mode(data.background_mode)
 				set_background_tile_dimensions(data.background_tile_dimensions)
 				set_userlist(data)
+				set_image_source(data.image_source)
+				set_tv_source(data.tv_source)
+				set_radio_source(data.radio_source)
 				check_permissions()
 			}
 
@@ -372,6 +378,21 @@ function start_connection(room_id)
 			{
 				set_background_tile_dimensions(data.dimensions)
 			}
+
+			else if(data.type === 'image_change')
+			{
+				set_image_source(data.image_source)
+			}
+
+			else if(data.type === 'changed_tv_source')
+			{
+				set_tv_source(data.tv_source)
+			}
+
+			else if(data.type === 'changed_radio_source')
+			{
+				set_radio_source(data.radio_source)
+			}
 		}
 
 		catch(err)
@@ -418,91 +439,105 @@ function start_connection(room_id)
 		})
 	}
 
-	function change_image(src, feedback=true)
+	function change_media(args={})
 	{
-		if(!src)
+		var def_args =
+		{
+			type: "",
+			src: "",
+			feedback: true,
+			force: false
+		}
+
+		fill_defaults(args, def_args)
+
+		if(!media_types.includes(args.type))
 		{
 			return false
 		}
 
-		if(src.length > max_media_source_length)
+		if(!args.src)
 		{
 			return false
 		}
 
-		if(!can_images)
+		args.src = do_replacements(args.src)
+
+		args.src = clean_string2(args.src)
+
+		if(args.src.length > max_media_source_length)
 		{
-			if(feedback)
+			return false
+		}
+
+		if(args.type === "image")
+		{
+			if(!args.force)
 			{
-				send_message(no_image_error)
-			}
-			
-			return false
-		}
-
-		src = do_replacements(src)
-
-		src = clean_string2(src)
-		
-		socket_emit('change_image_source', {src:src})
-	}
-
-	function change_tv(src, feedback=true)
-	{
-		if(!src)
-		{
-			return false
-		}
-
-		if(src.length > max_media_source_length)
-		{
-			return false
-		}
-
-		if(!can_tv)
-		{
-			if(feedback)
-			{
-				send_message(no_tv_error)
+				if(current_image_source === args.src)
+				{
+					return false
+				}
 			}
 
-			return false
-		}
-
-		src = do_replacements(src)
-
-		src = clean_string2(src)
-		
-		socket_emit('change_tv_source', {src:src})
-	}
-
-	function change_radio(src, feedback=true)
-	{
-		if(!src)
-		{
-			return false
-		}
-
-		if(src.length > max_media_source_length)
-		{
-			return false
-		}
-
-		if(!can_radio)
-		{
-			if(feedback)
+			if(!can_images)
 			{
-				send_message(no_radio_error)
+				if(args.feedback)
+				{
+					send_message(no_image_error)
+				}
+				
+				return false
 			}
 
-			return false
+			socket_emit('change_image_source', {src:args.src})
 		}
 
-		src = do_replacements(src)
+		else if(args.type === "tv")
+		{
+			if(!args.force)
+			{
+				if(current_tv_source === args.src)
+				{
+					return false
+				}
+			}
 
-		src = clean_string2(src)
-		
-		socket_emit('change_radio_source', {src:src})
+			if(!can_tv)
+			{
+				if(args.feedback)
+				{
+					send_message(no_tv_error)
+				}
+
+				return false
+			}
+
+			socket_emit('change_tv_source', {src:args.src})
+		}
+
+		else if(args.type === "radio")
+		{
+			if(!args.force)
+			{
+				if(current_radio_source === args.src)
+				{
+					return false
+				}
+			}
+
+			if(!can_radio)
+			{
+				if(args.feedback)
+				{
+					send_message(no_radio_error)
+				}
+
+				return false
+			}
+
+			socket_emit('change_radio_source', {src:args.src})
+		}
 	}
 
 	function run_command(cmd, arg, data)
@@ -511,17 +546,17 @@ function start_connection(room_id)
 
 		if(command.type === "image")
 		{
-			change_image(command.url)
+			change_media({type:"image", src:command.url})
 		}
 
 		else if(command.type === "tv")
 		{
-			change_tv(command.url)
+			change_media({type:"tv", src:command.url})
 		}
 
 		else if(command.type === "radio")
 		{
-			change_radio(command.url)
+			change_media({type:"radio", src:command.url})
 		}	
 
 		else if(command.type === "alias")
@@ -942,7 +977,7 @@ function start_connection(room_id)
 					{
 						let user = res.data[0]
 
-						change_tv(`https://twitch.tv/${user.login}`)
+						change_media({type:"tv", src:`https://twitch.tv/${user.login}`})
 					}
 				})
 
@@ -991,7 +1026,7 @@ function start_connection(room_id)
 					recent_youtube_streams.shift()
 				}
 
-				change_tv(`https://youtube.com/watch?v=${id}`)
+				change_media({type:"tv", src:`https://youtube.com/watch?v=${id}`})
 			}
 		})
 
@@ -1093,17 +1128,17 @@ function start_connection(room_id)
 
 		if(cmd === "image")
 		{
-			change_image(arg)
+			change_media({type:"image", src:arg})
 		}
 
 		else if(cmd === "tv")
 		{
-			change_tv(arg)
+			change_media({type:"tv", src:arg})
 		}
 
 		else if(cmd === "radio")
 		{
-			change_radio(arg)
+			change_media({type:"radio", src:arg})
 		}
 
 		else if(cmd === "backgroundimage")
@@ -1302,7 +1337,7 @@ function start_connection(room_id)
 				var word1 = words[get_random_int(0, words.length - 1)]
 				var word2 = words[get_random_int(0, words.length - 1)]
 
-				change_tv(`${word1} ${word2}`)
+				change_media({type:"tv", src:`${word1} ${word2}`})
 			}
 		}
 
@@ -1879,23 +1914,23 @@ function start_connection(room_id)
 			{
 				if(type === "image")
 				{
-					change_image(query)
+					change_media({type:"image", src:query})
 				}
 
 				else if(type === "tv")
 				{
-					change_tv(query)
+					change_media({type:"tv", src:query})
 				}
 
 				else if(type === "radio")
 				{
-					change_radio(query)
+					change_media({type:"radio", src:query})
 				}
 			}
 
 			else
 			{
-				change_tv(query)
+				change_media({type:"tv", src:query})
 			}
 		}
 
@@ -2043,17 +2078,17 @@ function start_connection(room_id)
 
 					if(arg1 === "image")
 					{
-						change_image(url)
+						change_media({type:"image", src:url})
 					}
 
 					else if(arg1 === "tv")
 					{
-						change_tv(url)
+						change_media({type:"tv", src:url})
 					}
 
 					else if(arg1 === "radio")
 					{
-						change_radio(url)
+						change_media({type:"radio", src:url})
 					}
 
 					save_file("queue.json", queue)
@@ -2545,5 +2580,20 @@ function start_connection(room_id)
 		s = s.replace(/\$user\$/gi, "[random user]")
 
 		return s
+	}
+
+	function set_image_source(src)
+	{
+		current_image_source = src
+	}
+
+	function set_tv_source(src)
+	{
+		current_tv_source = src
+	}
+
+	function set_radio_source(src)
+	{
+		current_radio_source = src
 	}
 }
