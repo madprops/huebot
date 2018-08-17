@@ -379,7 +379,7 @@ function start_connection(room_id)
 				set_background_tile_dimensions(data.dimensions)
 			}
 
-			else if(data.type === 'image_change')
+			else if(data.type === 'changed_image_source')
 			{
 				set_image_source(data.image_source)
 			}
