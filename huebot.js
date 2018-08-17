@@ -445,8 +445,7 @@ function start_connection(room_id)
 		{
 			type: "",
 			src: "",
-			feedback: true,
-			force: false
+			feedback: true
 		}
 
 		fill_defaults(args, def_args)
@@ -472,14 +471,6 @@ function start_connection(room_id)
 
 		if(args.type === "image")
 		{
-			if(!args.force)
-			{
-				if(current_image_source === args.src)
-				{
-					return false
-				}
-			}
-
 			if(!can_images)
 			{
 				if(args.feedback)
@@ -495,14 +486,6 @@ function start_connection(room_id)
 
 		else if(args.type === "tv")
 		{
-			if(!args.force)
-			{
-				if(current_tv_source === args.src)
-				{
-					return false
-				}
-			}
-
 			if(!can_tv)
 			{
 				if(args.feedback)
@@ -518,14 +501,6 @@ function start_connection(room_id)
 
 		else if(args.type === "radio")
 		{
-			if(!args.force)
-			{
-				if(current_radio_source === args.src)
-				{
-					return false
-				}
-			}
-
 			if(!can_radio)
 			{
 				if(args.feedback)
