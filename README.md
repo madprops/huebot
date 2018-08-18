@@ -328,6 +328,10 @@ Used to change the background.
 
 List of backgrounds. Can be filtered with an argument.
 
+>sleep
+
+Used with chained commands. For instance ".say hello && .sleep 2000 && .tv the world".
+
 # Replacements
 
 Strings in some cases can get replaced to certain things depending on the keyword.

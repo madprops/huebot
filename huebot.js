@@ -92,7 +92,8 @@ var available_commands =
 	"backgroundremove",
 	"backgroundrename",
 	"background",
-	"backgrounds"
+	"backgrounds",
+	"sleep"
 ]
 
 for(var room_id of room_ids)
@@ -125,6 +126,7 @@ function start_connection(room_id)
 	var current_image_source
 	var current_tv_source
 	var current_radio_source
+	var commands_queue = {}
 
 	vpermissions.voice1_chat_permission = false
 	vpermissions.voice1_images_permission = false
@@ -1040,11 +1042,21 @@ function start_connection(room_id)
 	// data.message
 	// data.username
 	// data.method
+	// Optional:
+	// data.callback
 	function process_command(data)
 	{
 		if(!is_admin(data.username))
 		{
-			return false
+			if(data.callback)
+			{
+				return data.callback()
+			}
+
+			else
+			{
+				return false
+			}
 		}
 
 		user_command_activity.push(data.username)
@@ -1082,30 +1094,103 @@ function start_connection(room_id)
 
 				if(and_split.length > 1)
 				{
-					for(let item of and_split)
+					var cmds = []
+
+					for(let i=0; i<and_split.length; i++)
 					{
+						let item = and_split[i]
+
 						let c = item.trim()
 
 						if(!c.startsWith(command_prefix))
 						{
-							c = command_prefix + c
+							var cc = command_prefix + c
+							var c2 = c
 						}
 
-						var obj = 
+						else
 						{
-							username: data.username,
-							message: c,
-							method: data.method
+							var cc = c
+							var c2 = c.substring(1)
 						}
 
-						process_command(obj)
+						var acmd = commands[c2]
+
+						if(acmd !== undefined)
+						{
+							var spc = acmd.url.split(" ")[0]
+
+							if(available_commands.includes(spc))
+							{
+								cc = command_prefix + acmd.url
+							}
+						}
+
+						cmds.push(cc)
 					}
 
-					return false
+					var qcmax = 0
+
+					while(true)
+					{
+						var cqid = get_random_string(5) + Date.now()
+
+						if(commands_queue[cqid] === undefined)
+						{
+							break
+						}
+
+						qcmax += 1
+
+						if(qcmax >= 100)
+						{
+							if(data.callback)
+							{
+								return data.callback()
+							}
+
+							else
+							{
+								return false
+							}
+						}
+					}
+
+					commands_queue[cqid] = {}
+					commands_queue[cqid].username = data.username
+					commands_queue[cqid].method = data.method
+					commands_queue[cqid].commands = cmds
+
+					run_commands_queue(cqid)
+
+					if(data.callback)
+					{
+						return data.callback()
+					}
+
+					else
+					{
+						return false
+					}
 				}
 			}
 		}
 
+		execute_command(data, cmd, arg)
+
+		if(data.callback)
+		{
+			return data.callback()
+		}
+
+		else
+		{
+			return false
+		}
+	}
+
+	function execute_command(data, cmd, arg)
+	{
 		if(!available_commands.includes(cmd))
 		{
 			if(commands[cmd] !== undefined)
@@ -2585,5 +2670,73 @@ function start_connection(room_id)
 	function set_radio_source(src)
 	{
 		current_radio_source = src
+	}
+
+	function get_random_string(n)
+	{
+		var text = ""
+
+		var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+
+		for(var i=0; i < n; i++)
+		{
+			text += possible[get_random_int(0, possible.length - 1)]
+		}
+
+		return text
+	}
+
+	function run_commands_queue(id)
+	{
+		var cq = commands_queue[id]
+
+		if(!cq)
+		{
+			delete commands_queue[id]
+			return false
+		}
+
+		var cmds = cq.commands
+		
+		if(cmds.length === 0)
+		{
+			delete commands_queue[id]
+			return false	
+		}
+
+		var cmd = cmds.shift()
+
+		var lc_cmd = cmd.toLowerCase()
+
+		var obj = 	
+		{
+			message: cmd,
+			username: cq.username,
+			method: cq.method,
+			callback: function()
+			{
+				run_commands_queue(id)
+			}
+		}
+
+		if(lc_cmd.startsWith(".sleep") || lc_cmd === ".sleep")
+		{
+			var n = parseInt(lc_cmd.replace(".sleep ", ""))
+
+			if(isNaN(n))
+			{
+				n = 1000
+			}
+
+			setTimeout(function()
+			{
+				run_commands_queue(id)
+			}, n)
+		}
+
+		else
+		{
+			process_command(obj)
+		}
 	}
 }
