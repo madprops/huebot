@@ -481,6 +481,11 @@ function start_connection(room_id)
 				return false
 			}
 
+			if(current_image_source === args.src)
+			{
+				return false
+			}
+
 			socket_emit('change_image_source', {src:args.src})
 		}
 
@@ -496,6 +501,11 @@ function start_connection(room_id)
 				return false
 			}
 
+			if(current_tv_source === args.src)
+			{
+				return false
+			}
+
 			socket_emit('change_tv_source', {src:args.src})
 		}
 
@@ -508,6 +518,11 @@ function start_connection(room_id)
 					send_message(no_radio_error)
 				}
 
+				return false
+			}
+
+			if(current_radio_source === args.src)
+			{
 				return false
 			}
 
