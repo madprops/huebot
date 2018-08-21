@@ -1645,9 +1645,13 @@ function start_connection(room_id)
 
 			if(obj)
 			{
+				obj.theme = clean_string5(obj.theme)
+
+				obj.text_color = clean_string5(obj.text_color)
+
 				if(obj.theme !== theme)
 				{
-					socket_emit("change_theme", {color:clean_string5(obj.theme)})
+					socket_emit("change_theme", {color:obj.theme})
 				}
 
 				if(obj.text_color_mode !== text_color_mode)
@@ -1659,7 +1663,7 @@ function start_connection(room_id)
 				{
 					if(obj.text_color !== text_color)
 					{
-						socket_emit("change_text_color", {color:clean_string5(obj.text_color)})
+						socket_emit("change_text_color", {color:obj.text_color})
 					}
 				}
 			}
