@@ -885,6 +885,11 @@ function start_connection(room_id)
 		return s.replace(/\s+/g, ' ').trim()
 	}
 
+	function clean_string5(s)
+	{
+		return s.replace(/\s+/g, '').trim()
+	}
+
 	function generate_random_drawing()
 	{
 		var n = get_random_int(3, 300)
@@ -1642,7 +1647,7 @@ function start_connection(room_id)
 			{
 				if(obj.theme !== theme)
 				{
-					socket_emit("change_theme", {color:obj.theme})
+					socket_emit("change_theme", {color:clean_string5(obj.theme)})
 				}
 
 				if(obj.text_color_mode !== text_color_mode)
@@ -1654,7 +1659,7 @@ function start_connection(room_id)
 				{
 					if(obj.text_color !== text_color)
 					{
-						socket_emit("change_text_color", {color:obj.text_color})
+						socket_emit("change_text_color", {color:clean_string5(obj.text_color)})
 					}
 				}
 			}
