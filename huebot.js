@@ -1,7 +1,7 @@
 // Configuration
 
 const bot_email = "xxx"
-const bot_password = "xxx"
+const bot_password = "dxxx"
 const twitch_client_id = "xxx"
 const twitch_enabled = true
 const youtube_client_id = "xxx"
@@ -867,17 +867,29 @@ function start_connection(room_id)
 
 	function get_extension(s)
 	{
-		var matches = s.match(/\.(\w+)(?=$|[#?])/)
-
-		if(matches)
+		if(s.startsWith("http://") || s.startsWith("https://"))
 		{
-			return matches[1]
+			var s2 = s.split("//").slice(1).join("//")
+
+			var matches = s2.match(/\/.*\.(\w+)(?=$|[#?])/)
+
+			if(matches)
+			{
+				return matches[1]
+			}
 		}
 
 		else
 		{
-			return ""
+			var matches = s.match(/\.(\w+)(?=$|[#?])/)
+
+			if(matches)
+			{
+				return matches[1]
+			}
 		}
+
+		return ""
 	}
 
 	function clean_string2(s)
