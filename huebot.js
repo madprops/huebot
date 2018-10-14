@@ -1,7 +1,7 @@
 // Configuration
 
 const bot_email = "xxx"
-const bot_password = "dxxx"
+const bot_password = "xxx"
 const twitch_client_id = "xxx"
 const twitch_enabled = true
 const youtube_client_id = "xxx"
