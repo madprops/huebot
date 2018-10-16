@@ -1,3 +1,7 @@
+# Requirements
+
+NodeJS 10+
+
 # Installation
 
 To use simply do "npm install" inside the directory, change the details in huebot.js, then run huebot.js with node.
