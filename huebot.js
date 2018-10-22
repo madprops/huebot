@@ -122,6 +122,7 @@ function start_connection(room_id)
 	var userlist = []
 	var background_image
 	var background_mode
+	var background_effect
 	var background_tile_dimensions
 	var current_image_source
 	var current_tv_source
@@ -179,6 +180,7 @@ function start_connection(room_id)
 				set_theme(data)
 				set_background_image(data.background_image)
 				set_background_mode(data.background_mode)
+				set_background_effect(data.background_effect)
 				set_background_tile_dimensions(data.background_tile_dimensions)
 				set_userlist(data)
 				set_image_source(data.image_source)
@@ -374,6 +376,11 @@ function start_connection(room_id)
 			else if(data.type === 'background_mode_changed')
 			{
 				set_background_mode(data.mode)
+			}
+
+			else if(data.type === 'background_effect_changed')
+			{
+				set_background_effect(data.effect)
 			}
 
 			else if(data.type === 'background_tile_dimensions_changed')
@@ -697,6 +704,11 @@ function start_connection(room_id)
 	function set_background_mode(mode)
 	{
 		background_mode = mode
+	}
+
+	function set_background_effect(effect)
+	{
+		background_effect = effect
 	}
 
 	function set_background_tile_dimensions(dimensions)
@@ -1661,19 +1673,19 @@ function start_connection(room_id)
 
 				obj.text_color = clean_string5(obj.text_color)
 
-				if(obj.theme !== theme)
+				if(obj.theme && obj.theme !== theme)
 				{
 					socket_emit("change_theme", {color:obj.theme})
 				}
 
-				if(obj.text_color_mode !== text_color_mode)
+				if(obj.text_color_mode && obj.text_color_mode !== text_color_mode)
 				{
 					socket_emit("change_text_color_mode", {mode:obj.text_color_mode})
 				}
 
-				if(obj.text_color_mode === "custom")
+				if(obj.text_color_mode && obj.text_color_mode === "custom")
 				{
-					if(obj.text_color !== text_color)
+					if(obj.text_color && obj.text_color !== text_color)
 					{
 						socket_emit("change_text_color", {color:obj.text_color})
 					}
@@ -2446,6 +2458,7 @@ function start_connection(room_id)
 
 			obj.image = background_image
 			obj.mode = background_mode
+			obj.effect = background_effect
 			obj.tile_dimensions = background_tile_dimensions
 
 			backgrounds[arg] = obj
@@ -2533,19 +2546,27 @@ function start_connection(room_id)
 
 			if(obj)
 			{
-				if(obj.image !== background_image)
+				if(obj.image && obj.image !== background_image)
 				{
 					socket_emit("change_background_image_source", {src:obj.image})
 				}
 
-				if(obj.mode !== background_mode)
+				if(obj.mode && obj.mode !== background_mode)
 				{
 					socket_emit("change_background_mode", {mode:obj.mode})
 				}
 
-				if(obj.mode === "tiled")
+				if(obj.mode && obj.mode !== "solid")
 				{
-					if(obj.tile_dimensions !== background_tile_dimensions)
+					if(obj.effect && obj.effect !== background_effect)
+					{
+						socket_emit("change_background_effect", {effect:obj.effect})
+					}
+				}
+
+				if(obj.mode && obj.mode === "tiled")
+				{
+					if(obj.tile_dimensions && obj.tile_dimensions !== background_tile_dimensions)
 					{
 						socket_emit("change_background_tile_dimensions", {dimensions:obj.tile_dimensions})
 					}
