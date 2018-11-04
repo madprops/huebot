@@ -41,6 +41,7 @@ const max_title_length = 250
 const recent_streams_max_length = 5
 const max_user_command_activity = 20
 const max_media_source_length = 800
+const max_list_items = 20
 
 const media_types = ["image", "tv", "radio"]
 const no_image_error = "I don't have permission to change the image."
@@ -807,14 +808,13 @@ function start_connection(room_id)
 			filter: "",
 			prepend: "",
 			append: "",
-			sort_mode: "none"
+			sort_mode: "none",
+			whisperify: false
 		}
 
 		fill_defaults(args, def_args)
 
 		args.filter = args.filter.toLowerCase()
-
-		var list = []
 		
 		var do_filter = args.filter ? true : false
 
@@ -838,40 +838,55 @@ function start_connection(room_id)
 			props.sort()
 		}
 
+		let i = 0
+
+		let s = ""
+
 		for(var p of props)
 		{
+			i += 1
+
+			let w = ""
+			let w2 = ""
+			
+			if(args.whisperify)
+			{
+				w = `[whisper ${args.whisperify}${p}]`
+				w2 = "[/whisper]"
+			}
+
+			let ap = ""
+
+			if(i < max_list_items)
+			{
+				ap = args.append
+				s += " "
+			}
+
+			let ns = ""
+
 			if(do_filter)
 			{
 				if(p.toLowerCase().includes(args.filter))
 				{
-					list.push(`${args.prepend}${p}${args.append}`)
+					ns += `${w}${args.prepend}${p}${ap}${w2}`
 				}
 			}
 
 			else
 			{
-				list.push(`${args.prepend}${p}${args.append}`)
+				ns += `${w}${args.prepend}${p}${ap}${w2}`
 			}
 
-			if(list.length === 20)
+			if(s.length + ns.length > max_text_length)
 			{
 				break
 			}
-		}
 
-		if(list.length > 0)
-		{
-			var s = list.join(" ")
-
-			if(args.append)
+			else
 			{
-				s = s.slice(0, -1)
+				s += ns
 			}
-		}
-
-		else
-		{
-			var s = false
 		}
 
 		return s
@@ -1396,7 +1411,8 @@ function start_connection(room_id)
 				data: commands,
 				filter: arg,
 				prepend: command_prefix,
-				sort_mode: sort_mode
+				sort_mode: sort_mode,
+				whisperify: `${command_prefix}`
 			})
 
 			if(!s)
@@ -1712,7 +1728,8 @@ function start_connection(room_id)
 				data: themes,
 				filter: arg,
 				append: ",",
-				sort_mode: sort_mode
+				sort_mode: sort_mode,
+				whisperify: `${command_prefix}theme `
 			})
 
 			if(!s)
@@ -2056,7 +2073,8 @@ function start_connection(room_id)
 				data: subjects,
 				filter: arg,
 				append: ",",
-				sort_mode: sort_mode
+				sort_mode: sort_mode,
+				whisperify: `${command_prefix}subject `
 			})
 
 			if(!s)
@@ -2593,7 +2611,8 @@ function start_connection(room_id)
 				data: backgrounds,
 				filter: arg,
 				append: ",",
-				sort_mode: sort_mode
+				sort_mode: sort_mode,
+				whisperify: `${command_prefix}background `
 			})
 
 			if(!s)
