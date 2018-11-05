@@ -336,6 +336,12 @@ List of backgrounds. Can be filtered with an argument.
 
 Used with chained commands. For instance ".say hello && .sleep 2000 && .tv the world".
 
+>suggest
+
+Used to display suggested media search terms.
+It defaults to tv, but image or radio can be specified too.
+It will show a list with clickable items and make a search query when one is clicked.
+
 # Replacements
 
 Strings in some cases can get replaced to certain things depending on the keyword.
