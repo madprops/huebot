@@ -23,17 +23,17 @@ const linkify = require("linkifyjs")
 
 const files_path = path.normalize(path.resolve(__dirname, files_location) + "/")
 
-var commands = require(`${files_path}commands.json`)
-var permissions = require(`${files_path}permissions.json`)
-var themes = require(`${files_path}themes.json`)
-var options = require(`${files_path}options.json`)
-var queue = require(`${files_path}queue.json`)
-var words = require(`${files_path}words`)
-var subjects = require(`${files_path}subjects`)
-var backgrounds = require(`${files_path}backgrounds`)
+let commands = require(`${files_path}commands.json`)
+let permissions = require(`${files_path}permissions.json`)
+let themes = require(`${files_path}themes.json`)
+let options = require(`${files_path}options.json`)
+let queue = require(`${files_path}queue.json`)
+let words = require(`${files_path}words`)
+let subjects = require(`${files_path}subjects`)
+let backgrounds = require(`${files_path}backgrounds`)
 
-var connected_rooms = {}
-var user_command_activity = []
+const connected_rooms = {}
+const user_command_activity = []
 
 const socket_emit_throttle = 10
 const max_text_length = 2000
@@ -49,7 +49,7 @@ const no_image_error = "I don't have permission to change the image."
 const no_tv_error = "I don't have permission to change the tv."
 const no_radio_error = "I don't have permission to change the radio."
 
-var available_commands = 
+const available_commands = 
 [
 	'image',
 	'tv',
@@ -99,38 +99,38 @@ var available_commands =
 	"suggest"
 ]
 
-for(var room_id of room_ids)
+for(let room_id of room_ids)
 {
 	start_connection(room_id)
 }
 
 function start_connection(room_id)
 {
-	var username = ""
-	var role = false
-	var room_images_mode = "disabled"
-	var room_tv_mode = "disabled"
-	var room_radio_mode = "disabled"
-	var can_chat = false
-	var can_tv = false
-	var can_radio = false
-	var vpermissions = {}
-	var theme
-	var text_color
-	var text_color_mode
-	var emit_queue_timeout
-	var emit_queue = []
-	var recent_twitch_streams = []
-	var recent_youtube_streams = []
-	var userlist = []
-	var background_image
-	var background_mode
-	var background_effect
-	var background_tile_dimensions
-	var current_image_source
-	var current_tv_source
-	var current_radio_source
-	var commands_queue = {}
+	let username = ""
+	let role = false
+	let room_images_mode = "disabled"
+	let room_tv_mode = "disabled"
+	let room_radio_mode = "disabled"
+	let can_chat = false
+	let can_tv = false
+	let can_radio = false
+	let vpermissions = {}
+	let theme
+	let text_color
+	let text_color_mode
+	let emit_queue_timeout
+	let emit_queue = []
+	let recent_twitch_streams = []
+	let recent_youtube_streams = []
+	let userlist = []
+	let background_image
+	let background_mode
+	let background_effect
+	let background_tile_dimensions
+	let current_image_source
+	let current_tv_source
+	let current_radio_source
+	let commands_queue = {}
 
 	vpermissions.voice1_chat_permission = false
 	vpermissions.voice1_images_permission = false
@@ -206,7 +206,7 @@ function start_connection(room_id)
 
 				if(is_command(data.message))
 				{
-					var obj = 
+					let obj = 
 					{
 						username: data.username,
 						message: data.message,
@@ -220,15 +220,15 @@ function start_connection(room_id)
 				{
 					if(options.link_titles)
 					{
-						var links = linkify.find(data.message)
+						let links = linkify.find(data.message)
 
 						if(links)
 						{
 							for(let i=0; i<links.length; i++)
 							{
-								var link = links[i]
+								let link = links[i]
 
-								var href = link.href
+								let href = link.href
 
 								if(!href.startsWith("http://") && !href.startsWith("https://"))
 								{
@@ -240,7 +240,7 @@ function start_connection(room_id)
 									break
 								}
 
-								var extension = get_extension(href).toLowerCase()
+								let extension = get_extension(href).toLowerCase()
 
 								if(extension)
 								{
@@ -259,8 +259,8 @@ function start_connection(room_id)
 								
 								.then(body => 
 								{
-									var $ = cheerio.load(body)
-									var title = clean_string2($("title").text().substring(0, max_title_length))
+									let $ = cheerio.load(body)
+									let title = clean_string2($("title").text().substring(0, max_title_length))
 									
 									if(title)
 									{
@@ -350,7 +350,7 @@ function start_connection(room_id)
 			{
 				if(is_command(data.message))
 				{
-					var obj = 
+					let obj = 
 					{
 						username: data.username,
 						message: data.message,
@@ -453,7 +453,7 @@ function start_connection(room_id)
 
 	function change_media(args={})
 	{
-		var def_args =
+		let def_args =
 		{
 			type: "",
 			src: "",
@@ -544,7 +544,7 @@ function start_connection(room_id)
 
 	function run_command(cmd, arg, data)
 	{
-		var command = commands[cmd]
+		let command = commands[cmd]
 
 		if(command.type === "image")
 		{
@@ -579,7 +579,7 @@ function start_connection(room_id)
 		can_chat = check_permission(role, "chat")
 		can_images = room_images_mode === "enabled" && check_permission(role, "images")
 		can_tv = room_tv_mode === "enabled" && check_permission(role, "tv")
-		can_radio =  room_radio_mode === "enabled" && check_permission(role, "radio")
+		can_radio = room_radio_mode === "enabled" && check_permission(role, "radio")
 	}
 
 	function check_permission(role, type)
@@ -641,7 +641,7 @@ function start_connection(room_id)
 
 	function socket_emit(destination, data)
 	{
-		var obj =
+		let obj =
 		{
 			destination: destination,
 			data: data
@@ -659,7 +659,7 @@ function start_connection(room_id)
 	{
 		if(emit_queue.length > 0)
 		{
-			var obj = emit_queue[0]
+			let obj = emit_queue[0]
 
 			if(obj !== "first")
 			{
@@ -689,7 +689,7 @@ function start_connection(room_id)
 
 	function get_random_int(min, max)
 	{
-		return Math.floor(Math.random() * (max  -min + 1) + min)
+		return Math.floor(Math.random() * (max - min + 1) + min)
 	}
 
 	function set_theme(data)
@@ -791,9 +791,9 @@ function start_connection(room_id)
 
 	function fill_defaults(args, def_args)
 	{
-		for(var key in def_args)
+		for(let key in def_args)
 		{
-			var d = def_args[key]
+			let d = def_args[key]
 
 			if(args[key] === undefined)
 			{
@@ -804,7 +804,7 @@ function start_connection(room_id)
 
 	function list_items(args={})
 	{
-		var def_args =
+		let def_args =
 		{
 			data: {},
 			filter: "",
@@ -819,16 +819,18 @@ function start_connection(room_id)
 
 		args.filter = args.filter.toLowerCase()
 		
-		var do_filter = args.filter ? true : false
+		let do_filter = args.filter ? true : false
+
+		let props
 
 		if(Array.isArray(args.data))
 		{
-			var props = args.data
+			props = args.data
 		}
 
 		else
 		{
-			var props = Object.keys(args.data)
+			props = Object.keys(args.data)
 		}
 
 		if(args.sort_mode === "random")
@@ -845,7 +847,7 @@ function start_connection(room_id)
 
 		let s = ""
 
-		for(var p of props)
+		for(let p of props)
 		{
 			i += 1
 
@@ -916,9 +918,9 @@ function start_connection(room_id)
 	{
 		if(s.startsWith("http://") || s.startsWith("https://"))
 		{
-			var s2 = s.split("//").slice(1).join("//")
+			let s2 = s.split("//").slice(1).join("//")
 
-			var matches = s2.match(/\/.*\.(\w+)(?=$|[#?])/)
+			let matches = s2.match(/\/.*\.(\w+)(?=$|[#?])/)
 
 			if(matches)
 			{
@@ -928,7 +930,7 @@ function start_connection(room_id)
 
 		else
 		{
-			var matches = s.match(/\.(\w+)(?=$|[#?])/)
+			let matches = s.match(/\.(\w+)(?=$|[#?])/)
 
 			if(matches)
 			{
@@ -951,11 +953,11 @@ function start_connection(room_id)
 
 	function generate_random_drawing()
 	{
-		var n = get_random_int(3, 300)
+		let n = get_random_int(3, 300)
 
-		var click_x = []
-		var click_y = []
-		var drag = []
+		let click_x = []
+		let click_y = []
+		let drag = []
 
 		for(let i=0; i<n; i++)
 		{
@@ -997,7 +999,7 @@ function start_connection(room_id)
 			{
 				shuffle_array(res.data)
 
-				for(var item of res.data)
+				for(let item of res.data)
 				{
 					if(!recent_twitch_streams.includes(item.user_id))
 					{
@@ -1005,7 +1007,7 @@ function start_connection(room_id)
 					}
 				}
 
-				var id = item.user_id
+				let id = item.user_id
 
 				recent_twitch_streams.push(id)
 
@@ -1065,7 +1067,7 @@ function start_connection(room_id)
 			{
 				shuffle_array(res.items)
 
-				for(var item of res.items)
+				for(let item of res.items)
 				{
 					if(!recent_youtube_streams.includes(item.id.videoId))
 					{
@@ -1073,7 +1075,7 @@ function start_connection(room_id)
 					}
 				}
 
-				var id  = item.id.videoId
+				let id = item.id.videoId
 
 				recent_youtube_streams.push(id)
 
@@ -1130,20 +1132,22 @@ function start_connection(room_id)
 			user_command_activity.shift()
 		}
 
-		var split = data.message.split(' ')
+		let split = data.message.split(' ')
 
-		var cmd = split[0]
+		let cmd = split[0]
+
+		let arg
 
 		if(split.length > 1)
 		{
 			cmd += ' '
 
-			var arg = clean_string2(split.slice(1).join(" "))
+			arg = clean_string2(split.slice(1).join(" "))
 		}
 
 		else
 		{
-			var arg = ""
+			arg = ""
 		}
 
 		cmd = cmd.substring(1).trim()
@@ -1158,7 +1162,7 @@ function start_connection(room_id)
 
 				if(and_split.length > 1)
 				{
-					var cmds = []
+					let cmds = []
 
 					for(let i=0; i<and_split.length; i++)
 					{
@@ -1166,23 +1170,26 @@ function start_connection(room_id)
 
 						let c = item.trim()
 
+						let cc
+						let c2
+
 						if(!c.startsWith(command_prefix))
 						{
-							var cc = command_prefix + c
-							var c2 = c
+							cc = command_prefix + c
+							c2 = c
 						}
 
 						else
 						{
-							var cc = c
-							var c2 = c.substring(1)
+							cc = c
+							c2 = c.substring(1)
 						}
 
-						var acmd = commands[c2]
+						let acmd = commands[c2]
 
 						if(acmd !== undefined)
 						{
-							var spc = acmd.url.split(" ")[0]
+							let spc = acmd.url.split(" ")[0]
 
 							if(available_commands.includes(spc))
 							{
@@ -1193,11 +1200,13 @@ function start_connection(room_id)
 						cmds.push(cc)
 					}
 
-					var qcmax = 0
+					let qcmax = 0
+
+					let cqid
 
 					while(true)
 					{
-						var cqid = get_random_string(5) + Date.now()
+						cqid = get_random_string(5) + Date.now()
 
 						if(commands_queue[cqid] === undefined)
 						{
@@ -1297,10 +1306,10 @@ function start_connection(room_id)
 
 		else if(cmd === "set" || cmd === "setforce")
 		{
-			var split = arg.split(' ')
-			var command_name = split[0]
-			var command_type = split[1]
-			var command_url = split.slice(2).join(" ")
+			let split = arg.split(' ')
+			let command_name = split[0]
+			let command_type = split[1]
+			let command_url = split.slice(2).join(" ")
 
 			if(!arg || split.length < 3 || (!media_types.includes(command_type) && command_type !== "alias"))
 			{
@@ -1330,7 +1339,7 @@ function start_connection(room_id)
 				}
 			}
 
-			var oc = commands[command_name]
+			let oc = commands[command_name]
 
 			if(oc && cmd !== "setforce")
 			{
@@ -1338,7 +1347,7 @@ function start_connection(room_id)
 				return false
 			}
 
-			var testobj = {}
+			let testobj = {}
 
 			try
 			{
@@ -1382,9 +1391,9 @@ function start_connection(room_id)
 
 		else if(cmd === "rename")
 		{
-			var split = arg.split(' ')
-			var old_name = split[0]
-			var new_name = split[1]
+			let split = arg.split(' ')
+			let old_name = split[0]
+			let new_name = split[1]
 
 			if(!arg || split.length !== 2)
 			{
@@ -1419,14 +1428,14 @@ function start_connection(room_id)
 
 		else if(cmd === "list")
 		{
-			var sort_mode = "random"
+			let sort_mode = "random"
 
 			if(arg)
 			{
 				sort_mode = "sort"
 			}
 
-			var s = list_items(
+			let s = list_items(
 			{
 				data: commands,
 				filter: arg,
@@ -1438,7 +1447,7 @@ function start_connection(room_id)
 
 			if(!s)
 			{
-				var s = "No commands found."
+				s = "No commands found."
 			}
 
 			process_feedback(data, s)
@@ -1448,7 +1457,7 @@ function start_connection(room_id)
 		{
 			if(arg)
 			{
-				var cmds = Object.keys(commands)
+				let cmds = Object.keys(commands)
 
 				cmds = cmds.filter(x => commands[x].type !== "alias")
 
@@ -1459,7 +1468,7 @@ function start_connection(room_id)
 				
 				cmds = cmds.filter(x => commands[x].type === arg)
 				
-				var c = cmds[get_random_int(0, cmds.length - 1)]
+				let c = cmds[get_random_int(0, cmds.length - 1)]
 
 				if(c)
 				{
@@ -1475,8 +1484,8 @@ function start_connection(room_id)
 					return false
 				}
 
-				var word1 = words[get_random_int(0, words.length - 1)]
-				var word2 = words[get_random_int(0, words.length - 1)]
+				let word1 = words[get_random_int(0, words.length - 1)]
+				let word2 = words[get_random_int(0, words.length - 1)]
 
 				change_media({type:"tv", src:`${word1} ${word2}`})
 			}
@@ -1497,7 +1506,7 @@ function start_connection(room_id)
 
 			else
 			{
-				var command = commands[arg]
+				let command = commands[arg]
 
 				if(command)
 				{
@@ -1562,7 +1571,7 @@ function start_connection(room_id)
 			{
 				for(let i=0; i<permissions.admins.length; i++)
 				{
-					var admin = permissions.admins[i]
+					let admin = permissions.admins[i]
 
 					if(admin === arg)
 					{
@@ -1584,14 +1593,14 @@ function start_connection(room_id)
 
 		else if(cmd === "admins")
 		{
-			var sort_mode = "random"
+			let sort_mode = "random"
 
 			if(arg)
 			{
 				sort_mode = "sort"
 			}
 
-			var s = list_items(
+			let s = list_items(
 			{
 				data: permissions.admins,
 				filter: arg,
@@ -1601,7 +1610,7 @@ function start_connection(room_id)
 
 			if(!s)
 			{
-				var s = "No admins found."
+				s = "No admins found."
 			}
 
 			process_feedback(data, s)
@@ -1615,7 +1624,7 @@ function start_connection(room_id)
 				return false
 			}
 
-			var obj = {}
+			let obj = {}
 
 			obj.theme = theme
 			obj.text_color = text_color
@@ -1653,9 +1662,9 @@ function start_connection(room_id)
 
 		else if(cmd === "themerename")
 		{
-			var split = arg.split(' ')
-			var old_name = split[0]
-			var new_name = split[1]
+			let split = arg.split(' ')
+			let old_name = split[0]
+			let new_name = split[1]
 
 			if(!arg || split.length !== 2)
 			{
@@ -1702,7 +1711,7 @@ function start_connection(room_id)
 				return false
 			}
 
-			var obj = themes[arg]
+			let obj = themes[arg]
 
 			if(obj)
 			{
@@ -1737,14 +1746,14 @@ function start_connection(room_id)
 
 		else if(cmd === "themes")
 		{
-			var sort_mode = "random"
+			let sort_mode = "random"
 
 			if(arg)
 			{
 				sort_mode = "sort"
 			}
 
-			var s = list_items(
+			let s = list_items(
 			{
 				data: themes,
 				filter: arg,
@@ -1755,7 +1764,7 @@ function start_connection(room_id)
 
 			if(!s)
 			{
-				var s = "No themes found."
+				s = "No themes found."
 			}
 
 			process_feedback(data, s)
@@ -1763,7 +1772,7 @@ function start_connection(room_id)
 
 		else if(cmd === "subjectadd")
 		{
-			var error = false
+			let error = false
 
 			if(!arg)
 			{
@@ -1784,7 +1793,7 @@ function start_connection(room_id)
 				return false
 			}
 
-			var name = arg.toLowerCase()
+			let name = arg.toLowerCase()
 
 			if(subjects[name] === undefined)
 			{
@@ -1810,7 +1819,7 @@ function start_connection(room_id)
 				return false
 			}
 
-			var name = arg.toLowerCase()
+			let name = arg.toLowerCase()
 
 			if(subjects[name] === undefined)
 			{
@@ -1828,9 +1837,9 @@ function start_connection(room_id)
 
 		else if(cmd === "subjectrename")
 		{
-			var split = arg.split(' ')
-			var old_name = split[0].toLowerCase()
-			var new_name = split.slice(1).join(" ").toLowerCase()
+			let split = arg.split(' ')
+			let old_name = split[0].toLowerCase()
+			let new_name = split.slice(1).join(" ").toLowerCase()
 
 			if(!arg || split.length !== 2)
 			{
@@ -1871,9 +1880,9 @@ function start_connection(room_id)
 				return false
 			}
 
-			var split = arg.split(" ")
-			var name = split[0].toLowerCase()
-			var filter = split.slice(1).join(" ").toLowerCase()
+			let split = arg.split(" ")
+			let name = split[0].toLowerCase()
+			let filter = split.slice(1).join(" ").toLowerCase()
 
 			if(subjects[name] === undefined)
 			{
@@ -1881,7 +1890,7 @@ function start_connection(room_id)
 				return false
 			}
 
-			var list = subjects[name]
+			let list = subjects[name]
 
 			if(list.length === 0)
 			{
@@ -1889,14 +1898,14 @@ function start_connection(room_id)
 				return false
 			}
 
-			var sort_mode = "random"
+			let sort_mode = "random"
 
 			if(filter)
 			{
 				sort_mode = "sort"
 			}
 
-			var s = list_items(
+			let s = list_items(
 			{
 				data: list,
 				filter: filter,
@@ -1906,7 +1915,7 @@ function start_connection(room_id)
 
 			if(!s)
 			{
-				var s = "No subjects found."
+				s = "No subjects found."
 			}
 
 			process_feedback(data, s)
@@ -1914,18 +1923,22 @@ function start_connection(room_id)
 
 		else if(cmd === "subjectkeywordsadd")
 		{
-			var error = false
+			let error = false
 			
 			if(!arg)
 			{
 				error = true
 			}
 
+			let split
+			let name
+			let keyword
+
 			if(!error)
 			{
-				var split = arg.split(" ")
-				var name = split[0].toLowerCase()
-				var keyword = split.slice(1).join(" ").toLowerCase()
+				split = arg.split(" ")
+				name = split[0].toLowerCase()
+				keyword = split.slice(1).join(" ").toLowerCase()
 
 				if(!name || !keyword)
 				{
@@ -1945,7 +1958,7 @@ function start_connection(room_id)
 				return false
 			}
 
-			var list = subjects[name]
+			let list = subjects[name]
 
 			for(let i of list)
 			{
@@ -1966,18 +1979,22 @@ function start_connection(room_id)
 
 		else if(cmd === "subjectkeywordsremove")
 		{
-			var error = false
+			let error = false
 			
 			if(!arg)
 			{
 				error = true
 			}
 
+			let split
+			let name
+			let keyword
+
 			if(!error)
 			{
-				var split = arg.split(" ")
-				var name = split[0].toLowerCase()
-				var keyword = split.slice(1).join(" ").toLowerCase()
+				split = arg.split(" ")
+				name = split[0].toLowerCase()
+				keyword = split.slice(1).join(" ").toLowerCase()
 
 				if(!name || !keyword)
 				{
@@ -1997,7 +2014,7 @@ function start_connection(room_id)
 				return false
 			}
 
-			var list = subjects[name]
+			let list = subjects[name]
 
 			if(list.length === 0)
 			{
@@ -2034,9 +2051,9 @@ function start_connection(room_id)
 				return false
 			}
 
-			var split = arg.split(" ")
-			var name = split[0].toLowerCase()
-			var type = split.slice(1).join(" ").toLowerCase()
+			let split = arg.split(" ")
+			let name = split[0].toLowerCase()
+			let type = split.slice(1).join(" ").toLowerCase()
 
 			if(subjects[name] === undefined)
 			{
@@ -2044,16 +2061,18 @@ function start_connection(room_id)
 				return false
 			}
 
-			var list = subjects[name]
+			let list = subjects[name]
+
+			let query
 
 			if(list.length === 0)
 			{
-				var query = `${name} ${words[get_random_int(0, words.length - 1)]}`
+				query = `${name} ${words[get_random_int(0, words.length - 1)]}`
 			}
 
 			else
 			{
-				var query = `${name} ${list[get_random_int(0, list.length - 1)]} ${words[get_random_int(0, words.length - 1)]}`
+				query = `${name} ${list[get_random_int(0, list.length - 1)]} ${words[get_random_int(0, words.length - 1)]}`
 			}
 
 			if(type)
@@ -2082,14 +2101,14 @@ function start_connection(room_id)
 
 		else if(cmd === "subjects")
 		{
-			var sort_mode = "random"
+			let sort_mode = "random"
 
 			if(arg)
 			{
 				sort_mode = "sort"
 			}
 
-			var s = list_items(
+			let s = list_items(
 			{
 				data: subjects,
 				filter: arg,
@@ -2100,7 +2119,7 @@ function start_connection(room_id)
 
 			if(!s)
 			{
-				var s = "No subjects found."
+				s = "No subjects found."
 			}
 
 			process_feedback(data, s)
@@ -2149,10 +2168,10 @@ function start_connection(room_id)
 
 		else if(cmd === "q")
 		{
-			var error = false
+			let error = false
 
-			var arg1
-			var arg1
+			let arg1
+			let arg2
 
 			if(!arg)
 			{
@@ -2161,7 +2180,7 @@ function start_connection(room_id)
 			
 			else
 			{
-				var split = arg.split(' ')
+				let split = arg.split(' ')
 
 				if(split.length < 2)
 				{
@@ -2190,25 +2209,29 @@ function start_connection(room_id)
 				return false
 			}
 
+			let error_string
+			let upname
+			let perm
+
 			if(arg1 === "image")
 			{
-				var error_string = no_image_error
-				var upname = "Image"
-				var perm = can_images
+				error_string = no_image_error
+				upname = "Image"
+				perm = can_images
 			}
 
 			else if(arg1 === "tv")
 			{
-				var error_string = no_tv_error
-				var upname = "TV"
-				var perm = can_tv
+				error_string = no_tv_error
+				upname = "TV"
+				perm = can_tv
 			}
 
 			else if(arg1 === "radio")
 			{
-				var error_string = no_radio_error
-				var upname = "Radio"
-				var perm = can_radio
+				error_string = no_radio_error
+				upname = "Radio"
+				perm = can_radio
 			}
 
 			if(arg2 === "next")
@@ -2221,7 +2244,7 @@ function start_connection(room_id)
 						return false
 					}
 
-					var url = queue[arg1].shift()
+					let url = queue[arg1].shift()
 
 					if(arg1 === "image")
 					{
@@ -2267,16 +2290,18 @@ function start_connection(room_id)
 
 			else if(arg2 === "size")
 			{
-				var n = queue[arg1].length
+				let n = queue[arg1].length
+
+				let s
 
 				if(n === 1)
 				{
-					var s = "item"
+					s = "item"
 				}
 
 				else
 				{
-					var s = "items"
+					s = "items"
 				}
 
 				process_feedback(data, `${upname} queue has ${n} ${s}.`)
@@ -2324,7 +2349,7 @@ function start_connection(room_id)
 
 			else
 			{
-				var n = get_random_int(0, 1)
+				let n = get_random_int(0, 1)
 
 				if(n === 0)
 				{
@@ -2340,7 +2365,7 @@ function start_connection(room_id)
 
 		else if(cmd === "activity")
 		{
-			var s = list_items(
+			let s = list_items(
 			{
 				data: user_command_activity.slice(0).reverse(),
 				append: ","
@@ -2348,7 +2373,7 @@ function start_connection(room_id)
 
 			if(!s)
 			{
-				var s = "No activity yet."
+				s = "No activity yet."
 			}
 
 			process_feedback(data, `Recent command activity by: ${s}`)
@@ -2493,7 +2518,7 @@ function start_connection(room_id)
 				return false
 			}
 
-			var obj = {}
+			let obj = {}
 
 			obj.image = background_image
 			obj.mode = background_mode
@@ -2532,9 +2557,9 @@ function start_connection(room_id)
 
 		else if(cmd === "backgroundrename")
 		{
-			var split = arg.split(' ')
-			var old_name = split[0]
-			var new_name = split[1]
+			let split = arg.split(' ')
+			let old_name = split[0]
+			let new_name = split[1]
 
 			if(!arg || split.length !== 2)
 			{
@@ -2581,7 +2606,7 @@ function start_connection(room_id)
 				return false
 			}
 
-			var obj = backgrounds[arg]
+			let obj = backgrounds[arg]
 
 			if(obj)
 			{
@@ -2620,14 +2645,14 @@ function start_connection(room_id)
 
 		else if(cmd === "backgrounds")
 		{
-			var sort_mode = "random"
+			let sort_mode = "random"
 
 			if(arg)
 			{
 				sort_mode = "sort"
 			}
 
-			var s = list_items(
+			let s = list_items(
 			{
 				data: backgrounds,
 				filter: arg,
@@ -2638,7 +2663,7 @@ function start_connection(room_id)
 
 			if(!s)
 			{
-				var s = "No backgrounds found."
+				s = "No backgrounds found."
 			}
 
 			process_feedback(data, s)
@@ -2682,7 +2707,7 @@ function start_connection(room_id)
 
 		else if(cmd === "help")
 		{
-			var s = ""
+			let s = ""
 
 			if(arg)
 			{
@@ -2700,7 +2725,7 @@ function start_connection(room_id)
 			{
 				s += "Available Commands: "
 
-				for(var c of available_commands)
+				for(let c of available_commands)
 				{
 					s += `${command_prefix}${c}, ` 
 				}
@@ -2802,11 +2827,11 @@ function start_connection(room_id)
 
 	function get_random_string(n)
 	{
-		var text = ""
+		let text = ""
 
-		var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+		let possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
 
-		for(var i=0; i < n; i++)
+		for(let i=0; i < n; i++)
 		{
 			text += possible[get_random_int(0, possible.length - 1)]
 		}
@@ -2816,7 +2841,7 @@ function start_connection(room_id)
 
 	function run_commands_queue(id)
 	{
-		var cq = commands_queue[id]
+		let cq = commands_queue[id]
 
 		if(!cq)
 		{
@@ -2824,7 +2849,7 @@ function start_connection(room_id)
 			return false
 		}
 
-		var cmds = cq.commands
+		let cmds = cq.commands
 		
 		if(cmds.length === 0)
 		{
@@ -2832,11 +2857,11 @@ function start_connection(room_id)
 			return false	
 		}
 
-		var cmd = cmds.shift()
+		let cmd = cmds.shift()
 
-		var lc_cmd = cmd.toLowerCase()
+		let lc_cmd = cmd.toLowerCase()
 
-		var obj = 	
+		let obj = 	
 		{
 			message: cmd,
 			username: cq.username,
@@ -2849,7 +2874,7 @@ function start_connection(room_id)
 
 		if(lc_cmd.startsWith(".sleep") || lc_cmd === ".sleep")
 		{
-			var n = parseInt(lc_cmd.replace(".sleep ", ""))
+			let n = parseInt(lc_cmd.replace(".sleep ", ""))
 
 			if(isNaN(n))
 			{
