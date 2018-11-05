@@ -809,7 +809,8 @@ function start_connection(room_id)
 			prepend: "",
 			append: "",
 			sort_mode: "none",
-			whisperify: false
+			whisperify: false,
+			mode: ""
 		}
 
 		fill_defaults(args, def_args)
@@ -855,9 +856,21 @@ function start_connection(room_id)
 				w2 = "[/whisper]"
 			}
 
+			let bp = ""
+
+			if(args.mode === "commands")
+			{
+				let cmd = commands[p]
+
+				if(cmd && cmd.type)
+				{
+					bp = ` (${cmd.type})`
+				}
+			}
+
 			let ap = ""
 
-			if(i < max_list_items)
+			if(i <= max_list_items)
 			{
 				ap = args.append
 				s += " "
@@ -869,13 +882,13 @@ function start_connection(room_id)
 			{
 				if(p.toLowerCase().includes(args.filter))
 				{
-					ns += `${w}${args.prepend}${p}${ap}${w2}`
+					ns += `${w}${args.prepend}${p}${bp}${ap}${w2}`
 				}
 			}
 
 			else
 			{
-				ns += `${w}${args.prepend}${p}${ap}${w2}`
+				ns += `${w}${args.prepend}${p}${bp}${ap}${w2}`
 			}
 
 			if(s.length + ns.length > max_text_length)
@@ -886,6 +899,11 @@ function start_connection(room_id)
 			else
 			{
 				s += ns
+			}
+
+			if(i >= max_list_items)
+			{
+				break
 			}
 		}
 
@@ -1412,7 +1430,8 @@ function start_connection(room_id)
 				filter: arg,
 				prepend: command_prefix,
 				sort_mode: sort_mode,
-				whisperify: `${command_prefix}`
+				whisperify: `${command_prefix}`,
+				mode: "commands"
 			})
 
 			if(!s)
