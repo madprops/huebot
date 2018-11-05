@@ -42,6 +42,7 @@ const recent_streams_max_length = 5
 const max_user_command_activity = 20
 const max_media_source_length = 800
 const max_list_items = 20
+const num_suggestions = 5
 
 const media_types = ["image", "tv", "radio"]
 const no_image_error = "I don't have permission to change the image."
@@ -94,7 +95,8 @@ var available_commands =
 	"backgroundrename",
 	"background",
 	"backgrounds",
-	"sleep"
+	"sleep",
+	"suggest"
 ]
 
 for(var room_id of room_ids)
@@ -2642,6 +2644,42 @@ function start_connection(room_id)
 			process_feedback(data, s)
 		}
 
+		else if(cmd === "suggest")
+		{
+			let type = "tv"
+
+			if(arg)
+			{
+				if(arg === "tv" || arg === "image" || arg === "images" || arg === "radio")
+				{
+					type = arg
+
+					if(type === "images")
+					{
+						type = "image"
+					}
+				}
+			}
+
+			let suggestions = `Some ${type} suggestions: `
+
+			for(let i=0; i<num_suggestions; i++)
+			{
+				let words = `${get_random_word()} ${get_random_word()}`
+
+				let s = `[whisper ${command_prefix}${type} ${words}]"${words}"[/whisper]`
+
+				if(i < num_suggestions - 1)
+				{
+					s += ", "
+				}
+				
+				suggestions += s
+			}
+
+			process_feedback(data, suggestions)
+		}
+
 		else if(cmd === "help")
 		{
 			var s = ""
@@ -2714,16 +2752,26 @@ function start_connection(room_id)
 		}
 	}
 
+	function get_random_word()
+	{
+		return words[get_random_int(0, words.length - 1)]
+	}
+
+	function get_random_user()
+	{
+		return userlist[get_random_int(0, userlist.length - 1)]
+	}
+
 	function do_replacements(s)
 	{
 		s = s.replace(/\$word\$/gi, function()
 		{
-			return words[get_random_int(0, words.length - 1)]
+			return get_random_word()
 		})
 
 		s = s.replace(/\$user\$/gi, function()
 		{
-			return userlist[get_random_int(0, userlist.length - 1)]
+			return get_random_user()
 		})
 
 		return s
