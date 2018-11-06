@@ -882,7 +882,7 @@ function start_connection(room_id)
 				s += " "
 			}
 
-			if(i < num_props)
+			if(i < max_list_items && i < num_props)
 			{
 				ap = args.append
 			}
