@@ -849,15 +849,36 @@ function start_connection(room_id)
 
 		for(let p of props)
 		{
+			if(do_filter)
+			{
+				if(p.toLowerCase().includes(args.filter))
+				{
+					if(!on_added(p))
+					{
+						break
+					}
+				}
+			}
+
+			else
+			{
+				if(!on_added(p))
+				{
+					break
+				}
+			}
+		}
+
+		function on_added(p)
+		{
 			i += 1
 
-			let w = ""
-			let w2 = ""
-			
-			if(args.whisperify)
+			let ap = ""
+
+			if(i <= max_list_items)
 			{
-				w = `[whisper ${args.whisperify}${p}]`
-				w2 = "[/whisper]"
+				ap = args.append
+				s += " "
 			}
 
 			let bp = ""
@@ -872,32 +893,20 @@ function start_connection(room_id)
 				}
 			}
 
-			let ap = ""
-
-			if(i <= max_list_items)
+			let w = ""
+			let w2 = ""
+			
+			if(args.whisperify)
 			{
-				ap = args.append
-				s += " "
+				w = `[whisper ${args.whisperify}${p}]`
+				w2 = "[/whisper]"
 			}
 
-			let ns = ""
-
-			if(do_filter)
-			{
-				if(p.toLowerCase().includes(args.filter))
-				{
-					ns += `${w}${args.prepend}${p}${bp}${ap}${w2}`
-				}
-			}
-
-			else
-			{
-				ns += `${w}${args.prepend}${p}${bp}${ap}${w2}`
-			}
+			let ns = `${w}${args.prepend}${p}${bp}${ap}${w2}`
 
 			if(s.length + ns.length > max_text_length)
 			{
-				break
+				return false
 			}
 
 			else
@@ -907,11 +916,13 @@ function start_connection(room_id)
 
 			if(i >= max_list_items)
 			{
-				break
+				return false
 			}
+
+			return true
 		}
 
-		return s
+		return s.trim()
 	}
 
 	function get_extension(s)
@@ -2766,6 +2777,11 @@ function start_connection(room_id)
 
 	function process_feedback(data, s)
 	{
+		if(!s)
+		{
+			return false
+		}
+		
 		if(data.method === "whisper")
 		{
 			send_whisper(data.username, s, false)
