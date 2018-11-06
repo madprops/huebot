@@ -847,6 +847,8 @@ function start_connection(room_id)
 
 		let s = ""
 
+		let num_props = props.length
+
 		for(let p of props)
 		{
 			if(do_filter)
@@ -877,8 +879,12 @@ function start_connection(room_id)
 
 			if(i <= max_list_items)
 			{
-				ap = args.append
 				s += " "
+			}
+
+			if(i < num_props)
+			{
+				ap = args.append
 			}
 
 			let bp = ""
@@ -2781,7 +2787,7 @@ function start_connection(room_id)
 		{
 			return false
 		}
-		
+
 		if(data.method === "whisper")
 		{
 			send_whisper(data.username, s, false)
