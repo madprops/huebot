@@ -346,6 +346,24 @@ function start_connection(room_id)
 				}
 			}
 
+			else if(data.type === 'announce_removedops')
+			{
+				if(role === 'op')
+				{
+					set_role("voice1")
+					check_permissions()
+				}
+			}
+
+			else if(data.type === 'voices_resetted')
+			{
+				if(role.startsWith('voice') && role !== "voice1")
+				{
+					set_role("voice1")
+					check_permissions()
+				}
+			}
+
 			else if(data.type === "whisper")
 			{
 				if(is_command(data.message))
