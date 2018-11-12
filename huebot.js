@@ -1147,17 +1147,47 @@ function start_connection(room_id)
 	// data.callback
 	function process_command(data)
 	{
+		let allowed = false
+
 		if(!is_admin(data.username))
 		{
-			if(data.callback)
+			let cmd = data.message.substring(1).trim()
+
+			if(cmd === "random" || cmd === "list")
 			{
-				return data.callback()
+				allowed = true
 			}
 
 			else
 			{
-				return false
+				let cmd2 = commands[cmd]
+				
+				if(cmd2)
+				{
+					if(cmd2.type === "image" || cmd2.type === "tv" || cmd2.type === "radio")
+					{
+						allowed = true
+					}
+				}
 			}
+
+			if(!allowed)
+			{
+				if(data.callback)
+				{
+					return data.callback()
+				}
+
+				else
+				{
+					return false
+				}
+			}
+		}
+
+		else
+		{
+			allowed = true
 		}
 
 		user_command_activity.push(data.username)
@@ -1470,9 +1500,13 @@ function start_connection(room_id)
 				sort_mode = "sort"
 			}
 
+			let cmds = Object.keys(commands)
+
+			cmds = cmds.filter(x => commands[x].type !== "alias")
+
 			let s = list_items(
 			{
-				data: commands,
+				data: cmds,
 				filter: arg,
 				prepend: command_prefix,
 				sort_mode: sort_mode,
