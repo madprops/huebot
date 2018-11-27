@@ -95,6 +95,7 @@ const available_commands =
 	"backgroundrename",
 	"background",
 	"backgrounds",
+	"backgroundmode",
 	"sleep",
 	"suggest"
 ]
@@ -590,6 +591,22 @@ function start_connection(room_id)
 				process_command(data)
 			}
 		}	
+	}
+
+	function change_background_mode(data, mode)
+	{
+		if(!data || !mode)
+		{
+			return false
+		}
+
+		if(!is_admin_or_op(role))
+		{
+			process_feedback(data, "I need to be an operator to do that.")
+			return false
+		}
+		
+		socket_emit("change_background_mode", {mode:mode})
 	}
 
 	function check_permissions()
@@ -1354,19 +1371,9 @@ function start_connection(room_id)
 			change_media({type:"radio", src:arg})
 		}
 
-		else if(cmd === "backgroundimage")
-		{
-			change_background_image(arg)
-		}
-
 		else if(cmd === "backgroundmode")
 		{
-			change_background_mode(arg)
-		}
-
-		else if(cmd === "tiledimensions")
-		{
-			change_background_tile_dimensions(arg)
+			change_background_mode(data, arg)
 		}
 
 		else if(cmd === "set" || cmd === "setforce")
@@ -2686,7 +2693,7 @@ function start_connection(room_id)
 
 				if(obj.mode && obj.mode !== background_mode)
 				{
-					socket_emit("change_background_mode", {mode:obj.mode})
+					change_background_mode(data, obj.mode)
 				}
 
 				if(obj.mode && obj.mode !== "solid")
