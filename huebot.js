@@ -132,6 +132,7 @@ function start_connection(room_id)
 	let current_tv_source
 	let current_radio_source
 	let commands_queue = {}
+	let theme_mode
 
 	vpermissions.voice1_chat_permission = false
 	vpermissions.voice1_images_permission = false
@@ -321,6 +322,11 @@ function start_connection(room_id)
 				}
 
 				replace_in_userlist(data.old_username, data.username)
+			}
+
+			else if(data.type === 'theme_mode_changed')
+			{
+				theme_mode = data.mode
 			}
 
 			else if(data.type === 'theme_change')
@@ -729,6 +735,7 @@ function start_connection(room_id)
 
 	function set_theme(data)
 	{
+		theme_mode = data.theme_mode
 		theme = data.theme
 		text_color_mode = data.text_color_mode
 		text_color = data.text_color
@@ -1697,6 +1704,12 @@ function start_connection(room_id)
 			if(!arg)
 			{
 				process_feedback(data, `Correct format is --> ${command_prefix}themeadd [name]`)
+				return false
+			}
+
+			if(theme_mode !== "custom")
+			{
+				process_feedback(data, "Automatic themes can't be saved.")
 				return false
 			}
 
