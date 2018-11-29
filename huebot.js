@@ -1804,6 +1804,11 @@ function start_connection(room_id)
 
 			if(obj)
 			{
+				if(theme_mode !== "custom")
+				{
+					socket_emit("change_theme_mode", {mode:"custom"})
+				}
+				
 				obj.theme = clean_string5(obj.theme)
 
 				obj.text_color = clean_string5(obj.text_color)
