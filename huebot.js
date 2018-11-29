@@ -96,6 +96,7 @@ const available_commands =
 	"background",
 	"backgrounds",
 	"backgroundmode",
+	"thememode",
 	"sleep",
 	"suggest"
 ]
@@ -613,6 +614,22 @@ function start_connection(room_id)
 		}
 		
 		socket_emit("change_background_mode", {mode:mode})
+	}
+
+	function change_theme_mode(data, mode)
+	{
+		if(!data || !mode)
+		{
+			return false
+		}
+
+		if(!is_admin_or_op(role))
+		{
+			process_feedback(data, "I need to be an operator to do that.")
+			return false
+		}
+		
+		socket_emit("change_theme_mode", {mode:mode})
 	}
 
 	function check_permissions()
@@ -1383,6 +1400,11 @@ function start_connection(room_id)
 			change_background_mode(data, arg)
 		}
 
+		else if(cmd === "thememode")
+		{
+			change_theme_mode(data, arg)
+		}
+
 		else if(cmd === "set" || cmd === "setforce")
 		{
 			let split = arg.split(' ')
@@ -1806,7 +1828,7 @@ function start_connection(room_id)
 			{
 				if(theme_mode !== "custom")
 				{
-					socket_emit("change_theme_mode", {mode:"custom"})
+					change_theme_mode(data, "custom")
 				}
 				
 				obj.theme = clean_string5(obj.theme)
