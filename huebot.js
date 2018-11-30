@@ -1075,7 +1075,9 @@ function start_connection(room_id)
 			{
 				shuffle_array(res.data)
 
-				for(let item of res.data)
+				let item
+
+				for(item of res.data)
 				{
 					if(!recent_twitch_streams.includes(item.user_id))
 					{
@@ -1143,7 +1145,9 @@ function start_connection(room_id)
 			{
 				shuffle_array(res.items)
 
-				for(let item of res.items)
+				let item
+
+				for(item of res.items)
 				{
 					if(!recent_youtube_streams.includes(item.id.videoId))
 					{
