@@ -102,7 +102,9 @@ const available_commands =
 	"suggest",
 	"song",
 	"key",
-	"speak"
+	"speak",
+	"think",
+	"think2"
 ]
 
 for(let room_id of room_ids)
@@ -489,6 +491,27 @@ function start_connection(room_id)
 			message: message, 
 			draw_coords: coords
 		})
+	}
+
+	function send_synth_key(key)
+	{
+		if(!key || !can_synth)
+		{
+			return false
+		}
+
+		socket_emit("send_synth_key", {key:key})
+	}
+
+	function send_synth_voice(text)
+	{
+		if(!text || !can_synth)
+		{
+			return false
+		}
+
+		text = clean_string2(text.substring(0, 140))
+		socket_emit("send_synth_voice", {text:text})
 	}
 
 	function change_media(args={})
@@ -2863,7 +2886,7 @@ function start_connection(room_id)
 			{
 				let key = get_random_int(1, 9)
 
-				socket_emit("send_synth_key", {key:key})
+				send_synth_key(key)
 
 				i += 1
 
@@ -2909,7 +2932,7 @@ function start_connection(room_id)
 				return false
 			}
 
-			socket_emit("send_synth_key", {key:key})
+			send_synth_key(key)
 		}
 
 		else if(cmd === "speak")
@@ -2925,9 +2948,50 @@ function start_connection(room_id)
 				return false
 			}
 
-			let text = clean_string2(arg.substring(0, 140))
+			send_synth_voice(arg)
+		}
 
-			socket_emit("send_synth_voice", {text:text})
+		else if(cmd === "think")
+		{
+			if(!can_chat)
+			{
+				return false
+			}
+
+			fetch("https://www.reddit.com/r/Showerthoughts/random.json")
+
+			.then(res =>
+			{
+				return res.json()
+			})
+
+			.then(res =>
+			{
+				let title = res[0].data.children[0].data.title
+				process_feedback(data, title)
+			})
+		}
+
+		else if(cmd === "think2")
+		{
+			if(!can_synth)
+			{
+				process_feedback(data, no_synth_error)
+				return false
+			}
+
+			fetch("https://www.reddit.com/r/Showerthoughts/random.json")
+
+			.then(res =>
+			{
+				return res.json()
+			})
+
+			.then(res =>
+			{
+				let title = res[0].data.children[0].data.title
+				send_synth_voice(title)
+			})
 		}
 
 		else if(cmd === "help")
