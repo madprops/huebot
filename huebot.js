@@ -48,6 +48,7 @@ const media_types = ["image", "tv", "radio"]
 const no_image_error = "I don't have permission to change the image."
 const no_tv_error = "I don't have permission to change the tv."
 const no_radio_error = "I don't have permission to change the radio."
+const no_synth_error = "I don't have permission to use the synth."
 
 const available_commands = 
 [
@@ -98,7 +99,10 @@ const available_commands =
 	"backgroundmode",
 	"thememode",
 	"sleep",
-	"suggest"
+	"suggest",
+	"song",
+	"key",
+	"speak"
 ]
 
 for(let room_id of room_ids)
@@ -139,18 +143,22 @@ function start_connection(room_id)
 	vpermissions.voice1_images_permission = false
 	vpermissions.voice1_tv_permission = false
 	vpermissions.voice1_radio_permission = false
+	vpermissions.voice1_synth_permission = false
 	vpermissions.voice2_chat_permission = false
 	vpermissions.voice2_images_permission = false
 	vpermissions.voice2_tv_permission = false
 	vpermissions.voice2_radio_permission = false
+	vpermissions.voice2_synth_permission = false
 	vpermissions.voice3_chat_permission = false
 	vpermissions.voice3_images_permission = false
 	vpermissions.voice3_tv_permission = false
 	vpermissions.voice3_radio_permission = false
+	vpermissions.voice3_synth_permission = false
 	vpermissions.voice4_chat_permission = false
 	vpermissions.voice4_images_permission = false
 	vpermissions.voice4_tv_permission = false
 	vpermissions.voice4_radio_permission = false
+	vpermissions.voice4_synth_permission = false
 
 	const socket = io(server_address,
 	{
@@ -296,6 +304,12 @@ function start_connection(room_id)
 			else if(data.type === 'room_radio_mode_change')
 			{
 				room_radio_mode = data.what
+				check_permissions()
+			}
+
+			else if(data.type === 'room_synth_mode_change')
+			{
+				room_synth_mode = data.what
 				check_permissions()
 			}
 
@@ -638,6 +652,7 @@ function start_connection(room_id)
 		can_images = room_images_mode === "enabled" && check_permission(role, "images")
 		can_tv = room_tv_mode === "enabled" && check_permission(role, "tv")
 		can_radio = room_radio_mode === "enabled" && check_permission(role, "radio")
+		can_synth = room_synth_mode === "enabled" && check_permission(role, "synth")
 	}
 
 	function check_permission(role, type)
@@ -676,25 +691,34 @@ function start_connection(room_id)
 		vpermissions.voice1_images_permission = data.voice1_images_permission
 		vpermissions.voice1_tv_permission = data.voice1_tv_permission
 		vpermissions.voice1_radio_permission = data.voice1_radio_permission
+		vpermissions.voice1_radio_permission = data.voice1_radio_permission
+		vpermissions.voice1_synth_permission = data.voice1_synth_permission
 		vpermissions.voice2_chat_permission = data.voice2_chat_permission
 		vpermissions.voice2_images_permission = data.voice2_images_permission
 		vpermissions.voice2_tv_permission = data.voice2_tv_permission
 		vpermissions.voice2_radio_permission = data.voice2_radio_permission
+		vpermissions.voice2_radio_permission = data.voice2_radio_permission
+		vpermissions.voice2_synth_permission = data.voice2_synth_permission
 		vpermissions.voice3_chat_permission = data.voice3_chat_permission
 		vpermissions.voice3_images_permission = data.voice3_images_permission
 		vpermissions.voice3_tv_permission = data.voice3_tv_permission
 		vpermissions.voice3_radio_permission = data.voice3_radio_permission
+		vpermissions.voice3_radio_permission = data.voice3_radio_permission
+		vpermissions.voice3_synth_permission = data.voice3_synth_permission
 		vpermissions.voice4_chat_permission = data.voice4_chat_permission
 		vpermissions.voice4_images_permission = data.voice4_images_permission
 		vpermissions.voice4_tv_permission = data.voice4_tv_permission
 		vpermissions.voice4_radio_permission = data.voice4_radio_permission	
+		vpermissions.voice4_radio_permission = data.voice4_radio_permission	
+		vpermissions.voice4_synth_permission = data.voice4_synth_permission	
 	}
 
 	function set_room_enables(data)
 	{
 		room_images_mode = data.room_images_mode
 		room_tv_mode = data.room_tv_mode
-		room_radio_mode = data.room_radio_mode	
+		room_radio_mode = data.room_radio_mode
+		room_synth_mode = data.room_synth_mode
 	}
 
 	function socket_emit(destination, data)
@@ -2823,6 +2847,87 @@ function start_connection(room_id)
 			}
 
 			process_feedback(data, suggestions)
+		}
+
+		else if(cmd === "song")
+		{	
+			if(!can_synth)
+			{
+				process_feedback(data, no_synth_error)
+				return false
+			}
+
+			let i = 0
+
+			function send()
+			{
+				let key = get_random_int(1, 9)
+
+				socket_emit("send_synth_key", {key:key})
+
+				i += 1
+
+				if(i < 20)
+				{
+					setTimeout(function()
+					{
+						send()
+					}, get_random_int(200, 600))
+				}
+			}
+
+			send()
+		}
+
+		else if(cmd === "key")
+		{
+			if(!can_synth)
+			{
+				process_feedback(data, no_synth_error)
+				return false
+			}
+
+			if(!arg)
+			{
+				return false
+			}
+
+			let key = parseInt(arg)
+
+			if(typeof key !== "number")
+			{
+				return false
+			}
+
+			if(isNaN(key))
+			{
+				return false
+			}
+
+			if(key < 1 || key > 9)
+			{
+				return false
+			}
+
+			socket_emit("send_synth_key", {key:key})
+		}
+
+		else if(cmd === "speak")
+		{
+			if(!can_synth)
+			{
+				process_feedback(data, no_synth_error)
+				return false
+			}
+
+			if(!arg)
+			{
+				return false
+			}
+
+			let text = clean_string2(arg.substring(0, 140))
+
+			socket_emit("send_synth_voice", {text:text})
 		}
 
 		else if(cmd === "help")
