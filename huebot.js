@@ -500,6 +500,23 @@ function start_connection(room_id)
 			return false
 		}
 
+		key = parseInt(key)
+
+		if(typeof key !== "number")
+		{
+			return false
+		}
+
+		if(isNaN(key))
+		{
+			return false
+		}
+
+		if(key < 1 || key > 9)
+		{
+			return false
+		}
+
 		socket_emit("send_synth_key", {key:key})
 	}
 
@@ -2915,24 +2932,7 @@ function start_connection(room_id)
 				return false
 			}
 
-			let key = parseInt(arg)
-
-			if(typeof key !== "number")
-			{
-				return false
-			}
-
-			if(isNaN(key))
-			{
-				return false
-			}
-
-			if(key < 1 || key > 9)
-			{
-				return false
-			}
-
-			send_synth_key(key)
+			send_synth_key(arg)
 		}
 
 		else if(cmd === "speak")
