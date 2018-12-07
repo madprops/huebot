@@ -342,6 +342,26 @@ Used to display suggested media search terms.
 It defaults to tv, but image or radio can be specified too.
 It will show a list with clickable items and make a search query when one is clicked.
 
+>song
+
+Plays 20 random notes in the synth.
+
+>key
+
+Play's a specific key in the synth.
+
+>speak
+
+Sends a synth voice message.
+
+>think
+
+Gets a random shower thought and displays it in a chat message.
+
+>think2
+
+Gets a random shower thought and sends it as a synth voice message.
+
 # Replacements
 
 Strings in some cases can get replaced to certain things depending on the keyword.
