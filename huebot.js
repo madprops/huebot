@@ -43,6 +43,7 @@ const max_user_command_activity = 20
 const max_media_source_length = 800
 const max_list_items = 20
 const num_suggestions = 5
+const num_synth_keys = 10
 
 const media_types = ["image", "tv", "radio"]
 const no_image_error = "I don't have permission to change the image."
@@ -512,7 +513,7 @@ function start_connection(room_id)
 			return false
 		}
 
-		if(key < 1 || key > 9)
+		if(key < 1 || key > num_synth_keys)
 		{
 			return false
 		}
@@ -2901,7 +2902,7 @@ function start_connection(room_id)
 
 			function send()
 			{
-				let key = get_random_int(1, 9)
+				let key = get_random_int(1, num_synth_keys)
 
 				send_synth_key(key)
 
