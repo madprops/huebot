@@ -391,6 +391,11 @@ function start_connection(room_id)
 
 			else if(data.type === "whisper")
 			{
+				if(data.username === username)
+				{
+					return false
+				}
+				
 				if(is_command(data.message))
 				{
 					let obj = 
