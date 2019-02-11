@@ -491,7 +491,7 @@ function start_connection(room_id)
 
 		message = do_replacements(message)
 
-		message = clean_string2(message.substring(0, max_text_length))
+		message = clean_string10(message.substring(0, max_text_length))
 		
 		socket_emit('sendchat', {message:message})	
 	}
@@ -1107,6 +1107,11 @@ function start_connection(room_id)
 	function clean_string5(s)
 	{
 		return s.replace(/\s+/g, '').trim()
+	}
+
+	function clean_string10(s)
+	{
+		return s.replace(/[\n\r]+/g, '\n').replace(/\s+$/g, '')
 	}
 
 	function generate_random_drawing()
@@ -3031,7 +3036,16 @@ function start_connection(room_id)
 			.then(res =>
 			{
 				let title = res[0].data.children[0].data.title
-				process_feedback(data, title)
+				let url = res[0].data.children[0].data.url
+				let links = `[whisper .think again]Another One[/whisper] | [anchor ${url}]Source[/anchor]`
+				let ans = `${title}\n${links}`
+
+				if(arg === "again")
+				{
+					data.method = "public"
+				}
+
+				process_feedback(data, ans)
 			})
 		}
 
