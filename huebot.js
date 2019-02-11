@@ -108,6 +108,15 @@ const available_commands =
 	"think2"
 ]
 
+const public_commands = 
+[
+	"random", 
+	"random image", 
+	"random tv", 
+	"random radio", 
+	"list"
+]
+
 for(let room_id of room_ids)
 {
 	start_connection(room_id)
@@ -188,6 +197,8 @@ function start_connection(room_id)
 		{
 			if(data.type === 'joined')
 			{
+				console.info(`Joined ${room_id}`)
+				
 				connected_rooms[room_id] = true
 
 				set_username(data.username)
@@ -543,7 +554,8 @@ function start_connection(room_id)
 		{
 			type: "",
 			src: "",
-			feedback: true
+			feedback: true,
+			comment: ""
 		}
 
 		fill_defaults(args, def_args)
@@ -584,7 +596,7 @@ function start_connection(room_id)
 				return false
 			}
 
-			socket_emit('change_image_source', {src:args.src})
+			socket_emit('change_image_source', {src:args.src, comment:args.comment})
 		}
 
 		else if(args.type === "tv")
@@ -604,7 +616,7 @@ function start_connection(room_id)
 				return false
 			}
 
-			socket_emit('change_tv_source', {src:args.src})
+			socket_emit('change_tv_source', {src:args.src, comment:args.comment})
 		}
 
 		else if(args.type === "radio")
@@ -624,7 +636,7 @@ function start_connection(room_id)
 				return false
 			}
 
-			socket_emit('change_radio_source', {src:args.src})
+			socket_emit('change_radio_source', {src:args.src, comment:args.comment})
 		}
 	}
 
@@ -634,17 +646,17 @@ function start_connection(room_id)
 
 		if(command.type === "image")
 		{
-			change_media({type:"image", src:command.url})
+			change_media({type:"image", src:command.url, comment:data.comment})
 		}
 
 		else if(command.type === "tv")
 		{
-			change_media({type:"tv", src:command.url})
+			change_media({type:"tv", src:command.url, comment:data.comment})
 		}
 
 		else if(command.type === "radio")
 		{
-			change_media({type:"radio", src:command.url})
+			change_media({type:"radio", src:command.url, comment:data.comment})
 		}	
 
 		else if(command.type === "alias")
@@ -1268,7 +1280,7 @@ function start_connection(room_id)
 		{
 			let cmd = data.message.substring(1).trim()
 
-			if(cmd === "random" || cmd === "list")
+			if(public_commands.includes(cmd))
 			{
 				allowed = true
 			}
@@ -1634,7 +1646,27 @@ function start_connection(room_id)
 
 		else if(cmd === "random")
 		{
+			let comment = `
+			[whisper ${command_prefix}random image]Image[/whisper]
+			| [whisper ${command_prefix}random tv]TV[/whisper] 
+			| [whisper ${command_prefix}random radio]Radio[/whisper]`
+
+			let words = false
+
 			if(arg)
+			{
+				if(arg === "tv" || arg === "radio")
+				{
+					let n = get_random_int(0, 2)
+
+					if(n === 0)
+					{
+						words = true
+					}
+				}
+			}
+
+			if(arg && !words)
 			{
 				let cmds = Object.keys(commands)
 
@@ -1649,6 +1681,8 @@ function start_connection(room_id)
 				
 				let c = cmds[get_random_int(0, cmds.length - 1)]
 
+				data.comment = comment
+
 				if(c)
 				{
 					run_command(c, arg, data)
@@ -1657,16 +1691,39 @@ function start_connection(room_id)
 
 			else
 			{
-				if(!can_tv)
+				let type = "tv"
+				let word1, word2
+
+				if(arg)
 				{
-					process_feedback(data, no_tv_error)
-					return false
+					type = arg
 				}
 
-				let word1 = words[get_random_int(0, words.length - 1)]
-				let word2 = words[get_random_int(0, words.length - 1)]
+				if(!arg || arg === "tv")
+				{
+					if(!can_tv)
+					{
+						process_feedback(data, no_tv_error)
+						return false
+					}
 
-				change_media({type:"tv", src:`${word1} ${word2}`})
+					word1 = get_random_word()
+					word2 = get_random_word()
+				}
+
+				else if(arg === "radio")
+				{
+					if(!can_radio)
+					{
+						process_feedback(data, no_radio_error)
+						return false
+					}
+
+					word1 = get_random_word()
+					word2 = "music"
+				}
+
+				change_media({type:type, src:`${word1} ${word2}`, comment:comment})
 			}
 		}
 
