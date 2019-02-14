@@ -105,7 +105,8 @@ const available_commands =
 	"key",
 	"speak",
 	"think",
-	"think2"
+	"think2",
+	"public"
 ]
 
 const public_commands = 
@@ -1285,20 +1286,23 @@ function start_connection(room_id)
 		{
 			let cmd = data.message.substring(1).trim()
 
-			if(public_commands.includes(cmd))
+			if(options.public_commands)
 			{
-				allowed = true
-			}
-
-			else
-			{
-				let cmd2 = commands[cmd]
-				
-				if(cmd2)
+				if(public_commands.includes(cmd))
 				{
-					if(cmd2.type === "image" || cmd2.type === "tv" || cmd2.type === "radio")
+					allowed = true
+				}
+	
+				else
+				{
+					let cmd2 = commands[cmd]
+					
+					if(cmd2)
 					{
-						allowed = true
+						if(cmd2.type === "image" || cmd2.type === "tv" || cmd2.type === "radio")
+						{
+							allowed = true
+						}
 					}
 				}
 			}
@@ -2389,7 +2393,7 @@ function start_connection(room_id)
 			{
 				if(options.link_titles)
 				{
-					process_feedback(data, "Link titles are already on.")
+					process_feedback(data, "Link Titles are already on.")
 					return false
 				}
 
@@ -2397,7 +2401,7 @@ function start_connection(room_id)
 
 				save_file("options.json", options, function()
 				{
-					send_message(`Link titles are now on.`)
+					send_message(`Link Titles are now on.`)
 				})
 			}
 
@@ -2405,7 +2409,7 @@ function start_connection(room_id)
 			{
 				if(!options.link_titles)
 				{
-					process_feedback(data, "Link titles are already off.")
+					process_feedback(data, "Link Titles are already off.")
 					return false
 				}
 
@@ -2413,7 +2417,48 @@ function start_connection(room_id)
 
 				save_file("options.json", options, function()
 				{
-					send_message(`Link titles are now off.`)
+					send_message(`Link Titles are now off.`)
+				})
+			}
+		}
+
+		else if(cmd === "public")
+		{
+			if(!arg || (arg !== "on" && arg !== "off"))
+			{
+				process_feedback(data, `Correct format is --> ${command_prefix}public on|off`)
+				return false
+			}
+
+			if(arg === "on")
+			{
+				if(options.public_commands)
+				{
+					process_feedback(data, "Public Commands are already on.")
+					return false
+				}
+
+				options.public_commands = true
+
+				save_file("options.json", options, function()
+				{
+					send_message(`Public Commands are now on.`)
+				})
+			}
+
+			else if(arg === "off")
+			{
+				if(!options.public_commands)
+				{
+					process_feedback(data, "Public Commands are already off.")
+					return false
+				}
+
+				options.public_commands = false
+
+				save_file("options.json", options, function()
+				{
+					send_message(`Public Commands are now off.`)
 				})
 			}
 		}

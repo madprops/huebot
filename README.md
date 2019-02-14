@@ -362,6 +362,10 @@ Gets a random shower thought and displays it in a chat message.
 
 Gets a random shower thought and sends it as a synth voice message.
 
+>public
+
+Whether public commands are enabled. Receives "on" or "off" as arguments.
+
 # Replacements
 
 Strings in some cases can get replaced to certain things depending on the keyword.
