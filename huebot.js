@@ -53,43 +53,43 @@ const no_synth_error = "I don't have permission to use the synth."
 
 const available_commands = 
 [
-	'image',
-	'tv',
-	'radio',
-	'set',
-	'setforce',
-	'unset',
-	'rename',
-	'list',
-	'random',
-	'q',
-	'adminadd',
-	'adminremove',
-	'admins',
-	'themeadd',
-	'themeremove',
-	'themerename',
-	'theme',
-	'themes',
-	'linktitles',
-	'stream',
-	'activity',
-	'clearcommands',
-	'clearadmins',
-	'clearthemes',
-	'clearsubjects',
-	'help',
-	'ping',
-	'whatis',
-	'say',
-	'subjectadd',
-	'subjectremove',
-	'subjectrename',
-	'subjectkeywords',
-	'subjectkeywordsadd',
-	'subjectkeywordsremove',
-	'subject',
-	'subjects',
+	"image",
+	"tv",
+	"radio",
+	"set",
+	"setforce",
+	"unset",
+	"rename",
+	"list",
+	"random",
+	"q",
+	"adminadd",
+	"adminremove",
+	"admins",
+	"themeadd",
+	"themeremove",
+	"themerename",
+	"theme",
+	"themes",
+	"linktitles",
+	"stream",
+	"activity",
+	"clearcommands",
+	"clearadmins",
+	"clearthemes",
+	"clearsubjects",
+	"help",
+	"ping",
+	"whatis",
+	"say",
+	"subjectadd",
+	"subjectremove",
+	"subjectrename",
+	"subjectkeywords",
+	"subjectkeywordsadd",
+	"subjectkeywordsremove",
+	"subject",
+	"subjects",
 	"leave",
 	"join",
 	"backgroundadd",
@@ -491,7 +491,6 @@ function start_connection(room_id)
 		}
 
 		message = do_replacements(message)
-
 		message = clean_string10(message.substring(0, max_text_length))
 		
 		socket_emit('sendchat', {message:message})	
@@ -500,11 +499,11 @@ function start_connection(room_id)
 	function send_whisper(uname, message, coords=false)
 	{
 		message = do_replacements(message)
-
-		message = clean_string2(message.substring(0, max_text_length))
+		message = clean_string10(clean_multiline(message.substring(0, max_text_length)))
 
 		socket_emit('whisper', 
 		{
+			type: "user",
 			username: uname, 
 			message: message, 
 			draw_coords: coords
@@ -1113,6 +1112,34 @@ function start_connection(room_id)
 	function clean_string10(s)
 	{
 		return s.replace(/[\n\r]+/g, '\n').replace(/\s+$/g, '')
+	}
+
+	function clean_multiline(message)
+	{
+		let message_split = message.split("\n")
+		let num_lines = message_split.length
+
+		if(num_lines === 1)
+		{
+			message = message.trim()
+		}
+
+		else
+		{
+			let new_lines = []
+
+			for(let line of message_split)
+			{
+				if(line.trim().length > 0)
+				{
+					new_lines.push(line)
+				}
+			}
+
+			message = new_lines.join("\n")
+		}
+
+		return message
 	}
 
 	function generate_random_drawing()
