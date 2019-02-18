@@ -192,11 +192,14 @@ function start_connection(room_id)
 		})
 	})
 
-	socket.on('update', function(data) 
+	socket.on('update', function(received)
 	{
 		try
 		{
-			if(data.type === 'joined')
+			let type = received.type
+			let data = received.data
+
+			if(type === 'joined')
 			{
 				console.info(`Joined ${room_id}`)
 				
@@ -218,7 +221,7 @@ function start_connection(room_id)
 				check_permissions()
 			}
 
-			else if(data.type === 'chat_message')
+			else if(type === 'chat_message')
 			{
 				if(data.username === username)
 				{
@@ -304,47 +307,47 @@ function start_connection(room_id)
 				}
 			}
 
-			else if(data.type === 'room_images_mode_change')
+			else if(type === 'room_images_mode_change')
 			{
 				room_images_mode = data.what
 				check_permissions()
 			}
 
-			else if(data.type === 'room_tv_mode_change')
+			else if(type === 'room_tv_mode_change')
 			{
 				room_tv_mode = data.what
 				check_permissions()
 			}
 
-			else if(data.type === 'room_radio_mode_change')
+			else if(type === 'room_radio_mode_change')
 			{
 				room_radio_mode = data.what
 				check_permissions()
 			}
 
-			else if(data.type === 'room_synth_mode_change')
+			else if(type === 'room_synth_mode_change')
 			{
 				room_synth_mode = data.what
 				check_permissions()
 			}
 
-			else if(data.type === 'voice_permission_change')
+			else if(type === 'voice_permission_change')
 			{
 				vpermissions[data.ptype] = data.what
 				check_permissions()
 			}
 
-			else if(data.type === "userjoin")
+			else if(type === "userjoin")
 			{
 				add_to_userlist(data.username)
 			}
 
-			else if(data.type === "userdisconnect")
+			else if(type === "userdisconnect")
 			{
 				remove_from_userlist(data.username)
 			}
 
-			else if(data.type === 'new_username')
+			else if(type === 'new_username')
 			{
 				if(username === data.old_username)
 				{
@@ -354,27 +357,27 @@ function start_connection(room_id)
 				replace_in_userlist(data.old_username, data.username)
 			}
 
-			else if(data.type === 'theme_mode_changed')
+			else if(type === 'theme_mode_changed')
 			{
 				theme_mode = data.mode
 			}
 
-			else if(data.type === 'theme_change')
+			else if(type === 'theme_change')
 			{
 				theme = data.color
 			}
 
-			else if(data.type === 'text_color_changed')
+			else if(type === 'text_color_changed')
 			{
 				text_color = data.color
 			}
 
-			else if(data.type === 'text_color_mode_changed')
+			else if(type === 'text_color_mode_changed')
 			{
 				text_color_mode = data.mode
 			}
 
-			else if(data.type === 'announce_role_change')
+			else if(type === 'announce_role_change')
 			{
 				if(username === data.username2)
 				{
@@ -383,7 +386,7 @@ function start_connection(room_id)
 				}
 			}
 
-			else if(data.type === 'announce_removedops')
+			else if(type === 'announce_removedops')
 			{
 				if(role === 'op')
 				{
@@ -392,7 +395,7 @@ function start_connection(room_id)
 				}
 			}
 
-			else if(data.type === 'voices_resetted')
+			else if(type === 'voices_resetted')
 			{
 				if(role.startsWith('voice') && role !== "voice1")
 				{
@@ -401,7 +404,7 @@ function start_connection(room_id)
 				}
 			}
 
-			else if(data.type === "whisper")
+			else if(type === "whisper")
 			{
 				if(data.username === username)
 				{
@@ -431,39 +434,39 @@ function start_connection(room_id)
 				}
 			}
 
-			else if(data.type === 'background_image_change')
+			else if(type === 'background_image_change')
 			{
 				set_background_image(data.background_image)
 			}
 
-			else if(data.type === 'background_mode_changed')
+			else if(type === 'background_mode_changed')
 			{
 				set_background_mode(data.mode)
 			}
 
-			else if(data.type === 'background_effect_changed')
+			else if(type === 'background_effect_changed')
 			{
 				set_background_effect(data.effect)
 			}
 
-			else if(data.type === 'background_tile_dimensions_changed')
+			else if(type === 'background_tile_dimensions_changed')
 			{
 				set_background_tile_dimensions(data.dimensions)
 			}
 
-			else if(data.type === 'changed_image_source')
+			else if(type === 'changed_image_source')
 			{
-				set_image_source(data.image_source)
+				set_image_source(data.source)
 			}
 
-			else if(data.type === 'changed_tv_source')
+			else if(type === 'changed_tv_source')
 			{
-				set_tv_source(data.tv_source)
+				set_tv_source(data.source)
 			}
 
-			else if(data.type === 'changed_radio_source')
+			else if(type === 'changed_radio_source')
 			{
-				set_radio_source(data.radio_source)
+				set_radio_source(data.source)
 			}
 		}
 
