@@ -31,6 +31,7 @@ let queue = require(`${files_path}queue.json`)
 let words = require(`${files_path}words`)
 let subjects = require(`${files_path}subjects`)
 let backgrounds = require(`${files_path}backgrounds`)
+let reminders = require(`${files_path}reminders`)
 
 const connected_rooms = {}
 const user_command_activity = []
@@ -106,7 +107,8 @@ const available_commands =
 	"speak",
 	"think",
 	"think2",
-	"public"
+	"public",
+	"remind"
 ]
 
 const public_commands = 
@@ -340,6 +342,7 @@ function start_connection(room_id)
 			else if(type === "userjoin")
 			{
 				add_to_userlist(data.username)
+				check_reminders(data.username)
 			}
 
 			else if(type === "userdisconnect")
@@ -912,6 +915,24 @@ function start_connection(room_id)
 				return
 			}
 		}
+	}
+
+	function check_reminders(uname)
+	{
+		if(reminders[uname] === undefined || reminders[uname].length === 0)
+		{
+			return false
+		}
+
+		for(let reminder of reminders[uname])
+		{
+			let s = `To: ${uname} - From: ${reminder.from}\n"${reminder.message}"`
+			send_message(s)
+		}
+
+		reminders[uname] = []
+
+		save_file("reminders.json", reminders)
 	}
 
 	function save_file(name, content, callback=false)
@@ -3143,6 +3164,53 @@ function start_connection(room_id)
 			{
 				let title = res[0].data.children[0].data.title
 				send_synth_voice(title)
+			})
+		}
+
+		else if(cmd === "remind")
+		{
+			if(!arg)
+			{
+				process_feedback(data, `Correct format is --> ${command_prefix}${cmd} [username] > [message]`)
+				return false
+			}
+
+			let split = arg.split(">")
+
+			if(split.length < 2)
+			{
+				process_feedback(data, `Correct format is --> ${command_prefix}${cmd} [username] > [message]`)
+				return false
+			}
+
+			let uname = split[0].trim()
+			let message = split.slice(1).join(">").trim()
+
+			if(!uname || !message)
+			{
+				process_feedback(data, `Correct format is --> ${command_prefix}${cmd} [username] > [message]`)
+				return false
+			}
+
+			if(reminders[uname] === undefined)
+			{
+				reminders[uname] = []
+			}
+
+			if(reminders[uname].length >= 5)
+			{
+				process_feedback(data, "There are too many reminders for this user.")
+				return false
+			}
+
+			let m = {from:data.username, message:message}
+
+			reminders[uname].push(m)
+
+			save_file("reminders.json", reminders, function()
+			{
+				process_feedback(data, `Reminder for ${uname} saved.`)
+				return false
 			})
 		}
 
