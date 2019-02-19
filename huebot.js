@@ -307,6 +307,8 @@ function start_connection(room_id)
 						}
 					}
 				}
+
+				check_reminders(data.username)
 			}
 
 			else if(type === 'room_images_mode_change')
