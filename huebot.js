@@ -20,6 +20,7 @@ const io = require("socket.io-client")
 const fetch = require("node-fetch")
 const cheerio = require("cheerio")
 const linkify = require("linkifyjs")
+const math = require("mathjs")
 
 const files_path = path.normalize(path.resolve(__dirname, files_location) + "/")
 
@@ -108,7 +109,8 @@ const available_commands =
 	"think",
 	"think2",
 	"public",
-	"remind"
+	"remind",
+	"calc"
 ]
 
 const public_commands = 
@@ -1166,6 +1168,11 @@ function start_connection(room_id)
 		}
 
 		return message
+	}
+
+	function round(value, decimals)
+	{
+		return Number(Math.round(value+'e'+decimals)+'e-'+decimals)
 	}
 
 	function generate_random_drawing()
@@ -3214,6 +3221,29 @@ function start_connection(room_id)
 				process_feedback(data, `Reminder for ${uname} saved.`)
 				return false
 			})
+		}
+
+		else if(cmd === "calc")
+		{
+			if(!arg)
+			{
+				process_feedback(data, `Correct format is --> ${command_prefix}${cmd} [javascript math operation]`)
+				return false
+			}
+
+			let r
+
+			try
+			{
+				r = math.eval(arg).toString()
+			}
+
+			catch(err)
+			{
+				r = "Error"
+			}
+
+			process_feedback(data, r)
 		}
 
 		else if(cmd === "help")
