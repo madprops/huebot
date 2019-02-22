@@ -366,6 +366,10 @@ Gets a random shower thought and sends it as a synth voice message.
 
 Whether public commands are enabled. Receives "on" or "off" as arguments.
 
+>calc
+
+Outputs a math calculation using math.js using BigNumbers with 64 bit precision.
+
 # Replacements
 
 Strings in some cases can get replaced to certain things depending on the keyword.
