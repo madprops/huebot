@@ -115,11 +115,9 @@ const available_commands =
 
 const public_commands = 
 [
-	"random", 
-	"random image", 
-	"random tv", 
-	"random radio", 
-	"list"
+	"random",
+	"list",
+	"calc"
 ]
 
 for(let room_id of room_ids)
@@ -1332,6 +1330,22 @@ function start_connection(room_id)
 		return false
 	}
 
+	function check_public_command(cmd, arg)
+	{
+		if(cmd === "random")
+		{
+			if(arg)
+			{
+				if(arg !== "image" && arg !== "tv" && arg !== "radio")
+				{
+					return false
+				}
+			}
+		}
+
+		return true
+	}
+
 	// Must Include:
 	// data.message
 	// data.username
@@ -1341,16 +1355,30 @@ function start_connection(room_id)
 	function process_command(data)
 	{
 		let allowed = false
+		let split = data.message.split(' ')
+		let cmd = split[0]
+		let arg
+
+		if(split.length > 1)
+		{
+			cmd += ' '
+			arg = clean_string2(split.slice(1).join(" "))
+		}
+
+		else
+		{
+			arg = ""
+		}
+
+		cmd = cmd.substring(1).trim()
 
 		if(!is_admin(data.username))
 		{
-			let cmd = data.message.substring(1).trim()
-
 			if(options.public_commands)
 			{
 				if(public_commands.includes(cmd))
 				{
-					allowed = true
+					allowed = check_public_command(cmd, arg)
 				}
 	
 				else
@@ -1392,26 +1420,6 @@ function start_connection(room_id)
 		{
 			user_command_activity.shift()
 		}
-
-		let split = data.message.split(' ')
-
-		let cmd = split[0]
-
-		let arg
-
-		if(split.length > 1)
-		{
-			cmd += ' '
-
-			arg = clean_string2(split.slice(1).join(" "))
-		}
-
-		else
-		{
-			arg = ""
-		}
-
-		cmd = cmd.substring(1).trim()
 
 		if(data.message.includes(" && "))
 		{
