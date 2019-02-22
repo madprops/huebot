@@ -22,6 +22,12 @@ const cheerio = require("cheerio")
 const linkify = require("linkifyjs")
 const math = require("mathjs")
 
+math.config(
+{
+	number: 'BigNumber',
+	precision: 64
+})
+
 const files_path = path.normalize(path.resolve(__dirname, files_location) + "/")
 
 let commands = require(`${files_path}commands.json`)
