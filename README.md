@@ -8,9 +8,7 @@ To use simply do "npm install" inside the directory, change the details in huebo
 
 # Configuration
 
-The following are the details that should be edited.
-
-They can be found near the top of the file.
+The following are the details that should be edited in /files/config.json
 
 >bot_email
 

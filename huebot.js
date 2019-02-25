@@ -1,19 +1,3 @@
-// Configuration
-
-const bot_email = "xxx"
-const bot_password = "xxx"
-const twitch_client_id = "xxx"
-const twitch_enabled = true
-const youtube_client_id = "xxx"
-const youtube_enabled = true
-const server_address = "http://localhost:3210"
-const room_ids = ["main"]
-const protected_admins = ["mad"]
-const files_location = "./files/"
-const command_prefix = "."
-
-// ----------
-
 const path = require('path')
 const fs = require("fs")
 const io = require("socket.io-client")
@@ -23,13 +7,15 @@ const linkify = require("linkifyjs")
 const math = require("mathjs")
 
 math.config(
-{
-	number: 'BigNumber',
-	precision: 64
-})
-
+	{
+		number: 'BigNumber',
+		precision: 64
+	})
+	
+const files_location = "./files/"
 const files_path = path.normalize(path.resolve(__dirname, files_location) + "/")
-
+	
+let config = require(`${files_path}config.json`)
 let commands = require(`${files_path}commands.json`)
 let permissions = require(`${files_path}permissions.json`)
 let themes = require(`${files_path}themes.json`)
@@ -126,7 +112,7 @@ const public_commands =
 	"calc"
 ]
 
-for(let room_id of room_ids)
+for(let room_id of config.room_ids)
 {
 	start_connection(room_id)
 }
@@ -181,7 +167,7 @@ function start_connection(room_id)
 	vpermissions.voice4_radio_permission = false
 	vpermissions.voice4_synth_permission = false
 
-	const socket = io(server_address,
+	const socket = io(config.server_address,
 	{
 		reconnection: true,
 		reconnectionDelay: 1000,
@@ -195,8 +181,8 @@ function start_connection(room_id)
 		{
 			alternative: true, 
 			room_id: room_id, 
-			email: bot_email, 
-			password: bot_password
+			email: config.bot_email, 
+			password: config.bot_password
 		})
 	})
 
@@ -679,7 +665,7 @@ function start_connection(room_id)
 
 			if(available_commands.includes(c))
 			{
-				data.message = `${command_prefix}${command.url} ${arg}`
+				data.message = `${config.command_prefix}${command.url} ${arg}`
 
 				process_command(data)
 			}
@@ -1212,7 +1198,7 @@ function start_connection(room_id)
 		{
 			headers:
 			{
-				"Client-ID": twitch_client_id
+				"Client-ID": config.twitch_client_id
 			}
 		})
 		
@@ -1250,7 +1236,7 @@ function start_connection(room_id)
 				{
 					headers:
 					{
-						"Client-ID": twitch_client_id
+						"Client-ID": config.twitch_client_id
 					}
 				})
 				
@@ -1284,7 +1270,7 @@ function start_connection(room_id)
 
 	function get_youtube_stream()
 	{
-		fetch(`https://www.googleapis.com/youtube/v3/search?videoEmbeddable=true&maxResults=20&type=video&eventType=live&videoCategoryId=20&fields=items(id(videoId))&part=snippet&key=${youtube_client_id}`)
+		fetch(`https://www.googleapis.com/youtube/v3/search?videoEmbeddable=true&maxResults=20&type=video&eventType=live&videoCategoryId=20&fields=items(id(videoId))&part=snippet&key=${config.youtube_client_id}`)
 		
 		.then(res => 
 		{
@@ -1328,7 +1314,7 @@ function start_connection(room_id)
 
 	function is_command(message)
 	{
-		if(message.length > 1 && message[0] === command_prefix && message[1] !== command_prefix)
+		if(message.length > 1 && message[0] === config.command_prefix && message[1] !== config.command_prefix)
 		{
 			return true
 		}
@@ -1448,9 +1434,9 @@ function start_connection(room_id)
 						let cc
 						let c2
 
-						if(!c.startsWith(command_prefix))
+						if(!c.startsWith(config.command_prefix))
 						{
-							cc = command_prefix + c
+							cc = config.command_prefix + c
 							c2 = c
 						}
 
@@ -1468,7 +1454,7 @@ function start_connection(room_id)
 
 							if(available_commands.includes(spc))
 							{
-								cc = command_prefix + acmd.url
+								cc = config.command_prefix + acmd.url
 							}
 						}
 
@@ -1583,7 +1569,7 @@ function start_connection(room_id)
 
 			if(!arg || split.length < 3 || (!media_types.includes(command_type) && command_type !== "alias"))
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}${cmd} [name] ${media_types.join("|")}|alias [url]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}${cmd} [name] ${media_types.join("|")}|alias [url]`)
 				return false
 			}
 
@@ -1613,7 +1599,7 @@ function start_connection(room_id)
 
 			if(oc && cmd !== "setforce")
 			{
-				process_feedback(data, `"${command_name}" already exists. Use "${command_prefix}setforce" to overwrite.`)
+				process_feedback(data, `"${command_name}" already exists. Use "${config.command_prefix}setforce" to overwrite.`)
 				return false
 			}
 
@@ -1641,7 +1627,7 @@ function start_connection(room_id)
 		{
 			if(!arg)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}unset [name]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}unset [name]`)
 				return false
 			}
 
@@ -1667,7 +1653,7 @@ function start_connection(room_id)
 
 			if(!arg || split.length !== 2)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}rename [old_name] [new_name]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}rename [old_name] [new_name]`)
 				return false
 			}
 
@@ -1713,9 +1699,9 @@ function start_connection(room_id)
 			{
 				data: cmds,
 				filter: arg,
-				prepend: command_prefix,
+				prepend: config.command_prefix,
 				sort_mode: sort_mode,
-				whisperify: `${command_prefix}`,
+				whisperify: `${config.command_prefix}`,
 				mode: "commands"
 			})
 
@@ -1730,9 +1716,9 @@ function start_connection(room_id)
 		else if(cmd === "random")
 		{
 			let comment = `
-			[whisper ${command_prefix}random image]Image[/whisper]
-			| [whisper ${command_prefix}random tv]TV[/whisper] 
-			| [whisper ${command_prefix}random radio]Radio[/whisper]`
+			[whisper ${config.command_prefix}random image]Image[/whisper]
+			| [whisper ${config.command_prefix}random tv]TV[/whisper] 
+			| [whisper ${config.command_prefix}random radio]Radio[/whisper]`
 
 			let words = false
 
@@ -1814,7 +1800,7 @@ function start_connection(room_id)
 		{
 			if(!arg || arg.split(" ").length > 1)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}whatis [command_name]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}whatis [command_name]`)
 				return false
 			}
 
@@ -1848,7 +1834,7 @@ function start_connection(room_id)
 
 			if(!arg)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}adminadd [username]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}adminadd [username]`)
 				return false
 			}
 
@@ -1877,7 +1863,7 @@ function start_connection(room_id)
 
 			if(!arg)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}adminremove [username]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}adminremove [username]`)
 				return false
 			}
 
@@ -1939,7 +1925,7 @@ function start_connection(room_id)
 		{
 			if(!arg)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}themeadd [name]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}themeadd [name]`)
 				return false
 			}
 
@@ -1967,7 +1953,7 @@ function start_connection(room_id)
 		{
 			if(!arg)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}themeremove [name]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}themeremove [name]`)
 				return false
 			}
 
@@ -1993,7 +1979,7 @@ function start_connection(room_id)
 
 			if(!arg || split.length !== 2)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}themerename [old_name] [new_name]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}themerename [old_name] [new_name]`)
 				return false
 			}
 
@@ -2026,7 +2012,7 @@ function start_connection(room_id)
 		{
 			if(!arg)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}theme [name]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}theme [name]`)
 				return false
 			}
 
@@ -2089,7 +2075,7 @@ function start_connection(room_id)
 				filter: arg,
 				append: ",",
 				sort_mode: sort_mode,
-				whisperify: `${command_prefix}theme `
+				whisperify: `${config.command_prefix}theme `
 			})
 
 			if(!s)
@@ -2119,7 +2105,7 @@ function start_connection(room_id)
 
 			if(error)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}subjectadd [name:no_spaces]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}subjectadd [name:no_spaces]`)
 				return false
 			}
 
@@ -2131,7 +2117,7 @@ function start_connection(room_id)
 
 				save_file("subjects.json", subjects, function()
 				{
-					send_message(`Subject "${name}" successfully added. Use ${command_prefix}subjectkeywordsadd to add additional keywords to the subject.`)
+					send_message(`Subject "${name}" successfully added. Use ${config.command_prefix}subjectkeywordsadd to add additional keywords to the subject.`)
 				})
 			}
 
@@ -2145,7 +2131,7 @@ function start_connection(room_id)
 		{
 			if(!arg)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}subjectremove [name]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}subjectremove [name]`)
 				return false
 			}
 
@@ -2173,7 +2159,7 @@ function start_connection(room_id)
 
 			if(!arg || split.length !== 2)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}subjectrename [old_name:no_spaces] [new_name:no_spaces]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}subjectrename [old_name:no_spaces] [new_name:no_spaces]`)
 				return false
 			}
 
@@ -2206,7 +2192,7 @@ function start_connection(room_id)
 		{
 			if(!arg)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}subjectkeywords [name:no_spaces]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}subjectkeywords [name:no_spaces]`)
 				return false
 			}
 
@@ -2278,7 +2264,7 @@ function start_connection(room_id)
 
 			if(error)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}subjectkeywordsadd [name:no_spaces] [keyword]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}subjectkeywordsadd [name:no_spaces] [keyword]`)
 				return false
 			}
 
@@ -2334,7 +2320,7 @@ function start_connection(room_id)
 
 			if(error)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}subjectkeywordsremove [name:no_spaces] [keyword]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}subjectkeywordsremove [name:no_spaces] [keyword]`)
 				return false
 			}
 
@@ -2377,7 +2363,7 @@ function start_connection(room_id)
 		{
 			if(!arg)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}subject [name:no_spaces] ${media_types.join("|")} : optional`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}subject [name:no_spaces] ${media_types.join("|")} : optional`)
 				return false
 			}
 
@@ -2444,7 +2430,7 @@ function start_connection(room_id)
 				filter: arg,
 				append: ",",
 				sort_mode: sort_mode,
-				whisperify: `${command_prefix}subject `
+				whisperify: `${config.command_prefix}subject `
 			})
 
 			if(!s)
@@ -2459,7 +2445,7 @@ function start_connection(room_id)
 		{
 			if(!arg || (arg !== "on" && arg !== "off"))
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}linktitles on|off`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}linktitles on|off`)
 				return false
 			}
 
@@ -2500,7 +2486,7 @@ function start_connection(room_id)
 		{
 			if(!arg || (arg !== "on" && arg !== "off"))
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}public on|off`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}public on|off`)
 				return false
 			}
 
@@ -2576,7 +2562,7 @@ function start_connection(room_id)
 
 			if(error)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}q ${media_types.join("|")} [url]|next|clear|size`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}q ${media_types.join("|")} [url]|next|clear|size`)
 				return false
 			}
 
@@ -2702,18 +2688,18 @@ function start_connection(room_id)
 
 		else if(cmd === "stream")
 		{
-			if(!twitch_enabled && !youtube_enabled)
+			if(!config.twitch_enabled && !config.youtube_enabled)
 			{
 				process_feedback(data, "No stream source support is enabled.")
 				return false
 			}
 
-			if(twitch_enabled && !youtube_enabled)
+			if(config.twitch_enabled && !config.youtube_enabled)
 			{
 				get_twitch_stream()
 			}
 
-			else if(youtube_enabled && !twitch_enabled)
+			else if(config.youtube_enabled && !config.twitch_enabled)
 			{
 				get_youtube_stream()
 			}
@@ -2873,7 +2859,7 @@ function start_connection(room_id)
 		{
 			if(!arg)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}backgroundadd [name]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}backgroundadd [name]`)
 				return false
 			}
 
@@ -2908,7 +2894,7 @@ function start_connection(room_id)
 		{
 			if(!arg)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}backgroundremove [name]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}backgroundremove [name]`)
 				return false
 			}
 
@@ -2934,7 +2920,7 @@ function start_connection(room_id)
 
 			if(!arg || split.length !== 2)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}backgroundrename [old_name] [new_name]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}backgroundrename [old_name] [new_name]`)
 				return false
 			}
 
@@ -2967,7 +2953,7 @@ function start_connection(room_id)
 		{
 			if(!arg)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}background [name]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}background [name]`)
 				return false
 			}
 
@@ -3029,7 +3015,7 @@ function start_connection(room_id)
 				filter: arg,
 				append: ",",
 				sort_mode: sort_mode,
-				whisperify: `${command_prefix}background `
+				whisperify: `${config.command_prefix}background `
 			})
 
 			if(!s)
@@ -3063,7 +3049,7 @@ function start_connection(room_id)
 			{
 				let words = `${get_random_word()} ${get_random_word()}`
 
-				let s = `[whisper ${command_prefix}${type} ${words}]"${words}"[/whisper]`
+				let s = `[whisper ${config.command_prefix}${type} ${words}]"${words}"[/whisper]`
 
 				if(i < num_suggestions - 1)
 				{
@@ -3194,7 +3180,7 @@ function start_connection(room_id)
 		{
 			if(!arg)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}${cmd} [username] > [message]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}${cmd} [username] > [message]`)
 				return false
 			}
 
@@ -3202,7 +3188,7 @@ function start_connection(room_id)
 
 			if(split.length < 2)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}${cmd} [username] > [message]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}${cmd} [username] > [message]`)
 				return false
 			}
 
@@ -3211,7 +3197,7 @@ function start_connection(room_id)
 
 			if(!uname || !message)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}${cmd} [username] > [message]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}${cmd} [username] > [message]`)
 				return false
 			}
 
@@ -3241,7 +3227,7 @@ function start_connection(room_id)
 		{
 			if(!arg)
 			{
-				process_feedback(data, `Correct format is --> ${command_prefix}${cmd} [javascript math operation]`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}${cmd} [javascript math operation]`)
 				return false
 			}
 
@@ -3270,7 +3256,7 @@ function start_connection(room_id)
 				{
 					data: available_commands,
 					filter: arg,
-					prepend: command_prefix,
+					prepend: config.command_prefix,
 					append: ",",
 					sort_mode: "sort"
 				})
@@ -3282,7 +3268,7 @@ function start_connection(room_id)
 
 				for(let c of available_commands)
 				{
-					s += `${command_prefix}${c}, ` 
+					s += `${config.command_prefix}${c}, ` 
 				}
 				
 				s = s.slice(0, -2)
@@ -3302,7 +3288,7 @@ function start_connection(room_id)
 
 	function is_protected_admin(uname)
 	{
-		return protected_admins.includes(uname)
+		return config.protected_admins.includes(uname)
 	}
 
 	function is_admin(uname)
@@ -3337,9 +3323,24 @@ function start_connection(room_id)
 		}
 	}
 
-	function get_random_word()
+	function get_random_word(mode="normal")
 	{
-		return words[get_random_int(0, words.length - 1)]
+		let word = words[get_random_int(0, words.length - 1)]
+
+		if(mode === "normal")
+		{
+			return word
+		}
+
+		else if(mode === "capitalized")
+		{
+			return word[0].toUpperCase() + word.slice(1)
+		}
+
+		else if(mode === "upper_case")
+		{
+			return word.toUpperCase()
+		}
 	}
 
 	function get_random_user()
@@ -3349,14 +3350,24 @@ function start_connection(room_id)
 
 	function do_replacements(s)
 	{
-		s = s.replace(/\$word\$/gi, function()
+		s = s.replace(/\$user\$/gi, function()
+		{
+			return get_random_user()
+		})
+		
+		s = s.replace(/\$word\$/g, function()
 		{
 			return get_random_word()
 		})
 
-		s = s.replace(/\$user\$/gi, function()
+		s = s.replace(/\$Word\$/g, function()
 		{
-			return get_random_user()
+			return get_random_word("capitalized")
+		})
+
+		s = s.replace(/\$WORD\$/g, function()
+		{
+			return get_random_word("upper_case")
 		})
 
 		return s
@@ -3364,8 +3375,10 @@ function start_connection(room_id)
 
 	function safe_replacements(s)
 	{
-		s = s.replace(/\$word\$/gi, "[random word]")
-		s = s.replace(/\$user\$/gi, "[random user]")
+		s = s.replace(/\$user\$/g, "[random user]")
+		s = s.replace(/\$word\$/g, "[random word]")
+		s = s.replace(/\$Word\$/g, "[random Word]")
+		s = s.replace(/\$WORD\$/g, "[random WORD]")
 
 		return s
 	}

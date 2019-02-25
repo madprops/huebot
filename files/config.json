@@ -1,0 +1,12 @@
+{
+    "bot_email": "xxx",
+    "bot_password": "xxx",
+    "twitch_client_id": "xxx",
+    "twitch_enabled": true,
+    "youtube_client_id": "xxx",
+    "youtube_enabled": true,
+    "server_address": "http://localhost:3210",
+    "room_ids": ["main"],
+    "protected_admins": ["mad"],
+    "command_prefix": "."
+}
