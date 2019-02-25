@@ -333,13 +333,13 @@ function start_connection(room_id)
 				check_permissions()
 			}
 
-			else if(type === "userjoin")
+			else if(type === "user_join")
 			{
 				add_to_userlist(data.username)
 				check_reminders(data.username)
 			}
 
-			else if(type === "userdisconnect")
+			else if(type === "user_disconnect")
 			{
 				remove_from_userlist(data.username)
 			}
