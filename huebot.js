@@ -1147,7 +1147,7 @@ function start_connection(room_id)
 
 	function generate_random_controls()
 	{
-		let controls = ["image", "radio", "tv"]
+		let controls = ["image", "tv", "radio"]
 		let strings = []
 
 		for(let control of controls)
