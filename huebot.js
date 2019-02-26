@@ -1132,6 +1132,32 @@ function start_connection(room_id)
 		return s.replace(/[\n\r]+/g, '\n').replace(/\s+$/g, '')
 	}
 
+	function smart_capitalize(s)
+	{
+		if(s.length > 2)
+		{
+			return s[0].toUpperCase() + s.slice(1)
+		}
+
+		else
+		{
+			return s.toUpperCase()
+		}
+	}
+
+	function generate_random_controls()
+	{
+		let controls = ["image", "radio", "tv"]
+		let strings = []
+
+		for(let control of controls)
+		{
+			strings.push(`[whisper ${config.command_prefix}random ${control}]${smart_capitalize(control)}[/whisper]`)
+		}
+
+		return strings.join(" | ")
+	}
+
 	function clean_multiline(message)
 	{
 		let message_split = message.split("\n")
@@ -1715,11 +1741,7 @@ function start_connection(room_id)
 
 		else if(cmd === "random")
 		{
-			let comment = `
-			[whisper ${config.command_prefix}random image]Image[/whisper]
-			| [whisper ${config.command_prefix}random tv]TV[/whisper] 
-			| [whisper ${config.command_prefix}random radio]Radio[/whisper]`
-
+			let comment = generate_random_controls()
 			let words = false
 
 			if(arg)
