@@ -979,7 +979,6 @@ function start_connection(room_id)
 		args.filter = args.filter.toLowerCase()
 		
 		let do_filter = args.filter ? true : false
-
 		let props
 
 		if(Array.isArray(args.data))
@@ -1003,9 +1002,7 @@ function start_connection(room_id)
 		}
 
 		let i = 0
-
 		let s = ""
-
 		let num_props = props.length
 
 		for(let p of props)
@@ -1034,16 +1031,14 @@ function start_connection(room_id)
 		{
 			i += 1
 
-			let ap = ""
+			if(i > 1 && i < max_list_items)
+			{
+				s += args.append
+			}
 
 			if(i <= max_list_items)
 			{
 				s += " "
-			}
-
-			if(i < max_list_items && i < num_props)
-			{
-				ap = args.append
 			}
 
 			let bp = ""
@@ -1067,7 +1062,7 @@ function start_connection(room_id)
 				w2 = "[/whisper]"
 			}
 
-			let ns = `${w}${args.prepend}${p}${bp}${ap}${w2}`
+			let ns = `${w}${args.prepend}${p}${bp}${w2}`
 
 			if(s.length + ns.length > max_text_length)
 			{
