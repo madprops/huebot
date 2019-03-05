@@ -7,10 +7,10 @@ const linkify = require("linkifyjs")
 const math = require("mathjs")
 
 math.config(
-	{
-		number: 'BigNumber',
-		precision: 64
-	})
+{
+	number: 'BigNumber',
+	precision: 64
+})
 	
 const files_location = "./files/"
 const files_path = path.normalize(path.resolve(__dirname, files_location) + "/")
