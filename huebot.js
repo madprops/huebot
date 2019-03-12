@@ -109,7 +109,8 @@ const public_commands =
 [
 	"random",
 	"list",
-	"calc"
+	"calc",
+	"subject"
 ]
 
 for(let room_id of config.room_ids)
@@ -2380,32 +2381,30 @@ function start_connection(room_id)
 		{
 			if(!arg)
 			{
-				process_feedback(data, `Correct format is --> ${config.command_prefix}subject [name:no_spaces] ${media_types.join("|")} : optional`)
+				process_feedback(data, `Correct format is --> ${config.command_prefix}subject [name] > ${media_types.join("|")} : optional`)
 				return false
 			}
 
-			let split = arg.split(" ")
-			let name = split[0].toLowerCase()
-			let type = split.slice(1).join(" ").toLowerCase()
+			let split = arg.split(">")
+			let name = split[0].toLowerCase().trim()
+			let type = split.slice(1).join(" ").toLowerCase().trim()
+			let list = []
 
-			if(subjects[name] === undefined)
+			if(subjects[name] !== undefined)
 			{
-				process_feedback(data, `Subject "${name}" doesn't exist.`)
-				return false
+				list = subjects[name]
 			}
-
-			let list = subjects[name]
 
 			let query
 
 			if(list.length === 0)
 			{
-				query = `${name} ${words[get_random_int(0, words.length - 1)]}`
+				query = `${name} ${get_random_word()}`
 			}
 
 			else
 			{
-				query = `${name} ${list[get_random_int(0, list.length - 1)]} ${words[get_random_int(0, words.length - 1)]}`
+				query = `${name} ${list[get_random_int(0, list.length - 1)]} ${get_random_word()}`
 			}
 
 			if(type)
