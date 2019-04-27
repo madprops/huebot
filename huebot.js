@@ -1187,6 +1187,47 @@ function start_connection(room_id)
 		return Number(Math.round(value+'e'+decimals)+'e-'+decimals)
 	}
 
+	function rgb_to_hex(rgb, hash=true)
+	{
+		if(typeof rgb === "string")
+		{
+			rgb = rgb_to_array(rgb)
+		}
+
+		let code = ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1)
+
+		if(hash)
+		{
+			code = "#" + code
+		}
+
+		return code
+	}
+
+	function rgb_to_array(rgb)
+	{
+		let array
+
+		if(Array.isArray(rgb))
+		{
+			array = []
+
+			for(let i=0; i<rgb.length; i++)
+			{
+				let split = rgb[i].replace("rgb(", "").replace(")", "").split(",")
+				array[i] = split.map(x => parseInt(x))
+			}
+		}
+
+		else
+		{
+			let split = rgb.replace("rgb(", "").replace(")", "").split(",")
+			array = split.map(x => parseInt(x))
+		}
+
+		return array					
+	}
+
 	function generate_random_drawing()
 	{
 		let n = get_random_int(3, 300)
@@ -2050,8 +2091,17 @@ function start_connection(room_id)
 				}
 				
 				obj.theme = clean_string5(obj.theme)
-
 				obj.text_color = clean_string5(obj.text_color)
+
+				if(obj.theme.startsWith("rgb"))
+				{
+					obj.theme = rgb_to_hex(obj.theme)
+				}
+
+				if(obj.text_color.startsWith("rgb"))
+				{
+					obj.text_color = rgb_to_hex(obj.text_color)
+				}
 
 				if(obj.theme && obj.theme !== theme)
 				{
