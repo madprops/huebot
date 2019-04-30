@@ -505,7 +505,7 @@ function start_connection(room_id)
 		socket_emit('whisper', 
 		{
 			type: "user",
-			username: uname, 
+			usernames: [uname], 
 			message: message, 
 			draw_coords: coords
 		})
