@@ -223,6 +223,11 @@ function start_connection(room_id)
 					return false
 				}
 
+				if(data.edited)
+				{
+					return false
+				}
+
 				if(data.message === `hi ${username}` || data.message === `${username} hi`)
 				{
 					send_message(`hello ${data.username}!`)
