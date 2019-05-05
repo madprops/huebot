@@ -92,6 +92,7 @@ const available_commands =
 	"background",
 	"backgrounds",
 	"backgroundmode",
+	"clearbackgrounds",
 	"thememode",
 	"sleep",
 	"suggest",
@@ -2998,7 +2999,7 @@ function start_connection(room_id)
 
 			delete backgrounds[arg]
 
-			save_file("backgrounds.json", themes, function()
+			save_file("backgrounds.json", backgrounds, function()
 			{
 				send_message(`Background "${arg}" successfully removed.`)
 			})
@@ -3071,9 +3072,16 @@ function start_connection(room_id)
 
 				if(obj.mode && obj.mode !== "solid")
 				{
-					if(obj.effect && obj.effect !== background_effect)
+					let effect = obj.effect
+
+					if(!effect)
 					{
-						socket_emit("change_background_effect", {effect:obj.effect})
+						effect = "none"
+					}
+
+					if(effect !== background_effect)
+					{
+						socket_emit("change_background_effect", {effect:effect})
 					}
 				}
 
