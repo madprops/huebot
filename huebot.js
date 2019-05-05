@@ -110,8 +110,7 @@ const public_commands =
 	"random",
 	"list",
 	"calc",
-	"subject",
-	"q"
+	"subject"
 ]
 
 for(let room_id of config.room_ids)
