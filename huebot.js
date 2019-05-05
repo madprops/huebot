@@ -110,7 +110,8 @@ const public_commands =
 	"random",
 	"list",
 	"calc",
-	"subject"
+	"subject",
+	"q"
 ]
 
 for(let room_id of config.room_ids)
@@ -1450,6 +1451,26 @@ function start_connection(room_id)
 						if(cmd2.type === "image" || cmd2.type === "tv" || cmd2.type === "radio")
 						{
 							allowed = true
+						}
+
+						else if(cmd2.type === "alias")
+						{
+							let split = cmd2.url.split(" && ")
+
+							allowed = true
+
+							for(let c of split)
+							{
+								let sp = c.split(" ")
+								let cmd = sp[0]
+								let arg = sp.slice(1).join(" ")
+
+								if(!public_commands.includes(cmd) || !check_public_command(cmd, arg))
+								{
+									allowed = false
+									break
+								}
+							}
 						}
 					}
 				}
