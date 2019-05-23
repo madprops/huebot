@@ -124,13 +124,14 @@ function start_connection(room_id)
 {
 	let username = ""
 	let role = false
-	let room_images_mode = "disabled"
+	let room_image_mode = "disabled"
 	let room_tv_mode = "disabled"
 	let room_radio_mode = "disabled"
 	let can_chat = false
 	let can_tv = false
 	let can_radio = false
-	let vpermissions = {}
+	let voice_permissions = {}
+	let op_permissions = {}
 	let theme
 	let text_color
 	let text_color_mode
@@ -148,27 +149,6 @@ function start_connection(room_id)
 	let current_radio_source
 	let commands_queue = {}
 	let theme_mode
-
-	vpermissions.voice1_chat_permission = false
-	vpermissions.voice1_images_permission = false
-	vpermissions.voice1_tv_permission = false
-	vpermissions.voice1_radio_permission = false
-	vpermissions.voice1_synth_permission = false
-	vpermissions.voice2_chat_permission = false
-	vpermissions.voice2_images_permission = false
-	vpermissions.voice2_tv_permission = false
-	vpermissions.voice2_radio_permission = false
-	vpermissions.voice2_synth_permission = false
-	vpermissions.voice3_chat_permission = false
-	vpermissions.voice3_images_permission = false
-	vpermissions.voice3_tv_permission = false
-	vpermissions.voice3_radio_permission = false
-	vpermissions.voice3_synth_permission = false
-	vpermissions.voice4_chat_permission = false
-	vpermissions.voice4_images_permission = false
-	vpermissions.voice4_tv_permission = false
-	vpermissions.voice4_radio_permission = false
-	vpermissions.voice4_synth_permission = false
 
 	const socket = io(config.server_address,
 	{
@@ -215,7 +195,7 @@ function start_connection(room_id)
 				set_image_source(data.image_source)
 				set_tv_source(data.tv_source)
 				set_radio_source(data.radio_source)
-				check_permissions()
+				check_media_permissions()
 			}
 
 			else if(type === 'chat_message')
@@ -311,34 +291,40 @@ function start_connection(room_id)
 				check_reminders(data.username)
 			}
 
-			else if(type === 'room_images_mode_change')
+			else if(type === 'room_image_mode_change')
 			{
-				room_images_mode = data.what
-				check_permissions()
+				room_image_mode = data.what
+				check_media_permissions()
 			}
 
 			else if(type === 'room_tv_mode_change')
 			{
 				room_tv_mode = data.what
-				check_permissions()
+				check_media_permissions()
 			}
 
 			else if(type === 'room_radio_mode_change')
 			{
 				room_radio_mode = data.what
-				check_permissions()
+				check_media_permissions()
 			}
 
 			else if(type === 'room_synth_mode_change')
 			{
 				room_synth_mode = data.what
-				check_permissions()
+				check_media_permissions()
 			}
 
 			else if(type === 'voice_permission_change')
 			{
-				vpermissions[data.ptype] = data.what
-				check_permissions()
+				voice_permissions[`${data.vtype}_permissions`][data.ptype] = data.what
+				check_media_permissions()
+			}
+
+			else if(type === 'op_permission_change')
+			{
+				op_permissions[`${data.optype}_permissions`][data.ptype] = data.what
+				check_media_permissions()
 			}
 
 			else if(type === "user_join")
@@ -387,25 +373,34 @@ function start_connection(room_id)
 				if(username === data.username2)
 				{
 					set_role(data.role)
-					check_permissions()
+					check_media_permissions()
 				}
 			}
 
-			else if(type === 'announce_removedops')
+			else if(type === 'announce_removed_ops')
 			{
 				if(role === 'op')
 				{
-					set_role("voice1")
-					check_permissions()
+					set_role("voice_1")
+					check_media_permissions()
 				}
 			}
 
 			else if(type === 'voices_resetted')
 			{
-				if(role.startsWith('voice') && role !== "voice1")
+				if(role.startsWith('voice') && role !== "voice_1")
 				{
-					set_role("voice1")
-					check_permissions()
+					set_role("voice_1")
+					check_media_permissions()
+				}
+			}
+
+			else if(type === 'ops_resetted')
+			{
+				if(role.startsWith('op') && role !== "op_1")
+				{
+					set_role("op_1")
+					check_media_permissions()
 				}
 			}
 
@@ -589,7 +584,7 @@ function start_connection(room_id)
 
 		if(args.type === "image")
 		{
-			if(!can_images)
+			if(!can_image)
 			{
 				if(args.feedback)
 				{
@@ -682,6 +677,11 @@ function start_connection(room_id)
 
 	function change_background_mode(data, mode)
 	{
+		if(!check_op_permission("background"))
+		{
+			return false
+		}
+
 		if(!data || !mode)
 		{
 			return false
@@ -698,6 +698,11 @@ function start_connection(room_id)
 
 	function change_theme_mode(data, mode)
 	{
+		if(!check_op_permission("theme"))
+		{
+			return false
+		}
+
 		if(!data || !mode)
 		{
 			return false
@@ -712,33 +717,38 @@ function start_connection(room_id)
 		socket_emit("change_theme_mode", {mode:mode})
 	}
 
-	function check_permissions()
+	function check_media_permissions()
 	{
-		can_chat = check_permission(role, "chat")
-		can_images = room_images_mode === "enabled" && check_permission(role, "images")
-		can_tv = room_tv_mode === "enabled" && check_permission(role, "tv")
-		can_radio = room_radio_mode === "enabled" && check_permission(role, "radio")
-		can_synth = room_synth_mode === "enabled" && check_permission(role, "synth")
+		can_chat = check_media_permission("chat")
+		can_image = room_image_mode === "enabled" && check_media_permission("image")
+		can_tv = room_tv_mode === "enabled" && check_media_permission("tv")
+		can_radio = room_radio_mode === "enabled" && check_media_permission("radio")
+		can_synth = room_synth_mode === "enabled" && check_media_permission("synth")
 	}
 
-	function check_permission(role, type)
+	function check_media_permission(type)
 	{
 		if(is_admin_or_op(role))
 		{
 			return true
 		}
 
-		if(vpermissions[`${role}_${type}_permission`])
+		return voice_permissions[`${role}_permissions`][type]
+	}
+
+	function check_op_permission(type)
+	{
+		if(!is_admin_or_op(role))
 		{
-			return true
+			return false
 		}
 
-		return false	
+		return op_permissions[`${role}_permissions`][type]	
 	}
 
 	function is_admin_or_op(rol)
 	{
-		return rol === "admin" || rol === "op"
+		return rol === "admin" || rol.startsWith("op")
 	}
 
 	function set_username(uname)
@@ -753,35 +763,20 @@ function start_connection(room_id)
 
 	function set_permissions(data)
 	{
-		vpermissions.voice1_chat_permission = data.voice1_chat_permission
-		vpermissions.voice1_images_permission = data.voice1_images_permission
-		vpermissions.voice1_tv_permission = data.voice1_tv_permission
-		vpermissions.voice1_radio_permission = data.voice1_radio_permission
-		vpermissions.voice1_radio_permission = data.voice1_radio_permission
-		vpermissions.voice1_synth_permission = data.voice1_synth_permission
-		vpermissions.voice2_chat_permission = data.voice2_chat_permission
-		vpermissions.voice2_images_permission = data.voice2_images_permission
-		vpermissions.voice2_tv_permission = data.voice2_tv_permission
-		vpermissions.voice2_radio_permission = data.voice2_radio_permission
-		vpermissions.voice2_radio_permission = data.voice2_radio_permission
-		vpermissions.voice2_synth_permission = data.voice2_synth_permission
-		vpermissions.voice3_chat_permission = data.voice3_chat_permission
-		vpermissions.voice3_images_permission = data.voice3_images_permission
-		vpermissions.voice3_tv_permission = data.voice3_tv_permission
-		vpermissions.voice3_radio_permission = data.voice3_radio_permission
-		vpermissions.voice3_radio_permission = data.voice3_radio_permission
-		vpermissions.voice3_synth_permission = data.voice3_synth_permission
-		vpermissions.voice4_chat_permission = data.voice4_chat_permission
-		vpermissions.voice4_images_permission = data.voice4_images_permission
-		vpermissions.voice4_tv_permission = data.voice4_tv_permission
-		vpermissions.voice4_radio_permission = data.voice4_radio_permission	
-		vpermissions.voice4_radio_permission = data.voice4_radio_permission	
-		vpermissions.voice4_synth_permission = data.voice4_synth_permission	
+		voice_permissions.voice_1_permissions = data.voice_1_permissions
+		voice_permissions.voice_2_permissions = data.voice_2_permissions
+		voice_permissions.voice_3_permissions = data.voice_3_permissions
+		voice_permissions.voice_4_permissions = data.voice_4_permissions
+
+		op_permissions.op_1_permissions = data.op_1_permissions
+		op_permissions.op_2_permissions = data.op_2_permissions
+		op_permissions.op_3_permissions = data.op_3_permissions
+		op_permissions.op_4_permissions = data.op_4_permissions
 	}
 
 	function set_room_enables(data)
 	{
-		room_images_mode = data.room_images_mode
+		room_image_mode = data.room_image_mode
 		room_tv_mode = data.room_tv_mode
 		room_radio_mode = data.room_radio_mode
 		room_synth_mode = data.room_synth_mode
@@ -2096,15 +2091,14 @@ function start_connection(room_id)
 
 		else if(cmd === "theme")
 		{
-			if(!arg)
+			if(!check_op_permission("theme"))
 			{
-				process_feedback(data, `Correct format is --> ${config.command_prefix}theme [name]`)
 				return false
 			}
 
-			if(!is_admin_or_op(role))
+			if(!arg)
 			{
-				process_feedback(data, "I need to be an operator to do that.")
+				process_feedback(data, `Correct format is --> ${config.command_prefix}theme [name]`)
 				return false
 			}
 
@@ -2667,7 +2661,7 @@ function start_connection(room_id)
 			{
 				error_string = no_image_error
 				upname = "Image"
-				perm = can_images
+				perm = can_image
 			}
 
 			else if(arg1 === "tv")
@@ -3044,15 +3038,14 @@ function start_connection(room_id)
 
 		else if(cmd === "background")
 		{
+			if(!check_op_permission("background"))
+			{
+				return false
+			}
+			
 			if(!arg)
 			{
 				process_feedback(data, `Correct format is --> ${config.command_prefix}background [name]`)
-				return false
-			}
-
-			if(!is_admin_or_op(role))
-			{
-				process_feedback(data, "I need to be an operator to do that.")
 				return false
 			}
 
@@ -3132,14 +3125,9 @@ function start_connection(room_id)
 
 			if(arg)
 			{
-				if(arg === "tv" || arg === "image" || arg === "images" || arg === "radio")
+				if(arg === "tv" || arg === "image" || arg === "radio")
 				{
 					type = arg
-
-					if(type === "images")
-					{
-						type = "image"
-					}
 				}
 			}
 
