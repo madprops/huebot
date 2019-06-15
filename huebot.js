@@ -4,14 +4,15 @@ const io = require("socket.io-client")
 const fetch = require("node-fetch")
 const cheerio = require("cheerio")
 const linkify = require("linkifyjs")
-const math = require("mathjs")
+const MathJS = require("mathjs")
 
-math.config(
+let math_config =
 {
 	number: 'BigNumber',
 	precision: 64
-})
-	
+}
+
+const math = MathJS.create(MathJS.all, math_config)
 const files_location = "./files/"
 const files_path = path.normalize(path.resolve(__dirname, files_location) + "/")
 	
@@ -103,7 +104,8 @@ const available_commands =
 	"think2",
 	"public",
 	"remind",
-	"calc"
+	"calc",
+	"roll"
 ]
 
 const public_commands = 
@@ -112,7 +114,8 @@ const public_commands =
 	"list",
 	"calc",
 	"subject",
-	"q"
+	"q",
+	"roll"
 ]
 
 for(let room_id of config.room_ids)
@@ -3354,6 +3357,34 @@ function start_connection(room_id)
 			}
 
 			process_feedback(data, r)
+		}
+
+		else if(cmd === "roll")
+		{
+			if(!arg || !arg.match(/^\d+d\d+$/))
+			{
+				process_feedback(data, `Example format --> 2d6 (Roll a 6 sided die twice)`)
+				return false
+			}
+
+			let split = arg.split("d")
+			let times = split[0]
+			let max = split[1]
+			let results = []
+
+			if(times > 10 || max > 1000)
+			{
+				return false
+			}
+
+			for(let i=0; i<times; i++)
+			{
+				let num = get_random_int(1, max)
+				results.push(num)
+			}
+
+			let ans = `Result: ${results.join(', ')}`
+			process_feedback(data, ans)
 		}
 
 		else if(cmd === "help")
