@@ -368,6 +368,14 @@ Whether public commands are enabled. Receives "on" or "off" as arguments.
 
 Outputs a math calculation using math.js using BigNumbers with 64 bit precision.
 
+>remind
+
+Creates reminders for users that show when the user joins the room.
+
+>roll
+
+Simulates dice throwing.
+
 # Replacements
 
 Strings in some cases can get replaced to certain things depending on the keyword.
