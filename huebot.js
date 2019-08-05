@@ -105,7 +105,8 @@ const available_commands =
 	"public",
 	"remind",
 	"calc",
-	"roll"
+	"roll",
+	"users"
 ]
 
 const public_commands = 
@@ -115,7 +116,8 @@ const public_commands =
 	"calc",
 	"subject",
 	"q",
-	"roll"
+	"roll",
+	"users"
 ]
 
 for(let room_id of config.room_ids)
@@ -3385,6 +3387,18 @@ function start_connection(room_id)
 
 			let ans = `Result: ${results.join(', ')}`
 			process_feedback(data, ans)
+		}
+
+		else if(cmd === "users")
+		{
+			s = list_items(
+			{
+				data: userlist.slice(0, 20),
+				append: ",",
+				sort_mode: "random"
+			})
+
+			process_feedback(data, s)
 		}
 
 		else if(cmd === "help")

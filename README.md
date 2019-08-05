@@ -376,6 +376,10 @@ Creates reminders for users that show when the user joins the room.
 
 Simulates dice throwing.
 
+>users
+
+Shows a user list limited to 20 users.
+
 # Replacements
 
 Strings in some cases can get replaced to certain things depending on the keyword.
