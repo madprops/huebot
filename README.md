@@ -368,17 +368,13 @@ Whether public commands are enabled. Receives "on" or "off" as arguments.
 
 Outputs a math calculation using math.js using BigNumbers with 64 bit precision.
 
->remind
+>decide
 
-Creates reminders for users that show when the user joins the room.
+Yeah or Nah
 
->roll
+>pick
 
-Simulates dice throwing.
-
->users
-
-Shows a user list limited to 20 users.
+Choose from a list of items
 
 # Replacements
 

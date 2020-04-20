@@ -106,7 +106,9 @@ const available_commands =
 	"remind",
 	"calc",
 	"roll",
-	"users"
+	"users",
+	"decide",
+	"pick"
 ]
 
 const public_commands = 
@@ -117,7 +119,9 @@ const public_commands =
 	"subject",
 	"q",
 	"roll",
-	"users"
+	"users",
+	"decide",
+	"pick"
 ]
 
 for(let room_id of config.room_ids)
@@ -2265,6 +2269,36 @@ function start_connection(room_id)
 			{
 				send_message(`Subject "${name}" successfully removed.`)
 			})
+		}
+
+		else if(cmd === "decide")
+		{
+			let ans
+			let n = get_random_int(0, 1)
+
+			if(n == 0)
+			{
+				ans = "Yeah"
+			}
+
+			else
+			{
+				ans = "Nah"
+			}
+
+			process_feedback(data, ans)
+		}
+
+		else if(cmd === "pick")
+		{
+			if(!arg)
+			{
+				process_feedback(data, "Give me a space separated list to pick from.")
+			}
+
+			let split = arg.split(' ')
+			let n = get_random_int(0, split.length - 1)
+			process_feedback(data, split[n])
 		}
 
 		else if(cmd === "subjectrename")
