@@ -941,6 +941,55 @@ function start_connection(room_id)
 		save_file("reminders.json", reminders)
 	}
 
+	function selective_play(kind, url)
+	{
+		if(kind === "image")
+		{
+			change_media({type:"image", src:url})
+		}
+
+		else if(kind === "tv")
+		{
+			change_media({type:"tv", src:url})
+		}
+
+		else if(kind === "radio")
+		{
+			change_media({type:"radio", src:url})
+		}
+	}
+
+	function get_q_item(date, op="normal")
+	{
+		date = parseInt(date)
+
+		let media = ["image", "tv", "radio"]
+
+		while(media.length > 0)
+		{
+			let i = 0
+
+			for(let item of queue[media[0]])
+			{
+				if(item.date === date)
+				{
+					if(op === "delete")
+					{
+						queue[media[0]].splice(i, 1)
+					}
+
+					return item
+				}
+
+				i += 1
+			}
+
+			media.shift()
+		}
+
+		return false
+	}
+
 	function save_file(name, content, callback=false)
 	{
 		fs.writeFile(path.join(files_path, name), JSON.stringify(content), 'utf8', function(err)
@@ -2696,7 +2745,7 @@ function start_connection(room_id)
 				{
 					arg1 = split[0]
 
-					if(!media_types.includes(arg1))
+					if(!media_types.includes(arg1) && arg1 !== "remove" && isNaN(arg1))
 					{
 						error = true
 					}
@@ -2739,6 +2788,27 @@ function start_connection(room_id)
 				perm = can_radio
 			}
 
+			else if(arg1 === "remove") {
+				if(get_q_item(arg2, "delete")) {
+					process_feedback(data, "Item successfully removed.")
+				} else {
+					process_feedback(data, "Item not found. It was probably already played.")
+				}
+				return
+			}
+
+			else if(!isNaN(arg1)) {
+				let item = get_q_item(arg1, "delete")
+
+				if(item) {
+					selective_play(item.kind, item.url)
+					save_file("queue.json", queue)
+				} else {
+					process_feedback(data, "Item not found. It was probably already played.")
+				}
+				return
+			}
+
 			if(arg2 === "next")
 			{
 				if(queue[arg1].length > 0)
@@ -2749,23 +2819,13 @@ function start_connection(room_id)
 						return false
 					}
 
-					let url = queue[arg1].shift()
+					let item = queue[arg1].shift()
 
-					if(arg1 === "image")
-					{
-						change_media({type:"image", src:url})
+					if(typeof item !== "object") {
+						return
 					}
 
-					else if(arg1 === "tv")
-					{
-						change_media({type:"tv", src:url})
-					}
-
-					else if(arg1 === "radio")
-					{
-						change_media({type:"radio", src:url})
-					}
-
+					selective_play(item.kind, item.url)
 					save_file("queue.json", queue)
 				}
 
@@ -2819,12 +2879,22 @@ function start_connection(room_id)
 					process_feedback(data, `That item is already in the ${arg1} queue.`)
 					return false
 				}
-				
-				queue[arg1].push(arg2)
+
+				let obj = {}
+				obj.kind = arg1
+				obj.url = arg2
+				obj.date = Date.now()
+
+				queue[arg1].push(obj)
 
 				save_file("queue.json", queue, function()
 				{
-					send_message(`${upname} item successfully queued.`)
+					let links = `[whisper .q ${obj.date} next]Play Now[/whisper]`
+					links += ` | [whisper .q ${arg1} next]Play Next[/whisper]`
+					// links += ` | [whisper .q remove ${obj.date} next]Remove[/whisper]`
+					let message = `${upname} item successfully queued.`
+					let ans = `${message}\n${links}`
+					send_message(ans)
 				})	
 			}
 		}
