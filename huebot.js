@@ -2792,7 +2792,7 @@ function start_connection(room_id)
 				if(get_q_item(arg2, "delete")) {
 					process_feedback(data, "Item successfully removed.")
 				} else {
-					process_feedback(data, "Item not found. It was probably already played.")
+					process_feedback(data, "This was already played or removed.")
 				}
 				return
 			}
@@ -2804,7 +2804,7 @@ function start_connection(room_id)
 					selective_play(item.kind, item.url)
 					save_file("queue.json", queue)
 				} else {
-					process_feedback(data, "Item not found. It was probably already played.")
+					process_feedback(data, "This was already played or removed.")
 				}
 				return
 			}
@@ -2889,9 +2889,9 @@ function start_connection(room_id)
 
 				save_file("queue.json", queue, function()
 				{
-					let links = `[whisper .q ${obj.date} next]Play Now[/whisper]`
+					let links = `[whisper .q ${obj.date} next]Play This[/whisper]`
 					links += ` | [whisper .q ${arg1} next]Play Next[/whisper]`
-					// links += ` | [whisper .q remove ${obj.date} next]Remove[/whisper]`
+					links += ` | [whisper .q remove ${obj.date} next]Remove[/whisper]`
 					let message = `${upname} item successfully queued.`
 					let ans = `${message}\n${links}`
 					send_message(ans)
