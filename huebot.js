@@ -298,6 +298,7 @@ function start_connection(room_id)
 				}
 
 				check_reminders(data.username)
+				check_speech()
 			}
 
 			else if(type === 'room_image_mode_change')
@@ -939,6 +940,14 @@ function start_connection(room_id)
 		reminders[uname] = []
 
 		save_file("reminders.json", reminders)
+	}
+
+	function check_speech()
+	{
+		if(get_random_int(1, 50) == 1)
+		{
+			send_message(get_random_phrase())
+		}
 	}
 
 	function selective_play(kind, url)
@@ -3600,6 +3609,45 @@ function start_connection(room_id)
 		{
 			return word.toUpperCase()
 		}
+	}
+
+	function get_random_phrase()
+	{
+		let contexts = 
+		[
+			["I want a", false, false],
+			["I feel like a", false, false],
+			["would you like a", false, true],
+			["I'm playing with a", false, false],
+			["you look like a", false, false],
+			["you're all a bunch of", true, false],
+			["I want to eat a", false, false]
+		]
+
+		let word = get_random_word()
+		let ctx = contexts[get_random_int(0, contexts.length - 1)]
+		let en = ""
+		
+		if(ctx[0].endsWith(" a") && (word.startsWith("a") || word.startsWith("e") || word.startsWith("i")))
+		{
+			en = "n"
+		}
+
+		let plural = ""
+
+		if(ctx[1])
+		{
+			plural = "s"
+		}
+
+		let qs = ""
+
+		if(ctx[2])
+		{
+			qs = "?"
+		}
+
+		return `${ctx[0]}${en} ${word}${plural}${qs}`
 	}
 
 	function get_random_user()
