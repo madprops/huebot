@@ -3628,7 +3628,8 @@ function start_connection(room_id)
 		let ctx = contexts[get_random_int(0, contexts.length - 1)]
 		let en = ""
 		
-		if(ctx[0].endsWith(" a") && (word.startsWith("a") || word.startsWith("e") || word.startsWith("i")))
+		if(ctx[0].endsWith(" a") && (word.startsWith("a") || word.startsWith("e") || 
+			word.startsWith("i") || word.startsWith("o") || word.startsWith("u")))
 		{
 			en = "n"
 		}
