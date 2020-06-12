@@ -944,8 +944,15 @@ function start_connection(room_id)
 
 	function check_speech()
 	{
-		if(get_random_int(1, 50) == 1)
-		{
+		let p = Math.min(100, config.speak_chance_percentage)
+
+		if(p <= 0) {
+			return
+		}
+		
+		let n = get_random_int(1, 100)
+
+		if(n <= (p)) {
 			send_message(get_random_phrase())
 		}
 	}

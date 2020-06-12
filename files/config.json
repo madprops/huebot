@@ -8,5 +8,6 @@
     "server_address": "http://localhost:3210",
     "room_ids": ["main"],
     "protected_admins": ["mad"],
-    "command_prefix": "."
+    "command_prefix": ".",
+    "speak_chance_percentage": 1
 }
