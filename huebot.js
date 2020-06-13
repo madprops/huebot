@@ -3622,13 +3622,15 @@ function start_connection(room_id)
 	{
 		let contexts = 
 		[
+			// bool=plural | bool=add_question_mark
 			["I want a", false, false],
 			["I feel like a", false, false],
 			["would you like a", false, true],
 			["I'm playing with a", false, false],
 			["you look like a", false, false],
 			["you're all a bunch of", true, false],
-			["I want to eat a", false, false]
+			["I want to eat a", false, false],
+			["I see the", false, false],
 		]
 
 		let word = get_random_word()
