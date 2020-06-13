@@ -23,6 +23,7 @@ const configs_path = path.normalize(path.resolve(__dirname, configs_location) + 
 // For instance `node huebot.json goodBot`
 // ... would use ./configs/goodBot.json config file
 // This is to allow multiple instances easily
+// If no argument is passed then it uses default.json
 
 let config_name
 
