@@ -12,11 +12,29 @@ let math_config =
 	precision: 64
 }
 
+let args = process.argv.slice(2)
 const math = MathJS.create(MathJS.all, math_config)
 const files_location = "./files/"
+const configs_location = "./configs/"
 const files_path = path.normalize(path.resolve(__dirname, files_location) + "/")
-	
-let config = require(`${files_path}config.json`)
+const configs_path = path.normalize(path.resolve(__dirname, configs_location) + "/")
+
+// Huebot supports launching with a custom config file
+// For instance `node huebot.json goodBot`
+// ... would use ./configs/goodBot.json config file
+// This is to allow multiple instances easily
+
+let config_name
+
+if(args.length >= 1) {
+	config_name = args[0]
+} else {
+	config_name = "default"
+}
+
+console.log(`Using config file: ${config_name}`)
+let config = require(`${configs_path}${config_name}.json`)
+
 let commands = require(`${files_path}commands.json`)
 let permissions = require(`${files_path}permissions.json`)
 let themes = require(`${files_path}themes.json`)
