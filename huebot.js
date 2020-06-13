@@ -14,9 +14,7 @@ let math_config =
 
 let args = process.argv.slice(2)
 const math = MathJS.create(MathJS.all, math_config)
-const files_location = "./files/"
 const configs_location = "./configs/"
-const files_path = path.normalize(path.resolve(__dirname, files_location) + "/")
 const configs_path = path.normalize(path.resolve(__dirname, configs_location) + "/")
 
 // Huebot supports launching with a custom config file
@@ -27,7 +25,7 @@ const configs_path = path.normalize(path.resolve(__dirname, configs_location) + 
 
 let config_name
 
-if(args.length >= 1) {
+if(args.length >= 1 && args[0] != "default") {
 	config_name = args[0]
 } else {
 	config_name = "default"
@@ -35,6 +33,37 @@ if(args.length >= 1) {
 
 console.log(`Using config file: ${config_name}`)
 let config = require(`${configs_path}${config_name}.json`)
+
+const template_files_location = `./files/_template_`
+const template_files_path = path.normalize(path.resolve(__dirname, template_files_location) + "/")
+
+let files_name
+
+if(args.length >= 2 && args[1] != "default") {
+	files_name = args[1]
+} else {
+	files_name = "default"
+}
+
+console.log(`Files path: ${files_name}`)
+const files_location = `./files/${files_name}`
+const files_path = path.normalize(path.resolve(__dirname, files_location) + "/")
+
+// Check if files dir exists
+if(!fs.existsSync(files_path)) {
+	fs.mkdirSync(files_path)
+	console.log(`Created Dir: ${files_path}`)
+}
+
+// Check if a file needs to be copied from the template dir
+for(let file of fs.readdirSync(template_files_path)) {
+	let p = path.normalize(path.resolve(files_path, file))
+	if(!fs.existsSync(p)) {
+		let p0 = path.normalize(path.resolve(template_files_path, file))
+		fs.copyFileSync(p0, p)
+		console.log(`Copied: ${file}`)
+	}
+}
 
 let commands = require(`${files_path}commands.json`)
 let permissions = require(`${files_path}permissions.json`)
