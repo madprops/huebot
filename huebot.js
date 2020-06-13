@@ -127,7 +127,8 @@ const available_commands =
 	"roll",
 	"users",
 	"decide",
-	"pick"
+	"pick",
+	"wiki"
 ]
 
 const public_commands = 
@@ -140,7 +141,8 @@ const public_commands =
 	"roll",
 	"users",
 	"decide",
-	"pick"
+	"pick",
+	"wiki"
 ]
 
 for(let room_id of config.room_ids)
@@ -2420,6 +2422,29 @@ function start_connection(room_id)
 				process_feedback(data, `Can't rename that subject.`)
 				return false
 			}
+		}
+
+		else if(cmd == "wiki") {
+			if(!arg) {
+				process_feedback(data, "No search term provided.")
+				return false
+			}
+
+			let query = `https://en.wikipedia.org/api/rest_v1/page/summary/${arg}`
+			
+			fetch(query)
+
+			.then(res =>
+			{
+				return res.json()
+			})
+
+			.then(res =>
+			{
+				if(res.extract) {
+					process_feedback(data, res.extract)
+				}
+			})
 		}
 
 		else if(cmd === "subjectkeywords")
