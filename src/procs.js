@@ -367,11 +367,6 @@ module.exports = function(Huebot)
     let modes = ["automatic", "custom"]
 
     if(!modes.includes(mode)) {
-      Huebot.process_feedback(ctx, data, "Invalid background mode.")
-      return false
-    }
-
-    if(!modes.includes(mode)) {
       Huebot.process_feedback(ctx, data, "Invalid theme mode.")
       return false
     }

@@ -1,9 +1,6 @@
 const path = require('path')
 const fs = require("fs")
 const io = require("socket.io-client")
-const fetch = require("node-fetch")
-const cheerio = require("cheerio")
-const linkify = require("linkifyjs")
 
 const Huebot = {}
 Huebot.db = {}
@@ -201,67 +198,6 @@ Huebot.start_connection = function(room_id)
 					}
 
 					Huebot.process_command(ctx, obj)
-				}
-
-				else
-				{
-					if(Huebot.db.options.link_titles)
-					{
-						let links = linkify.find(data.message)
-
-						if(links)
-						{
-							for(let i=0; i<links.length; i++)
-							{
-								let link = links[i]
-
-								let href = link.href
-
-								if(!href.startsWith("http://") && !href.startsWith("https://"))
-								{
-									continue
-								}
-
-								if(i >= 3)
-								{
-									break
-								}
-
-								let extension = Huebot.get_extension(href).toLowerCase()
-
-								if(extension)
-								{
-									if(extension !== "html" && extension !== "php")
-									{
-										continue
-									}
-								}
-
-								fetch(href)
-								
-								.then(res => 
-								{
-									return res.text()
-								})
-								
-								.then(body => 
-								{
-									let $ = cheerio.load(body)
-									let title = Huebot.clean_string2($("title").text().substring(0, Huebot.config.max_title_length))
-									
-									if(title)
-									{
-										Huebot.send_message(ctx, `[ Title: ${title} ]`)
-									}
-								})
-
-								.catch(err =>
-								{
-									console.error(err)
-								})
-							}
-						}
-					}
 				}
 
 				Huebot.check_reminders(ctx, data.username)

@@ -313,7 +313,7 @@ module.exports = function(Huebot)
 
       if(Huebot.command_list.includes(arg))
       {
-        Huebot.process_feedback(ctx, data, `"${arg}" is a reserved command.`)
+        Huebot.process_feedback(ctx, data, `${arg}: ${Huebot.commands[arg].description}`)
       }
 
       else
@@ -1005,47 +1005,6 @@ module.exports = function(Huebot)
       }
 
       Huebot.process_feedback(ctx, data, s)
-    }
-
-    else if(cmd === "linktitles")
-    {
-      if(!arg || (arg !== "on" && arg !== "off"))
-      {
-        Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}linktitles on|off`)
-        return false
-      }
-
-      if(arg === "on")
-      {
-        if(Huebot.db.options.link_titles)
-        {
-          Huebot.process_feedback(ctx, data, "Link Titles are already on.")
-          return false
-        }
-
-        Huebot.db.options.link_titles = true
-
-        Huebot.save_file("options.json", Huebot.db.options, function()
-        {
-          Huebot.send_message(ctx, `Link Titles are now on.`)
-        })
-      }
-
-      else if(arg === "off")
-      {
-        if(!Huebot.db.options.link_titles)
-        {
-          Huebot.process_feedback(ctx, data, "Link Titles are already off.")
-          return false
-        }
-
-        Huebot.db.options.link_titles = false
-
-        Huebot.save_file("options.json", Huebot.db.options, function()
-        {
-          Huebot.send_message(ctx, `Link Titles are now off.`)
-        })
-      }
     }
 
     else if(cmd === "public")
