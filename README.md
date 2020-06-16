@@ -18,14 +18,6 @@ The bot's account email, used to log in.
 
 The bot's account password, used to log in.
 
->twitch_client_id
-
-A Twitch dev api client id so Twitch based features can work.
-
->twitch_enabled
-
-If false, it will avoid using Twitch altogether.
-
 >youtube_client_id
 
 A YouTube dev api client id so YouTube based features can work.
@@ -180,7 +172,7 @@ If on, the bot will find and show the link of a website when it detects a URL in
 
 >stream
 
-Gets a random live stream from Twitch or Youtube and changes the tv to that.
+Gets a random live stream from Youtube and changes the tv to that.
 
 >activity
 
