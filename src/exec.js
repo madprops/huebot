@@ -1117,7 +1117,7 @@ module.exports = function(Huebot)
       }
 
       else if(arg1 === "remove") {
-        if(get_q_item(arg2, "delete")) {
+        if(Huebot.get_q_item(arg2, "delete")) {
           Huebot.process_feedback(ctx, data, "Item successfully removed.")
         } else {
           Huebot.process_feedback(ctx, data, "This was already played or removed.")
@@ -1126,10 +1126,10 @@ module.exports = function(Huebot)
       }
 
       else if(!isNaN(arg1)) {
-        let item = get_q_item(arg1, "delete")
+        let item = Huebot.get_q_item(arg1, "delete")
 
         if(item) {
-          selective_play(item.kind, item.url)
+          Huebot.selective_play(ctx, item.kind, item.url)
           Huebot.save_file("queue.json", Huebot.db.queue)
         } else {
           Huebot.process_feedback(ctx, data, "This was already played or removed.")
@@ -1153,7 +1153,7 @@ module.exports = function(Huebot)
             return
           }
 
-          selective_play(item.kind, item.url)
+          Huebot.selective_play(ctx, item.kind, item.url)
           Huebot.save_file("queue.json", Huebot.db.queue)
         }
 
