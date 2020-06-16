@@ -186,7 +186,7 @@ Huebot.start_connection = function (room_id) {
 				}
 
 				Huebot.check_reminders(ctx, data.username)
-				Huebot.check_speech(ctx)
+				Huebot.check_speech(ctx, data, "")
 			} else if (type === 'room_image_mode_change') {
 				ctx.room_image_mode = data.what
 				Huebot.check_media_permissions(ctx)

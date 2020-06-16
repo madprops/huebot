@@ -1,5 +1,6 @@
 const fs = require("fs")
 const path = require('path')
+const fetch = require("node-fetch")
 
 module.exports = function (Huebot) {
   Huebot.is_protected_admin = function (uname) {
@@ -448,5 +449,26 @@ module.exports = function (Huebot) {
     }
 
     return true
+  }
+
+  Huebot.get_shower_thought = async function () {
+    return new Promise(async (resolve, reject) =>
+    {
+        fetch("https://www.reddit.com/r/Showerthoughts/random.json")
+
+        .then(res => {
+          return res.json()
+        })
+  
+        .then(res => {
+          let title = res[0].data.children[0].data.title
+          let url = res[0].data.children[0].data.url
+          resolve({title:title, url:url})
+        })
+  
+        .catch(err => {
+          reject()
+        })
+    })
   }
 }

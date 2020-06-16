@@ -251,4 +251,157 @@ module.exports = function (Huebot) {
   for (let key in Huebot.commands) {
     Huebot.command_list.push(key)
   }
+
+  // Must Include:
+  // data.message
+  // data.username
+  // data.method
+  // Optional:
+  // data.callback
+  Huebot.process_command = function (ctx, data) {
+    let allowed = false
+    let split = data.message.split(' ')
+    let cmd = split[0]
+    let arg
+
+    if (split.length > 1) {
+      cmd += ' '
+      arg = Huebot.clean_string2(split.slice(1).join(" "))
+    } else {
+      arg = ""
+    }
+
+    cmd = cmd.substring(1).trim()
+
+    if (!Huebot.is_admin(data.username)) {
+      if (Huebot.db.options.public_commands) {
+        if (public_commands.includes(cmd)) {
+          allowed = check_public_command(cmd, arg)
+        } else {
+          let cmd2 = Huebot.db.commands[cmd]
+
+          if (cmd2) {
+            if (cmd2.type === "image" || cmd2.type === "tv" || cmd2.type === "radio") {
+              allowed = true
+            } else if (cmd2.type === "alias") {
+              let split = cmd2.url.split(" && ")
+
+              allowed = true
+
+              for (let c of split) {
+                let sp = c.split(" ")
+                let cmd = sp[0]
+                let arg = sp.slice(1).join(" ")
+
+                if (!public_commands.includes(cmd) || !check_public_command(cmd, arg)) {
+                  allowed = false
+                  break
+                }
+              }
+            }
+          }
+        }
+      }
+
+      if (!allowed) {
+        if (data.callback) {
+          return data.callback()
+        } else {
+          return false
+        }
+      }
+    } else {
+      allowed = true
+    }
+
+    ctx.user_command_activity.push(data.username)
+
+    if (ctx.user_command_activity.length > Huebot.config.max_user_command_activity) {
+      ctx.user_command_activity.shift()
+    }
+
+    if (data.message.includes(" && ")) {
+      if (cmd !== "set" && cmd !== "setforce") {
+        let full_cmd = `${cmd} ${arg}`
+
+        let and_split = full_cmd.split(" && ")
+
+        if (and_split.length > 1) {
+          let cmds = []
+
+          for (let i = 0; i < and_split.length; i++) {
+            let item = and_split[i]
+
+            let c = item.trim()
+
+            let cc
+            let c2
+
+            if (!c.startsWith(Huebot.db.config.command_prefix)) {
+              cc = Huebot.db.config.command_prefix + c
+              c2 = c
+            } else {
+              cc = c
+              c2 = c.substring(1)
+            }
+
+            let acmd = Huebot.db.commands[c2]
+
+            if (acmd !== undefined) {
+              let spc = acmd.url.split(" ")[0]
+
+              if (Huebot.command_list.includes(spc)) {
+                cc = Huebot.db.config.command_prefix + acmd.url
+              }
+            }
+
+            cmds.push(cc)
+          }
+
+          let qcmax = 0
+
+          let cqid
+
+          while (true) {
+            cqid = Huebot.get_random_string(5) + Date.now()
+
+            if (ctx.commands_queue[cqid] === undefined) {
+              break
+            }
+
+            qcmax += 1
+
+            if (qcmax >= 100) {
+              if (data.callback) {
+                return data.callback()
+              } else {
+                return false
+              }
+            }
+          }
+
+          ctx.commands_queue[cqid] = {}
+          ctx.commands_queue[cqid].username = data.username
+          ctx.commands_queue[cqid].method = data.method
+          ctx.commands_queue[cqid].commands = cmds
+
+          Huebot.run_commands_queue(ctx, cqid)
+
+          if (data.callback) {
+            return data.callback()
+          } else {
+            return false
+          }
+        }
+      }
+    }
+
+    Huebot.execute_command(ctx, data, cmd, arg)
+
+    if (data.callback) {
+      return data.callback()
+    } else {
+      return false
+    }
+  }
 }
