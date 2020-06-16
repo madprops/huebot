@@ -259,7 +259,8 @@ module.exports = function(Huebot)
       append: "",
       sort_mode: "none",
       whisperify: false,
-      mode: ""
+      mode: "",
+      limit: true
     }
 
     Huebot.fill_defaults(args, def_args)
@@ -277,6 +278,14 @@ module.exports = function(Huebot)
     else
     {
       props = Object.keys(args.data)
+    }
+
+    let max
+
+    if(args.limit) {
+      max = Huebot.config.max_list_items
+    } else {
+      max = props.length
     }
 
     if(args.sort_mode === "random")
@@ -318,12 +327,12 @@ module.exports = function(Huebot)
     {
       i += 1
 
-      if(i > 1 && i < Huebot.config.max_list_items)
+      if(i > 1 && i < max)
       {
         s += args.append
       }
 
-      if(i <= Huebot.config.max_list_items)
+      if(i <= max)
       {
         s += " "
       }
@@ -361,7 +370,7 @@ module.exports = function(Huebot)
         s += ns
       }
 
-      if(i >= Huebot.config.max_list_items)
+      if(i >= max)
       {
         return false
       }

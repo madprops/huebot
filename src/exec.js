@@ -1817,31 +1817,16 @@ module.exports = function(Huebot)
 
     else if(cmd === "help")
     {
-      let s = ""
-
-      if(arg)
+      let s = Huebot.list_items(
       {
-        s = Huebot.list_items(
-        {
-          data: Huebot.command_list,
-          filter: arg,
-          prepend: Huebot.db.config.command_prefix,
-          append: ",",
-          sort_mode: "sort"
-        })
-      }
-
-      else
-      {
-        s += "Available Commands: "
-
-        for(let c of Huebot.command_list)
-        {
-          s += `${Huebot.db.config.command_prefix}${c}, ` 
-        }
-				
-        s = s.slice(0, -2)
-      }
+        data: Huebot.command_list,
+        filter: arg,
+        prepend: Huebot.db.config.command_prefix,
+        append: " ",
+        sort_mode: "sort",
+        whisperify: `${Huebot.db.config.command_prefix}whatis `,
+        limit: false
+      })
 
       if(s)
       {
