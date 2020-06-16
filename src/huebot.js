@@ -8,6 +8,7 @@ Huebot.config = {}
 
 require("./cmds.js")(Huebot)
 require("./procs.js")(Huebot)
+require("./procutils.js")(Huebot)
 require("./exec.js")(Huebot)
 require("./utils.js")(Huebot)
 
