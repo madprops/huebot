@@ -337,8 +337,8 @@ module.exports = function (Huebot) {
             let cc
             let c2
 
-            if (!c.startsWith(Huebot.db.config.command_prefix)) {
-              cc = Huebot.db.config.command_prefix + c
+            if (!c.startsWith(Huebot.prefix)) {
+              cc = Huebot.prefix + c
               c2 = c
             } else {
               cc = c
@@ -351,7 +351,7 @@ module.exports = function (Huebot) {
               let spc = acmd.url.split(" ")[0]
 
               if (Huebot.command_list.includes(spc)) {
-                cc = Huebot.db.config.command_prefix + acmd.url
+                cc = Huebot.prefix + acmd.url
               }
             }
 

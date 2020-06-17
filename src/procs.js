@@ -9,40 +9,40 @@ module.exports = function (Huebot) {
 
   const math = MathJS.create(MathJS.all, math_config)
 
-  Huebot.change_image = function (ctx, data, arg) {
-    Huebot.change_media(ctx, {
+  Huebot.change_image = function (ox) {
+    Huebot.change_media(ox.ctx, {
       type: "image",
-      src: arg
+      src: ox.arg
     })
   }
 
-  Huebot.change_tv = function (ctx, data, arg) {
-    Huebot.change_media(ctx, {
+  Huebot.change_tv = function (ox) {
+    Huebot.change_media(ox.ctx, {
       type: "tv",
-      src: arg
+      src: ox.arg
     })
   }
 
-  Huebot.change_radio = function (ctx, data, arg) {
-    Huebot.change_media(ctx, {
+  Huebot.change_radio = function (ox) {
+    Huebot.change_media(ox.ctx, {
       type: "radio",
-      src: arg
+      src: ox.arg
     })
   }
 
-  Huebot.add_custom_command = function (ctx, data, arg, cmd) {
-    let split = arg.split(' ')
+  Huebot.add_custom_command = function (ox) {
+    let split = ox.arg.split(' ')
     let command_name = split[0]
     let command_type = split[1]
     let command_url = split.slice(2).join(" ")
 
-    if (!arg || split.length < 3 || (!Huebot.config.media_types.includes(command_type) && command_type !== "alias")) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}${cmd} [name] ${Huebot.config.media_types.join("|")}|alias [url]`)
+    if (!ox.arg || split.length < 3 || (!Huebot.config.media_types.includes(command_type) && command_type !== "alias")) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} [name] ${Huebot.config.media_types.join("|")}|alias [url]`)
       return false
     }
 
     if (Huebot.command_list.includes(command_name)) {
-      Huebot.process_feedback(ctx, data, `Command "${command_name}" is reserved.`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Command "${command_name}" is reserved.`)
       return false
     }
 
@@ -53,7 +53,7 @@ module.exports = function (Huebot) {
         let c = item.trim().split(" ")[0]
 
         if (!Huebot.command_list.includes(c)) {
-          Huebot.process_feedback(ctx, data, "Not a valid alias. Remember to not include the trigger character.")
+          Huebot.process_feedback(ox.ctx, ox.data, "Not a valid alias. Remember to not include the trigger character.")
           return false
         }
       }
@@ -61,8 +61,8 @@ module.exports = function (Huebot) {
 
     let oc = Huebot.db.commands[command_name]
 
-    if (oc && cmd !== "setforce") {
-      Huebot.process_feedback(ctx, data, `"${command_name}" already exists. Use "${Huebot.db.config.command_prefix}setforce" to overwrite.`)
+    if (oc && ox.cmd !== "setforce") {
+      Huebot.process_feedback(ox.ctx, ox.data, `"${command_name}" already exists. Use "${Huebot.prefix}setforce" to overwrite.`)
       return false
     }
 
@@ -79,44 +79,44 @@ module.exports = function (Huebot) {
       }
 
       Huebot.save_file("commands.json", Huebot.db.commands, function (err) {
-        Huebot.send_message(ctx, `Command "${command_name}" successfully set.`)
+        Huebot.send_message(ox.ctx, `Command "${command_name}" successfully set.`)
       })
     } catch (err) {
-      Huebot.process_feedback(ctx, data, `Can't save that command.`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Can't save that command.`)
       return false
     }
   }
 
-  Huebot.remove_custom_command = function (ctx, data, arg) {
-    if (!arg) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}unset [name]`)
+  Huebot.remove_custom_command = function (ox) {
+    if (!ox.arg) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}unset [name]`)
       return false
     }
   
-    if (Huebot.db.commands[arg] === undefined) {
-      Huebot.process_feedback(ctx, data, `Command "${arg}" doesn't exist.`)
+    if (Huebot.db.commands[ox.arg] === undefined) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Command "${ox.arg}" doesn't exist.`)
       return false
     }
   
-    delete Huebot.db.commands[arg]
+    delete Huebot.db.commands[ox.arg]
   
     Huebot.save_file("commands.json", Huebot.db.commands, function () {
-      Huebot.send_message(ctx, `Command "${arg}" successfully unset.`)
+      Huebot.send_message(ox.ctx, `Command "${ox.arg}" successfully unset.`)
     })
   }
 
-  Huebot.rename_custom_command = function (ctx, data, arg) {
-    let split = arg.split(' ')
+  Huebot.rename_custom_command = function (ox) {
+    let split = ox.arg.split(' ')
     let old_name = split[0]
     let new_name = split[1]
 
-    if (!arg || split.length !== 2) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}rename [old_name] [new_name]`)
+    if (!ox.arg || split.length !== 2) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}rename [old_name] [new_name]`)
       return false
     }
 
     if (Huebot.db.commands[old_name] === undefined) {
-      Huebot.process_feedback(ctx, data, `Command "${old_name}" doesn't exist.`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Command "${old_name}" doesn't exist.`)
       return false
     }
 
@@ -126,18 +126,18 @@ module.exports = function (Huebot) {
       delete Huebot.db.commands[old_name]
 
       Huebot.save_file("commands.json", Huebot.db.commands, function () {
-        Huebot.send_message(ctx, `Command "${old_name}" successfully renamed to "${new_name}".`)
+        Huebot.send_message(ox.ctx, `Command "${old_name}" successfully renamed to "${new_name}".`)
       })
     } catch (err) {
-      Huebot.process_feedback(ctx, data, `Can't rename that command.`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Can't rename that command.`)
       return false
     }
   }
 
-  Huebot.list_custom_commands = function (ctx, data, arg) {
+  Huebot.list_custom_commands = function (ox) {
     let sort_mode = "random"
 
-    if (arg) {
+    if (ox.arg) {
       sort_mode = "sort"
     }
   
@@ -147,10 +147,10 @@ module.exports = function (Huebot) {
   
     let s = Huebot.list_items({
       data: cmds,
-      filter: arg,
-      prepend: Huebot.db.config.command_prefix,
+      filter: ox.arg,
+      prepend: Huebot.prefix,
       sort_mode: sort_mode,
-      whisperify: `${Huebot.db.config.command_prefix}`,
+      whisperify: `${Huebot.prefix}`,
       mode: "commands"
     })
   
@@ -158,15 +158,15 @@ module.exports = function (Huebot) {
       s = "No commands found."
     }
   
-    Huebot.process_feedback(ctx, data, s)
+    Huebot.process_feedback(ox.ctx, ox.data, s)
   }
 
-  Huebot.execute_random_custom_command = function (ctx, data, arg) {
+  Huebot.execute_random_custom_command = function (ox) {
     let comment = generate_random_controls()
     let words = false
 
-    if (arg) {
-      if (arg === "tv" || arg === "radio") {
+    if (ox.arg) {
+      if (ox.arg === "tv" || ox.arg === "radio") {
         let n = Huebot.get_random_int(0, 2)
 
         if (n === 0) {
@@ -175,43 +175,43 @@ module.exports = function (Huebot) {
       }
     }
 
-    if (arg && !words) {
+    if (ox.arg && !words) {
       let cmds = Object.keys(Huebot.db.commands)
 
       cmds = cmds.filter(x => Huebot.db.commands[x].type !== "alias")
 
-      if (!Huebot.config.media_types.includes(arg)) {
+      if (!Huebot.config.media_types.includes(ox.arg)) {
         return false
       }
 
-      cmds = cmds.filter(x => Huebot.db.commands[x].type === arg)
+      cmds = cmds.filter(x => Huebot.db.commands[x].type === ox.arg)
 
       let c = cmds[Huebot.get_random_int(0, cmds.length - 1)]
 
-      data.comment = comment
+      ox.data.comment = comment
 
       if (c) {
-        Huebot.run_command(ctx, c, arg, data)
+        Huebot.run_command(ox.ctx, c, ox.arg, ox.data)
       }
     } else {
       let type = "tv"
       let word1, word2
 
-      if (arg) {
-        type = arg
+      if (ox.arg) {
+        type = ox.arg
       }
 
-      if (!arg || arg === "tv") {
-        if (!ctx.can_tv) {
-          Huebot.process_feedback(ctx, data, Huebot.config.no_tv_error)
+      if (!ox.arg || ox.arg === "tv") {
+        if (!ox.ctx.can_tv) {
+          Huebot.process_feedback(ox.ctx, ox.data, Huebot.config.no_tv_error)
           return false
         }
 
         word1 = Huebot.get_random_word()
         word2 = Huebot.get_random_word()
-      } else if (arg === "radio") {
-        if (!ctx.can_radio) {
-          Huebot.process_feedback(ctx, data, Huebot.config.no_radio_error)
+      } else if (ox.arg === "radio") {
+        if (!ox.ctx.can_radio) {
+          Huebot.process_feedback(ox.ctx, ox.data, Huebot.config.no_radio_error)
           return false
         }
 
@@ -219,7 +219,7 @@ module.exports = function (Huebot) {
         word2 = "music"
       }
 
-      Huebot.change_media(ctx, {
+      Huebot.change_media(ox.ctx, {
         type: type,
         src: `${word1} ${word2}`,
         comment: comment
@@ -227,89 +227,89 @@ module.exports = function (Huebot) {
     }
   }
 
-  Huebot.whatis_command = function (ctx, data, arg) {
-    if (!arg || arg.split(" ").length > 1) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}whatis [command_name]`)
+  Huebot.whatis_command = function (ox) {
+    if (!ox.arg || ox.arg.split(" ").length > 1) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}whatis [command_name]`)
       return false
     }
 
-    if (Huebot.command_list.includes(arg)) {
-      Huebot.process_feedback(ctx, data, `${arg}: ${Huebot.commands[arg].description}`)
+    if (Huebot.command_list.includes(ox.arg)) {
+      Huebot.process_feedback(ox.ctx, ox.data, `${ox.arg}: ${Huebot.commands[ox.arg].description}`)
     } else {
-      let command = Huebot.db.commands[arg]
+      let command = Huebot.db.commands[ox.arg]
 
       if (command) {
-        Huebot.process_feedback(ctx, data, `"${arg}" is of type "${command.type}" and is set to "${safe_replacements(command.url)}".`)
+        Huebot.process_feedback(ox.ctx, ox.data, `"${ox.arg}" is of type "${command.type}" and is set to "${safe_replacements(command.url)}".`)
       } else {
-        Huebot.process_feedback(ctx, data, `Command "${arg}" doesn't exist.`)
+        Huebot.process_feedback(ox.ctx, ox.data, `Command "${ox.arg}" doesn't exist.`)
       }
     }
   }
 
-  Huebot.add_admin = function (ctx, data, arg) {
-    if (!Huebot.is_protected_admin(data.username)) {
+  Huebot.add_admin = function (ox) {
+    if (!Huebot.is_protected_admin(ox.data.username)) {
       return false
     }
 
-    if (!arg) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}adminadd [username]`)
+    if (!ox.arg) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}adminadd [username]`)
       return false
     }
 
-    if (arg === data.username) {
+    if (ox.arg === ox.data.username) {
       return false
     }
 
-    if (!Huebot.db.permissions.admins.includes(arg)) {
-      Huebot.db.permissions.admins.push(arg)
+    if (!Huebot.db.permissions.admins.includes(ox.arg)) {
+      Huebot.db.permissions.admins.push(ox.arg)
 
       Huebot.save_file("permissions.json", Huebot.db.permissions, function (err) {
-        Huebot.send_message(ctx, `Username "${arg}" was successfully added as an admin.`)
+        Huebot.send_message(ox.ctx, `Username "${ox.arg}" was successfully added as an admin.`)
       })
     }
   }
 
-  Huebot.remove_admin = function (ctx, data, arg) {
-    if (!Huebot.is_protected_admin(data.username)) {
+  Huebot.remove_admin = function (ox) {
+    if (!Huebot.is_protected_admin(ox.data.username)) {
       return false
     }
 
-    if (!arg) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}adminremove [username]`)
+    if (!ox.arg) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}adminremove [username]`)
       return false
     }
 
-    if (arg === data.username) {
+    if (ox.arg === ox.data.username) {
       return false
     }
 
-    if (Huebot.db.permissions.admins.includes(arg)) {
+    if (Huebot.db.permissions.admins.includes(ox.arg)) {
       for (let i = 0; i < Huebot.db.permissions.admins.length; i++) {
         let admin = Huebot.db.permissions.admins[i]
 
-        if (admin === arg) {
+        if (admin === ox.arg) {
           Huebot.db.permissions.admins.splice(i, 1)
         }
       }
 
       Huebot.save_file("permissions.json", Huebot.db.permissions, function (err) {
-        Huebot.send_message(ctx, `Username "${arg}" was successfully removed as an admin.`)
+        Huebot.send_message(ox.ctx, `Username "${ox.arg}" was successfully removed as an admin.`)
       })
     } else {
-      Huebot.process_feedback(ctx, data, `"${arg}" is not an admin. Nothing to remove.`)
+      Huebot.process_feedback(ox.ctx, ox.data, `"${ox.arg}" is not an admin. Nothing to remove.`)
     }
   }
 
-  Huebot.list_admins = function (ctx, data, arg) {
+  Huebot.list_admins = function (ox) {
     let sort_mode = "random"
 
-    if (arg) {
+    if (ox.arg) {
       sort_mode = "sort"
     }
   
     let s = Huebot.list_items({
       data: Huebot.db.permissions.admins,
-      filter: arg,
+      filter: ox.arg,
       append: ",",
       sort_mode: sort_mode
     })
@@ -318,125 +318,125 @@ module.exports = function (Huebot) {
       s = "No admins found."
     }
   
-    Huebot.process_feedback(ctx, data, s)
+    Huebot.process_feedback(ox.ctx, ox.data, s)
   }
 
-  Huebot.change_background_mode = function (ctx, data, arg) {
-    if (!Huebot.check_op_permission(ctx, "background")) {
+  Huebot.change_background_mode = function (ox) {
+    if (!Huebot.check_op_permission(ox.ctx, "background")) {
       return false
     }
 
-    if (!data || !arg) {
+    if (!ox.data || !ox.arg) {
       return false
     }
 
-    if (!Huebot.is_admin_or_op(ctx.role)) {
-      Huebot.process_feedback(ctx, data, "I need to be an operator to do that.")
+    if (!Huebot.is_admin_or_op(ox.ctx.role)) {
+      Huebot.process_feedback(ox.ctx, ox.data, "I need to be an operator to do that.")
       return false
     }
 
     let modes = ["normal", "tiled", "mirror", "mirror_tiled", "solid"]
 
-    if (!modes.includes(arg)) {
-      Huebot.process_feedback(ctx, data, "Invalid background mode.")
+    if (!modes.includes(ox.arg)) {
+      Huebot.process_feedback(ox.ctx, ox.data, "Invalid background mode.")
       return false
     }
 
-    if (arg === ctx.background_mode) {
-      Huebot.process_feedback(ctx, data, "Background mode is already set to that.")
+    if (ox.arg === ox.ctx.background_mode) {
+      Huebot.process_feedback(ox.ctx, ox.data, "Background mode is already set to that.")
       return false
     }
 
-    Huebot.socket_emit(ctx, "change_background_mode", {
-      mode: arg
+    Huebot.socket_emit(ox.ctx, "change_background_mode", {
+      mode: ox.arg
     })
   }
 
-  Huebot.change_theme_mode = function (ctx, data, arg) {
-    if (!Huebot.check_op_permission(ctx, "theme")) {
+  Huebot.change_theme_mode = function (ox) {
+    if (!Huebot.check_op_permission(ox.ctx, "theme")) {
       return false
     }
 
-    if (!data || !arg) {
+    if (!ox.data || !ox.arg) {
       return false
     }
 
-    if (!Huebot.is_admin_or_op(ctx.role)) {
-      Huebot.process_feedback(ctx, data, "I need to be an operator to do that.")
+    if (!Huebot.is_admin_or_op(ox.ctx.role)) {
+      Huebot.process_feedback(ox.ctx, ox.data, "I need to be an operator to do that.")
       return false
     }
 
     let modes = ["automatic", "custom"]
 
-    if (!modes.includes(arg)) {
-      Huebot.process_feedback(ctx, data, "Invalid theme mode.")
+    if (!modes.includes(ox.arg)) {
+      Huebot.process_feedback(ox.ctx, ox.data, "Invalid theme mode.")
       return false
     }
 
-    if (arg === ctx.theme_mode) {
-      Huebot.process_feedback(ctx, data, "Theme mode is already set to that.")
+    if (ox.arg === ox.ctx.theme_mode) {
+      Huebot.process_feedback(ox.ctx, ox.data, "Theme mode is already set to that.")
       return false
     }
 
-    Huebot.socket_emit(ctx, "change_theme_mode", {
-      mode: arg
+    Huebot.socket_emit(ox.ctx, "change_theme_mode", {
+      mode: ox.arg
     })
   }
 
-  Huebot.add_theme = function (ctx, data, arg) {
-    if (!arg) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}themeadd [name]`)
+  Huebot.add_theme = function (ox) {
+    if (!ox.arg) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}themeadd [name]`)
       return false
     }
 
-    if (ctx.theme_mode !== "custom") {
-      Huebot.process_feedback(ctx, data, "Automatic themes can't be saved.")
+    if (ox.ctx.theme_mode !== "custom") {
+      Huebot.process_feedback(ox.ctx, ox.data, "Automatic themes can't be saved.")
       return false
     }
 
     let obj = {}
 
-    obj.theme = ctx.theme
-    obj.text_color = ctx.text_color
-    obj.text_color_mode = ctx.text_color_mode
+    obj.theme = ox.ctx.theme
+    obj.text_color = ox.ctx.text_color
+    obj.text_color_mode = ox.ctx.text_color_mode
 
-    Huebot.db.themes[arg] = obj
+    Huebot.db.themes[ox.arg] = obj
 
     Huebot.save_file("themes.json", Huebot.db.themes, function () {
-      Huebot.send_message(ctx, `Theme "${arg}" successfully added.`)
+      Huebot.send_message(ox.ctx, `Theme "${ox.arg}" successfully added.`)
     })
   }
 
-  Huebot.remove_theme = function (ctx, data, arg) {
-    if (!arg) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}themeremove [name]`)
+  Huebot.remove_theme = function (ox) {
+    if (!ox.arg) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}themeremove [name]`)
       return false
     }
   
-    if (Huebot.db.themes[arg] === undefined) {
-      Huebot.process_feedback(ctx, data, `Theme "${arg}" doesn't exist.`)
+    if (Huebot.db.themes[ox.arg] === undefined) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Theme "${ox.arg}" doesn't exist.`)
       return false
     }
   
-    delete Huebot.db.themes[arg]
+    delete Huebot.db.themes[ox.arg]
   
     Huebot.save_file("themes.json", Huebot.db.themes, function () {
-      Huebot.send_message(ctx, `Theme "${arg}" successfully removed.`)
+      Huebot.send_message(ox.ctx, `Theme "${ox.arg}" successfully removed.`)
     })
   }
 
-  Huebot.rename_theme = function (ctx, data, arg) {
-    let split = arg.split(' ')
+  Huebot.rename_theme = function (ox) {
+    let split = ox.arg.split(' ')
     let old_name = split[0]
     let new_name = split[1]
   
-    if (!arg || split.length !== 2) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}themerename [old_name] [new_name]`)
+    if (!ox.arg || split.length !== 2) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}themerename [old_name] [new_name]`)
       return false
     }
   
     if (Huebot.db.themes[old_name] === undefined) {
-      Huebot.process_feedback(ctx, data, `Theme "${old_name}" doesn't exist.`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Theme "${old_name}" doesn't exist.`)
       return false
     }
   
@@ -446,29 +446,29 @@ module.exports = function (Huebot) {
       delete Huebot.db.themes[old_name]
   
       Huebot.save_file("themes.json", Huebot.db.themes, function (err) {
-        Huebot.send_message(ctx, `Theme "${old_name}" successfully renamed to "${new_name}".`)
+        Huebot.send_message(ox.ctx, `Theme "${old_name}" successfully renamed to "${new_name}".`)
       })
     } catch (err) {
-      Huebot.process_feedback(ctx, data, `Can't rename that theme.`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Can't rename that theme.`)
       return false
     }
   }
 
-  Huebot.apply_theme = function (ctx, data, arg) {
-    if (!Huebot.check_op_permission(ctx, "theme")) {
+  Huebot.apply_theme = function (ox) {
+    if (!Huebot.check_op_permission(ox.ctx, "theme")) {
       return false
     }
 
-    if (!arg) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}theme [name]`)
+    if (!ox.arg) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}theme [name]`)
       return false
     }
 
-    let obj = Huebot.db.themes[arg]
+    let obj = Huebot.db.themes[ox.arg]
 
     if (obj) {
-      if (ctx.theme_mode !== "custom") {
-        Huebot.change_theme_mode(ctx, data, "custom")
+      if (ox.ctx.theme_mode !== "custom") {
+        Huebot.change_theme_mode(ox.ctx, ox.data, "custom")
       }
 
       obj.theme = Huebot.clean_string5(obj.theme)
@@ -482,59 +482,59 @@ module.exports = function (Huebot) {
         obj.text_color = Huebot.rgb_to_hex(obj.text_color)
       }
 
-      if (obj.theme && obj.theme !== ctx.theme) {
-        Huebot.socket_emit(ctx, "change_theme", {
+      if (obj.theme && obj.theme !== ox.ctx.theme) {
+        Huebot.socket_emit(ox.ctx, "change_theme", {
           color: obj.theme
         })
       }
 
-      if (obj.text_color_mode && obj.text_color_mode !== ctx.text_color_mode) {
-        Huebot.socket_emit(ctx, "change_text_color_mode", {
+      if (obj.text_color_mode && obj.text_color_mode !== ox.ctx.text_color_mode) {
+        Huebot.socket_emit(ox.ctx, "change_text_color_mode", {
           mode: obj.text_color_mode
         })
       }
 
       if (obj.text_color_mode && obj.text_color_mode === "custom") {
-        if (obj.text_color && obj.text_color !== ctx.text_color) {
-          Huebot.socket_emit(ctx, "change_text_color", {
+        if (obj.text_color && obj.text_color !== ox.ctx.text_color) {
+          Huebot.socket_emit(ox.ctx, "change_text_color", {
             color: obj.text_color
           })
         }
       }
     } else {
-      Huebot.process_feedback(ctx, data, `Theme "${arg}" doesn't exist.`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Theme "${ox.arg}" doesn't exist.`)
     }
   }
 
-  Huebot.list_themes = function (ctx, data, arg) {
+  Huebot.list_themes = function (ox) {
     let sort_mode = "random"
 
-    if (arg) {
+    if (ox.arg) {
       sort_mode = "sort"
     }
 
     let s = Huebot.list_items({
       data: Huebot.db.themes,
-      filter: arg,
+      filter: ox.arg,
       append: ",",
       sort_mode: sort_mode,
-      whisperify: `${Huebot.db.config.command_prefix}theme `
+      whisperify: `${Huebot.prefix}theme `
     })
 
     if (!s) {
       s = "No themes found."
     }
 
-    Huebot.process_feedback(ctx, data, s)
+    Huebot.process_feedback(ox.ctx, ox.data, s)
   }
 
-  Huebot.search_wiki = function (ctx, data, arg) {
-    if (!arg) {
-      Huebot.process_feedback(ctx, data, "No search term provided.")
+  Huebot.search_wiki = function (ox) {
+    if (!ox.arg) {
+      Huebot.process_feedback(ox.ctx, ox.data, "No search term provided.")
       return false
     }
   
-    let query = `https://en.wikipedia.org/api/rest_v1/page/summary/${arg}`
+    let query = `https://en.wikipedia.org/api/rest_v1/page/summary/${ox.arg}`
   
     fetch(query)
   
@@ -544,12 +544,12 @@ module.exports = function (Huebot) {
 
     .then(res => {
       if (res.extract) {
-        Huebot.process_feedback(ctx, data, res.extract)
+        Huebot.process_feedback(ox.ctx, ox.data, res.extract)
       }
     })
   }
 
-  Huebot.decide_something = function (ctx, data, arg) {
+  Huebot.decide_something = function (ox) {
     let ans
     let n = Huebot.get_random_int(0, 1)
   
@@ -559,82 +559,82 @@ module.exports = function (Huebot) {
       ans = "Nah"
     }
   
-    Huebot.process_feedback(ctx, data, ans)
+    Huebot.process_feedback(ox.ctx, ox.data, ans)
   }
 
-  Huebot.pick_something = function (ctx, data, arg) {
-    if (!arg) {
-      Huebot.process_feedback(ctx, data, "Give me a space separated list to pick from.")
+  Huebot.pick_something = function (ox) {
+    if (!ox.arg) {
+      Huebot.process_feedback(ox.ctx, ox.data, "Give me a space separated list to pick from.")
     }
 
-    let split = arg.split(' ')
+    let split = ox.arg.split(' ')
     let n = Huebot.get_random_int(0, split.length - 1)
-    Huebot.process_feedback(ctx, data, split[n])
+    Huebot.process_feedback(ox.ctx, ox.data, split[n])
   }
 
-  Huebot.add_subject = function (ctx, data, arg) {
+  Huebot.add_subject = function (ox) {
     let error = false
 
-    if (!arg) {
+    if (!ox.arg) {
       error = true
     }
 
     if (!error) {
-      if (arg.split(" ").length > 1) {
+      if (ox.arg.split(" ").length > 1) {
         error = true
       }
     }
 
     if (error) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}subjectadd [name:no_spaces]`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}subjectadd [name:no_spaces]`)
       return false
     }
 
-    let name = arg.toLowerCase()
+    let name = ox.arg.toLowerCase()
 
     if (Huebot.db.subjects[name] === undefined) {
       Huebot.db.subjects[name] = []
 
       Huebot.save_file("subjects.json", Huebot.db.subjects, function () {
-        Huebot.send_message(ctx, `Subject "${name}" successfully added. Use ${Huebot.db.config.command_prefix}subjectkeywordsadd to add additional keywords to the subject.`)
+        Huebot.send_message(ox.ctx, `Subject "${name}" successfully added. Use ${Huebot.prefix}subjectkeywordsadd to add additional keywords to the subject.`)
       })
     } else {
-      Huebot.process_feedback(ctx, data, `Subject "${name}" already exists.`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Subject "${name}" already exists.`)
     }
   }
 
-  Huebot.remove_subject = function (ctx, data, arg) {
-    if (!arg) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}subjectremove [name]`)
+  Huebot.remove_subject = function (ox) {
+    if (!ox.arg) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}subjectremove [name]`)
       return false
     }
 
-    let name = arg.toLowerCase()
+    let name = ox.arg.toLowerCase()
 
     if (Huebot.db.subjects[name] === undefined) {
-      Huebot.process_feedback(ctx, data, `Subject "${name}" doesn't exist.`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Subject "${name}" doesn't exist.`)
       return false
     }
 
     delete Huebot.db.subjects[name]
 
     Huebot.save_file("subjects.json", Huebot.db.subjects, function () {
-      Huebot.send_message(ctx, `Subject "${name}" successfully removed.`)
+      Huebot.send_message(ox.ctx, `Subject "${name}" successfully removed.`)
     })
   }
 
-  Huebot.rename_subject = function (ctx, data, arg) {
-    let split = arg.split(' ')
+  Huebot.rename_subject = function (ox) {
+    let split = ox.arg.split(' ')
     let old_name = split[0].toLowerCase()
     let new_name = split.slice(1).join(" ").toLowerCase()
 
-    if (!arg || split.length !== 2) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}subjectrename [old_name:no_spaces] [new_name:no_spaces]`)
+    if (!ox.arg || split.length !== 2) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}subjectrename [old_name:no_spaces] [new_name:no_spaces]`)
       return false
     }
 
     if (Huebot.db.subjects[old_name] === undefined) {
-      Huebot.process_feedback(ctx, data, `Subject "${old_name}" doesn't exist.`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Subject "${old_name}" doesn't exist.`)
       return false
     }
 
@@ -644,33 +644,33 @@ module.exports = function (Huebot) {
       delete Huebot.db.subjects[old_name]
 
       Huebot.save_file("subjects.json", Huebot.db.subjects, function () {
-        Huebot.send_message(ctx, `Subject "${old_name}" successfully renamed to "${new_name}".`)
+        Huebot.send_message(ox.ctx, `Subject "${old_name}" successfully renamed to "${new_name}".`)
       })
     } catch (err) {
-      Huebot.process_feedback(ctx, data, `Can't rename that subject.`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Can't rename that subject.`)
       return false
     }
   }
 
-  Huebot.show_subject_keywords = function (ctx, data, arg) {
-    if (!arg) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}subjectkeywords [name:no_spaces]`)
+  Huebot.show_subject_keywords = function (ox) {
+    if (!ox.arg) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}subjectkeywords [name:no_spaces]`)
       return false
     }
 
-    let split = arg.split(" ")
+    let split = ox.arg.split(" ")
     let name = split[0].toLowerCase()
     let filter = split.slice(1).join(" ").toLowerCase()
 
     if (Huebot.db.subjects[name] === undefined) {
-      Huebot.process_feedback(ctx, data, `Subject "${name}" doesn't exist.`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Subject "${name}" doesn't exist.`)
       return false
     }
 
     let list = Huebot.db.subjects[name]
 
     if (list.length === 0) {
-      Huebot.process_feedback(ctx, data, `Subject "${name}" is empty.`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Subject "${name}" is empty.`)
       return false
     }
 
@@ -691,13 +691,13 @@ module.exports = function (Huebot) {
       s = "No subjects found."
     }
 
-    Huebot.process_feedback(ctx, data, s)
+    Huebot.process_feedback(ox.ctx, ox.data, s)
   }
 
-  Huebot.add_subject_keyword = function (ctx, data, arg) {
+  Huebot.add_subject_keyword = function (ox) {
     let error = false
 
-    if (!arg) {
+    if (!ox.arg) {
       error = true
     }
   
@@ -706,7 +706,7 @@ module.exports = function (Huebot) {
     let keyword
   
     if (!error) {
-      split = arg.split(" ")
+      split = ox.arg.split(" ")
       name = split[0].toLowerCase()
       keyword = split.slice(1).join(" ").toLowerCase()
   
@@ -716,12 +716,12 @@ module.exports = function (Huebot) {
     }
   
     if (error) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}subjectkeywordsadd [name:no_spaces] [keyword]`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}subjectkeywordsadd [name:no_spaces] [keyword]`)
       return false
     }
   
     if (Huebot.db.subjects[name] === undefined) {
-      Huebot.process_feedback(ctx, data, `Subject "${name}" doesn't exist.`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Subject "${name}" doesn't exist.`)
       return false
     }
   
@@ -729,7 +729,7 @@ module.exports = function (Huebot) {
   
     for (let i of list) {
       if (i === keyword) {
-        Huebot.process_feedback(ctx, data, `"${keyword}" is already part of subject "${name}".`)
+        Huebot.process_feedback(ox.ctx, ox.data, `"${keyword}" is already part of subject "${name}".`)
         return false
       }
     }
@@ -737,14 +737,14 @@ module.exports = function (Huebot) {
     list.push(keyword)
   
     Huebot.save_file("subjects.json", Huebot.db.subjects, function (err) {
-      Huebot.send_message(ctx, `"${keyword}" successfully added to subject "${name}".`)
+      Huebot.send_message(ox.ctx, `"${keyword}" successfully added to subject "${name}".`)
     })
   }
 
-  Huebot.remove_subject_keyword = function (ctx, data, arg) {
+  Huebot.remove_subject_keyword = function (ox) {
     let error = false
 
-    if (!arg) {
+    if (!ox.arg) {
       error = true
     }
   
@@ -753,7 +753,7 @@ module.exports = function (Huebot) {
     let keyword
   
     if (!error) {
-      split = arg.split(" ")
+      split = ox.arg.split(" ")
       name = split[0].toLowerCase()
       keyword = split.slice(1).join(" ").toLowerCase()
   
@@ -763,19 +763,19 @@ module.exports = function (Huebot) {
     }
   
     if (error) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}subjectkeywordsremove [name:no_spaces] [keyword]`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}subjectkeywordsremove [name:no_spaces] [keyword]`)
       return false
     }
   
     if (Huebot.db.subjects[name] === undefined) {
-      Huebot.process_feedback(ctx, data, `Subject "${name}" doesn't exist.`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Subject "${name}" doesn't exist.`)
       return false
     }
   
     let list = Huebot.db.subjects[name]
   
     if (list.length === 0) {
-      Huebot.process_feedback(ctx, data, `Subject "${name}" is empty.`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Subject "${name}" is empty.`)
       return false
     }
   
@@ -786,7 +786,7 @@ module.exports = function (Huebot) {
         list.splice(i, 1)
   
         Huebot.save_file("subjects.json", Huebot.db.subjects, function (err) {
-          Huebot.send_message(ctx, `"${keyword}" was removed from subject "${name}".`)
+          Huebot.send_message(ox.ctx, `"${keyword}" was removed from subject "${name}".`)
           return true
         })
   
@@ -794,16 +794,16 @@ module.exports = function (Huebot) {
       }
     }
   
-    Huebot.process_feedback(ctx, data, `"${keyword}" is not part of subject "${name}".`)
+    Huebot.process_feedback(ox.ctx, ox.data, `"${keyword}" is not part of subject "${name}".`)
   }
 
-  Huebot.use_subject = function (ctx, data, arg) {
-    if (!arg) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}subject [name] > ${Huebot.config.media_types.join("|")} : optional`)
+  Huebot.use_subject = function (ox) {
+    if (!ox.arg) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}subject [name] > ${Huebot.config.media_types.join("|")} : optional`)
       return false
     }
 
-    let split = arg.split(">")
+    let split = ox.arg.split(">")
     let name = split[0].toLowerCase().trim()
     let type = split.slice(1).join(" ").toLowerCase().trim()
     let list = []
@@ -822,92 +822,92 @@ module.exports = function (Huebot) {
 
     if (type) {
       if (type === "image") {
-        Huebot.change_media(ctx, {
+        Huebot.change_media(ox.ctx, {
           type: "image",
           src: query
         })
       } else if (type === "tv") {
-        Huebot.change_media(ctx, {
+        Huebot.change_media(ox.ctx, {
           type: "tv",
           src: query
         })
       } else if (type === "radio") {
-        Huebot.change_media(ctx, {
+        Huebot.change_media(ox.ctx, {
           type: "radio",
           src: query
         })
       }
     } else {
-      Huebot.change_media(ctx, {
+      Huebot.change_media(ox.ctx, {
         type: "tv",
         src: query
       })
     }
   }
 
-  Huebot.list_subjects = function (ctx, data, arg) {
+  Huebot.list_subjects = function (ox) {
     let sort_mode = "random"
 
-    if (arg) {
+    if (ox.arg) {
       sort_mode = "sort"
     }
 
     let s = Huebot.list_items({
       data: Huebot.db.subjects,
-      filter: arg,
+      filter: ox.arg,
       append: ",",
       sort_mode: sort_mode,
-      whisperify: `${Huebot.db.config.command_prefix}subject `
+      whisperify: `${Huebot.prefix}subject `
     })
 
     if (!s) {
       s = "No subjects found."
     }
 
-    Huebot.process_feedback(ctx, data, s)
+    Huebot.process_feedback(ox.ctx, ox.data, s)
   }
 
-  Huebot.change_public = function (ctx, data, arg) {
-    if (!arg || (arg !== "on" && arg !== "off")) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}public on|off`)
+  Huebot.change_public = function (ox) {
+    if (!ox.arg || (ox.arg !== "on" && ox.arg !== "off")) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}public on|off`)
       return false
     }
 
-    if (arg === "on") {
+    if (ox.arg === "on") {
       if (Huebot.db.options.public_commands) {
-        Huebot.process_feedback(ctx, data, "Public Commands are already on.")
+        Huebot.process_feedback(ox.ctx, ox.data, "Public Commands are already on.")
         return false
       }
 
       Huebot.db.options.public_commands = true
 
       Huebot.save_file("options.json", Huebot.db.options, function () {
-        Huebot.send_message(ctx, `Public Commands are now on.`)
+        Huebot.send_message(ox.ctx, `Public Commands are now on.`)
       })
-    } else if (arg === "off") {
+    } else if (ox.arg === "off") {
       if (!Huebot.db.options.public_commands) {
-        Huebot.process_feedback(ctx, data, "Public Commands are already off.")
+        Huebot.process_feedback(ox.ctx, ox.data, "Public Commands are already off.")
         return false
       }
 
       Huebot.db.options.public_commands = false
 
       Huebot.save_file("options.json", Huebot.db.options, function () {
-        Huebot.send_message(ctx, `Public Commands are now off.`)
+        Huebot.send_message(ox.ctx, `Public Commands are now off.`)
       })
     }
   }
 
-  Huebot.manage_queue = function (ctx, data, arg) {
+  Huebot.manage_queue = function (ox) {
     let error = false
 
     let arg1
     let arg2
 
-    if (!arg) {
+    if (!ox.arg) {
       error = true
     } else {
-      let split = arg.split(' ')
+      let split = ox.arg.split(' ')
 
       if (split.length < 2) {
         error = true
@@ -923,7 +923,7 @@ module.exports = function (Huebot) {
     }
 
     if (error) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}q ${Huebot.config.media_types.join("|")} [url]|next|clear|size`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}q ${Huebot.config.media_types.join("|")} [url]|next|clear|size`)
       return false
     }
 
@@ -934,30 +934,30 @@ module.exports = function (Huebot) {
     if (arg1 === "image") {
       error_string = Huebot.config.no_image_error
       upname = "Image"
-      perm = ctx.can_image
+      perm = ox.ctx.can_image
     } else if (arg1 === "tv") {
       error_string = Huebot.config.no_tv_error
       upname = "TV"
-      perm = ctx.can_tv
+      perm = ox.ctx.can_tv
     } else if (arg1 === "radio") {
       error_string = Huebot.config.no_radio_error
       upname = "Radio"
-      perm = ctx.can_radio
+      perm = ox.ctx.can_radio
     } else if (arg1 === "remove") {
       if (Huebot.get_q_item(arg2, "delete")) {
-        Huebot.process_feedback(ctx, data, "Item successfully removed.")
+        Huebot.process_feedback(ox.ctx, ox.data, "Item successfully removed.")
       } else {
-        Huebot.process_feedback(ctx, data, "This was already played or removed.")
+        Huebot.process_feedback(ox.ctx, ox.data, "This was already played or removed.")
       }
       return
     } else if (!isNaN(arg1)) {
       let item = Huebot.get_q_item(arg1, "delete")
 
       if (item) {
-        Huebot.selective_play(ctx, item.kind, item.url)
+        Huebot.selective_play(ox.ctx, item.kind, item.url)
         Huebot.save_file("queue.json", Huebot.db.queue)
       } else {
-        Huebot.process_feedback(ctx, data, "This was already played or removed.")
+        Huebot.process_feedback(ox.ctx, ox.data, "This was already played or removed.")
       }
       return
     }
@@ -965,7 +965,7 @@ module.exports = function (Huebot) {
     if (arg2 === "next") {
       if (Huebot.db.queue[arg1].length > 0) {
         if (!perm) {
-          Huebot.process_feedback(ctx, data, error_string)
+          Huebot.process_feedback(ox.ctx, ox.data, error_string)
           return false
         }
 
@@ -975,20 +975,20 @@ module.exports = function (Huebot) {
           return
         }
 
-        Huebot.selective_play(ctx, item.kind, item.url)
+        Huebot.selective_play(ox.ctx, item.kind, item.url)
         Huebot.save_file("queue.json", Huebot.db.queue)
       } else {
-        Huebot.process_feedback(ctx, data, `${upname} queue is empty.`)
+        Huebot.process_feedback(ox.ctx, ox.data, `${upname} queue is empty.`)
       }
     } else if (arg2 === "clear") {
       if (Huebot.db.queue[arg1].length > 0) {
         Huebot.db.queue[arg1] = []
 
         Huebot.save_file("queue.json", Huebot.db.queue, function () {
-          Huebot.send_message(ctx, `${upname} queue successfully cleared.`)
+          Huebot.send_message(ox.ctx, `${upname} queue successfully cleared.`)
         })
       } else {
-        Huebot.process_feedback(ctx, data, `${upname} queue was already cleared.`)
+        Huebot.process_feedback(ox.ctx, ox.data, `${upname} queue was already cleared.`)
       }
     } else if (arg2 === "size") {
       let n = Huebot.db.queue[arg1].length
@@ -1001,10 +1001,10 @@ module.exports = function (Huebot) {
         s = "items"
       }
 
-      Huebot.process_feedback(ctx, data, `${upname} queue has ${n} ${s}.`)
+      Huebot.process_feedback(ox.ctx, ox.data, `${upname} queue has ${n} ${s}.`)
     } else {
       if (Huebot.db.queue[arg1].includes(arg2)) {
-        Huebot.process_feedback(ctx, data, `That item is already in the ${arg1} queue.`)
+        Huebot.process_feedback(ox.ctx, ox.data, `That item is already in the ${arg1} queue.`)
         return false
       }
 
@@ -1021,23 +1021,23 @@ module.exports = function (Huebot) {
         links += ` | [whisper .q remove ${obj.date} next]Remove[/whisper]`
         let message = `${upname} item successfully queued.`
         let ans = `${message}\n${links}`
-        Huebot.send_message(ctx, ans)
+        Huebot.send_message(ox.ctx, ans)
       })
     }
   }
 
-  Huebot.get_random_stream = function (ctx, data, arg) {
+  Huebot.get_random_stream = function (ox) {
     if (!Huebot.db.config.youtube_enabled) {
-      Huebot.process_feedback(ctx, data, "No stream source support is enabled.")
+      Huebot.process_feedback(ox.ctx, ox.data, "No stream source support is enabled.")
       return false
     }
 
-    Huebot.get_youtube_stream(ctx)
+    Huebot.get_youtube_stream(ox.ctx)
   }
 
-  Huebot.show_activity = function (ctx, data, arg) {
+  Huebot.show_activity = function (ox) {
     let s = Huebot.list_items({
-      data: ctx.user_command_activity.slice(0).reverse(),
+      data: ox.ctx.user_command_activity.slice(0).reverse(),
       append: ","
     })
 
@@ -1045,165 +1045,165 @@ module.exports = function (Huebot) {
       s = "No activity yet."
     }
 
-    Huebot.process_feedback(ctx, data, `Recent command activity by: ${s}`)
+    Huebot.process_feedback(ox.ctx, ox.data, `Recent command activity by: ${s}`)
   }
 
-  Huebot.clear_commands = function (ctx, data, arg) {
-    if (!Huebot.is_protected_admin(data.username)) {
+  Huebot.clear_commands = function (ox) {
+    if (!Huebot.is_protected_admin(ox.data.username)) {
       return false
     }
   
     Huebot.db.commands = {}
   
     Huebot.save_file("commands.json", Huebot.db.commands, function () {
-      Huebot.send_message(ctx, `Commands list successfully cleared.`)
+      Huebot.send_message(ox.ctx, `Commands list successfully cleared.`)
     })
   }
 
-  Huebot.clear_admins = function (ctx, data, arg) {
-    if (!Huebot.is_protected_admin(data.username)) {
+  Huebot.clear_admins = function (ox) {
+    if (!Huebot.is_protected_admin(ox.data.username)) {
       return false
     }
 
-    Huebot.db.permissions.admins = [data.username]
+    Huebot.db.permissions.admins = [ox.data.username]
 
     Huebot.save_file("permissions.json", Huebot.db.permissions, function () {
-      Huebot.send_message(ctx, `Admins list successfully cleared.`)
+      Huebot.send_message(ox.ctx, `Admins list successfully cleared.`)
     })
   }
 
-  Huebot.clear_themes = function (ctx, data, arg) {
-    if (!Huebot.is_protected_admin(data.username)) {
+  Huebot.clear_themes = function (ox) {
+    if (!Huebot.is_protected_admin(ox.data.username)) {
       return false
     }
 
     Huebot.db.themes = {}
 
     Huebot.save_file("themes.json", Huebot.db.themes, function () {
-      Huebot.send_message(ctx, `Themes list successfully cleared.`)
+      Huebot.send_message(ox.ctx, `Themes list successfully cleared.`)
     })
   }
 
-  Huebot.clear_subjects = function (ctx, data, arg) {
-    if (!Huebot.is_protected_admin(data.username)) {
+  Huebot.clear_subjects = function (ox) {
+    if (!Huebot.is_protected_admin(ox.data.username)) {
       return false
     }
 
     Huebot.db.subjects = {}
 
     Huebot.save_file("subjects.json", Huebot.db.subjects, function () {
-      Huebot.send_message(ctx, `Subjects list successfully cleared.`)
+      Huebot.send_message(ox.ctx, `Subjects list successfully cleared.`)
     })
   }
 
-  Huebot.clear_backgrounds = function (ctx, data, arg) {
-    if (!Huebot.is_protected_admin(data.username)) {
+  Huebot.clear_backgrounds = function (ox) {
+    if (!Huebot.is_protected_admin(ox.data.username)) {
       return false
     }
   
     Huebot.db.backgrounds = {}
   
     Huebot.save_file("backgrounds.json", Huebot.db.backgrounds, function () {
-      Huebot.send_message(ctx, `Backgrounds list successfully cleared.`)
+      Huebot.send_message(ox.ctx, `Backgrounds list successfully cleared.`)
     })
   }
   
-  Huebot.say = function (ctx, data, arg) {
-    if (!arg) {
+  Huebot.say = function (ox) {
+    if (!ox.arg) {
       return false
     }
 
-    Huebot.send_message(ctx, arg)
+    Huebot.send_message(ox.ctx, ox.arg)
   }
   
-  Huebot.join_room = function (ctx, data, arg) {
-    if (!Huebot.is_protected_admin(data.username)) {
+  Huebot.join_room = function (ox) {
+    if (!Huebot.is_protected_admin(ox.data.username)) {
       return false
     }
 
-    if (!arg) {
-      Huebot.process_feedback(ctx, data, `Argument must be a room ID.`)
+    if (!ox.arg) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Argument must be a room ID.`)
       return false
     }
 
-    if (Huebot.connected_rooms[arg] !== undefined) {
-      Huebot.process_feedback(ctx, data, "It seems I'm already in that room.")
+    if (Huebot.connected_rooms[ox.arg] !== undefined) {
+      Huebot.process_feedback(ox.ctx, ox.data, "It seems I'm already in that room.")
       return false
     }
 
-    Huebot.process_feedback(ctx, data, "Attempting to join that room!")
-    Huebot.start_connection(arg)
+    Huebot.process_feedback(ox.ctx, ox.data, "Attempting to join that room!")
+    Huebot.start_connection(ox.arg)
   }
 
-  Huebot.leave_room = function (ctx, data, arg) {
-    if (!Huebot.is_protected_admin(data.username)) {
+  Huebot.leave_room = function (ox) {
+    if (!Huebot.is_protected_admin(ox.data.username)) {
       return false
     }
 
-    Huebot.process_feedback(ctx, data, "Good bye!")
-    ctx.socket.disconnect()
+    Huebot.process_feedback(ox.ctx, ox.data, "Good bye!")
+    ox.ctx.socket.disconnect()
   }
 
-  Huebot.add_background = function (ctx, data, arg) {
-    if (!arg) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}backgroundadd [name]`)
+  Huebot.add_background = function (ox) {
+    if (!ox.arg) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}backgroundadd [name]`)
       return false
     }
 
-    if (ctx.background_mode !== "normal" && ctx.background_mode !== "tiled") {
-      Huebot.process_feedback(ctx, data, "Only backgrounds that use an image can be saved.")
+    if (ox.ctx.background_mode !== "normal" && ox.ctx.background_mode !== "tiled") {
+      Huebot.process_feedback(ox.ctx, ox.data, "Only backgrounds that use an image can be saved.")
       return false
     }
 
-    if (!ctx.background_image.startsWith("http://") && !ctx.background_image.startsWith("https://")) {
-      Huebot.process_feedback(ctx, data, "Only backgrounds that use external images can be saved.")
+    if (!ox.ctx.background_image.startsWith("http://") && !ox.ctx.background_image.startsWith("https://")) {
+      Huebot.process_feedback(ox.ctx, ox.data, "Only backgrounds that use external images can be saved.")
       return false
     }
 
     let obj = {}
 
-    obj.image = ctx.background_image
-    obj.mode = ctx.background_mode
-    obj.effect = ctx.background_effect
-    obj.tile_dimensions = ctx.background_tile_dimensions
+    obj.image = ox.ctx.background_image
+    obj.mode = ox.ctx.background_mode
+    obj.effect = ox.ctx.background_effect
+    obj.tile_dimensions = ox.ctx.background_tile_dimensions
 
-    Huebot.db.backgrounds[arg] = obj
+    Huebot.db.backgrounds[ox.arg] = obj
 
     Huebot.save_file("backgrounds.json", Huebot.db.backgrounds, function () {
-      Huebot.send_message(ctx, `Background "${arg}" successfully added.`)
+      Huebot.send_message(ox.ctx, `Background "${ox.arg}" successfully added.`)
     })
   }
 
-  Huebot.remove_background = function (ctx, data, arg) {
-    if (!arg) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}backgroundremove [name]`)
+  Huebot.remove_background = function (ox) {
+    if (!ox.arg) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}backgroundremove [name]`)
       return false
     }
 
-    if (Huebot.db.backgrounds[arg] === undefined) {
-      Huebot.process_feedback(ctx, data, `Background "${arg}" doesn't exist.`)
+    if (Huebot.db.backgrounds[ox.arg] === undefined) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Background "${ox.arg}" doesn't exist.`)
       return false
     }
 
-    delete Huebot.db.backgrounds[arg]
+    delete Huebot.db.backgrounds[ox.arg]
 
     Huebot.save_file("backgrounds.json", Huebot.db.backgrounds, function () {
-      Huebot.send_message(ctx, `Background "${arg}" successfully removed.`)
+      Huebot.send_message(ox.ctx, `Background "${ox.arg}" successfully removed.`)
     })
   }
 
-  Huebot.rename_background = function (ctx, data, arg) {
-    let split = arg.split(' ')
+  Huebot.rename_background = function (ox) {
+    let split = ox.arg.split(' ')
     let old_name = split[0]
     let new_name = split[1]
 
-    if (!arg || split.length !== 2) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}backgroundrename [old_name] [new_name]`)
+    if (!ox.arg || split.length !== 2) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}backgroundrename [old_name] [new_name]`)
       return false
     }
 
     if (Huebot.db.backgrounds[old_name] === undefined) {
-      Huebot.process_feedback(ctx, data, `Background "${old_name}" doesn't exist.`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Background "${old_name}" doesn't exist.`)
       return false
     }
 
@@ -1213,35 +1213,35 @@ module.exports = function (Huebot) {
       delete Huebot.db.backgrounds[old_name]
 
       Huebot.save_file("backgrounds.json", Huebot.db.backgrounds, function (err) {
-        Huebot.send_message(ctx, `Background "${old_name}" successfully renamed to "${new_name}".`)
+        Huebot.send_message(ox.ctx, `Background "${old_name}" successfully renamed to "${new_name}".`)
       })
     } catch (err) {
-      Huebot.process_feedback(ctx, data, `Can't rename that background.`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Can't rename that background.`)
       return false
     }
   }
 
-  Huebot.apply_background = function (ctx, data, arg) {
-    if (!Huebot.check_op_permission(ctx, "background")) {
+  Huebot.apply_background = function (ox) {
+    if (!Huebot.check_op_permission(ox.ctx, "background")) {
       return false
     }
 
-    if (!arg) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}background [name]`)
+    if (!ox.arg) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}background [name]`)
       return false
     }
 
-    let obj = Huebot.db.backgrounds[arg]
+    let obj = Huebot.db.backgrounds[ox.arg]
 
     if (obj) {
-      if (obj.image && obj.image !== ctx.background_image) {
-        Huebot.socket_emit(ctx, "change_background_image_source", {
+      if (obj.image && obj.image !== ox.ctx.background_image) {
+        Huebot.socket_emit(ox.ctx, "change_background_image_source", {
           src: obj.image
         })
       }
 
-      if (obj.mode && obj.mode !== ctx.background_mode) {
-        Huebot.change_background_mode(ctx, data, obj.mode)
+      if (obj.mode && obj.mode !== ox.ctx.background_mode) {
+        Huebot.change_background_mode(ox.ctx, ox.data, obj.mode)
       }
 
       if (obj.mode && obj.mode !== "solid") {
@@ -1251,53 +1251,53 @@ module.exports = function (Huebot) {
           effect = "none"
         }
 
-        if (effect !== ctx.background_effect) {
-          Huebot.socket_emit(ctx, "change_background_effect", {
+        if (effect !== ox.ctx.background_effect) {
+          Huebot.socket_emit(ox.ctx, "change_background_effect", {
             effect: effect
           })
         }
       }
 
       if (obj.mode && obj.mode === "tiled") {
-        if (obj.tile_dimensions && obj.tile_dimensions !== ctx.background_tile_dimensions) {
-          Huebot.socket_emit(ctx, "change_background_tile_dimensions", {
+        if (obj.tile_dimensions && obj.tile_dimensions !== ox.ctx.background_tile_dimensions) {
+          Huebot.socket_emit(ox.ctx, "change_background_tile_dimensions", {
             dimensions: obj.tile_dimensions
           })
         }
       }
     } else {
-      Huebot.process_feedback(ctx, data, `Background "${arg}" doesn't exist.`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Background "${ox.arg}" doesn't exist.`)
     }
   }
 
-  Huebot.list_backgrounds = function (ctx, data, arg) {
+  Huebot.list_backgrounds = function (ox) {
     let sort_mode = "random"
 
-    if (arg) {
+    if (ox.arg) {
       sort_mode = "sort"
     }
 
     let s = Huebot.list_items({
       data: Huebot.db.backgrounds,
-      filter: arg,
+      filter: ox.arg,
       append: ",",
       sort_mode: sort_mode,
-      whisperify: `${Huebot.db.config.command_prefix}background `
+      whisperify: `${Huebot.prefix}background `
     })
 
     if (!s) {
       s = "No backgrounds found."
     }
 
-    Huebot.process_feedback(ctx, data, s)
+    Huebot.process_feedback(ox.ctx, ox.data, s)
   }
 
-  Huebot.suggest = function (ctx, data, arg) {
+  Huebot.suggest = function (ox) {
     let type = "tv"
 
-    if (arg) {
-      if (arg === "tv" || arg === "image" || arg === "radio") {
-        type = arg
+    if (ox.arg) {
+      if (ox.arg === "tv" || ox.arg === "image" || ox.arg === "radio") {
+        type = ox.arg
       }
     }
 
@@ -1306,7 +1306,7 @@ module.exports = function (Huebot) {
     for (let i = 0; i < Huebot.config.num_suggestions; i++) {
       let words = `${Huebot.get_random_word()} ${Huebot.get_random_word()}`
 
-      let s = `[whisper ${Huebot.db.config.command_prefix}${type} ${words}]"${words}"[/whisper]`
+      let s = `[whisper ${Huebot.prefix}${type} ${words}]"${words}"[/whisper]`
 
       if (i < Huebot.config.num_suggestions - 1) {
         s += ", "
@@ -1315,12 +1315,12 @@ module.exports = function (Huebot) {
       suggestions += s
     }
 
-    Huebot.process_feedback(ctx, data, suggestions)
+    Huebot.process_feedback(ox.ctx, ox.data, suggestions)
   }
 
-  Huebot.play_song = function (ctx, data, arg) {
-    if (!ctx.can_synth) {
-      Huebot.process_feedback(ctx, data, Huebot.config.no_synth_error)
+  Huebot.play_song = function (ox) {
+    if (!ox.ctx.can_synth) {
+      Huebot.process_feedback(ox.ctx, ox.data, Huebot.config.no_synth_error)
       return false
     }
 
@@ -1329,7 +1329,7 @@ module.exports = function (Huebot) {
     function send() {
       let key = Huebot.get_random_int(1, Huebot.config.num_synth_keys)
 
-      Huebot.send_synth_key(ctx, key)
+      Huebot.send_synth_key(ox.ctx, key)
 
       i += 1
 
@@ -1343,34 +1343,34 @@ module.exports = function (Huebot) {
     send()
   }
 
-  Huebot.synth_key = function (ctx, data, arg) {
-    if (!ctx.can_synth) {
-      Huebot.process_feedback(ctx, data, Huebot.config.no_synth_error)
+  Huebot.synth_key = function (ox) {
+    if (!ox.ctx.can_synth) {
+      Huebot.process_feedback(ox.ctx, ox.data, Huebot.config.no_synth_error)
       return false
     }
 
-    if (!arg) {
+    if (!ox.arg) {
       return false
     }
 
-    Huebot.send_synth_key(ctx, arg)
+    Huebot.send_synth_key(ox.ctx, ox.arg)
   }
 
-  Huebot.speak = function (ctx, data, arg) {
-    if (!ctx.can_synth) {
-      Huebot.process_feedback(ctx, data, Huebot.config.no_synth_error)
+  Huebot.speak = function (ox) {
+    if (!ox.ctx.can_synth) {
+      Huebot.process_feedback(ox.ctx, ox.data, Huebot.config.no_synth_error)
       return false
     }
 
-    if (!arg) {
+    if (!ox.arg) {
       return false
     }
 
-    Huebot.send_synth_voice(ctx, arg)
+    Huebot.send_synth_voice(ox.ctx, ox.arg)
   }
 
-  Huebot.think = async function (ctx, data, arg) {
-    if (!ctx.can_chat) {
+  Huebot.think = async function (ox) {
+    if (!ox.ctx.can_chat) {
       return false
     }
 
@@ -1383,16 +1383,16 @@ module.exports = function (Huebot) {
     let links = `[whisper .think again]Another One[/whisper] | [anchor ${thought.url}]Source[/anchor]`
     let ans = `${thought.title}\n${links}`
 
-    if (arg === "again") {
-      data.method = "public"
+    if (ox.arg === "again") {
+      ox.data.method = "public"
     }
 
-    Huebot.process_feedback(ctx, data, ans)
+    Huebot.process_feedback(ox.ctx, ox.data, ans)
   }
 
-  Huebot.think2 = async function (ctx, data, arg) {
-    if (!ctx.can_synth) {
-      Huebot.process_feedback(ctx, data, Huebot.config.no_synth_error)
+  Huebot.think2 = async function (ox) {
+    if (!ox.ctx.can_synth) {
+      Huebot.process_feedback(ox.ctx, ox.data, Huebot.config.no_synth_error)
       return false
     }
 
@@ -1402,32 +1402,32 @@ module.exports = function (Huebot) {
       return false
     }
 
-    Huebot.send_synth_voice(ctx, thought.title)
+    Huebot.send_synth_voice(ox.ctx, thought.title)
   }
 
-  Huebot.remind = function (ctx, data, arg) {
-    if (!arg) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}${cmd} [username] > [message]`)
+  Huebot.remind = function (ox) {
+    if (!ox.arg) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} [username] > [message]`)
       return false
     }
 
-    let split = arg.split(">")
+    let split = ox.arg.split(">")
 
     if (split.length < 2) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}${cmd} [username] > [message]`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} [username] > [message]`)
       return false
     }
 
     let uname = split[0].trim()
     let message = split.slice(1).join(">").trim()
 
-    if (uname === data.username) {
-      Huebot.process_feedback(ctx, data, "Self-reminders are not allowed.")
+    if (uname === ox.data.username) {
+      Huebot.process_feedback(ox.ctx, ox.data, "Self-reminders are not allowed.")
       return false
     }
 
     if (!uname || !message) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}${cmd} [username] > [message]`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} [username] > [message]`)
       return false
     }
 
@@ -1436,47 +1436,47 @@ module.exports = function (Huebot) {
     }
 
     if (Huebot.db.reminders[uname].length >= 5) {
-      Huebot.process_feedback(ctx, data, "There are too many reminders for this user.")
+      Huebot.process_feedback(ox.ctx, ox.data, "There are too many reminders for this user.")
       return false
     }
 
     let m = {
-      from: data.username,
+      from: ox.data.username,
       message: message
     }
 
     Huebot.db.reminders[uname].push(m)
 
     Huebot.save_file("reminders.json", Huebot.db.reminders, function () {
-      Huebot.process_feedback(ctx, data, `Reminder for ${uname} saved.`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Reminder for ${uname} saved.`)
       return false
     })
   }
 
-  Huebot.do_calculation = function (ctx, data, arg) {
-    if (!arg) {
-      Huebot.process_feedback(ctx, data, `Correct format is --> ${Huebot.db.config.command_prefix}${cmd} [javascript math operation]`)
+  Huebot.do_calculation = function (ox) {
+    if (!ox.arg) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} [javascript math operation]`)
       return false
     }
 
     let r
 
     try {
-      r = math.evaluate(arg).toString()
+      r = math.evaluate(ox.arg).toString()
     } catch (err) {
       r = "Error"
     }
 
-    Huebot.process_feedback(ctx, data, r)
+    Huebot.process_feedback(ox.ctx, ox.data, r)
   }
 
-  Huebot.roll_dice = function (ctx, data, arg) {
-    if (!arg || !arg.match(/^\d+d\d+$/)) {
-      Huebot.process_feedback(ctx, data, `Example format --> 2d6 (Roll a 6 sided die twice)`)
+  Huebot.roll_dice = function (ox) {
+    if (!ox.arg || !ox.arg.match(/^\d+d\d+$/)) {
+      Huebot.process_feedback(ox.ctx, ox.data, `Example format --> 2d6 (Roll a 6 sided die twice)`)
       return false
     }
 
-    let split = arg.split("d")
+    let split = ox.arg.split("d")
     let times = split[0]
     let max = split[1]
     let results = []
@@ -1491,34 +1491,34 @@ module.exports = function (Huebot) {
     }
 
     let ans = `Result: ${results.join(', ')}`
-    Huebot.process_feedback(ctx, data, ans)
+    Huebot.process_feedback(ox.ctx, ox.data, ans)
   }
 
-  Huebot.show_users = function (ctx, data, arg) {
+  Huebot.show_users = function (ox) {
     s = Huebot.list_items({
-      data: ctx.userlist.slice(0, 20),
+      data: ox.ctx.userlist.slice(0, 20),
       append: ",",
       sort_mode: "random"
     })
 
-    Huebot.process_feedback(ctx, data, s)
+    Huebot.process_feedback(ox.ctx, ox.data, s)
   }
 
-  Huebot.show_help = function (ctx, data, arg) {
+  Huebot.show_help = function (ox) {
     let s = Huebot.list_items({
       data: Huebot.command_list,
-      filter: arg,
-      prepend: Huebot.db.config.command_prefix,
+      filter: ox.arg,
+      prepend: Huebot.prefix,
       append: " ",
       sort_mode: "sort",
-      whisperify: `${Huebot.db.config.command_prefix}whatis `,
+      whisperify: `${Huebot.prefix}whatis `,
       limit: false
     })
 
     if (s) {
-      Huebot.send_whisper(ctx, data.username, s, false)
+      Huebot.send_whisper(ox.ctx, ox.data.username, s, false)
     } else {
-      Huebot.send_whisper(ctx, data.username, "Nothing found.", false)
+      Huebot.send_whisper(ox.ctx, ox.data.username, "Nothing found.", false)
     }
   }
 }

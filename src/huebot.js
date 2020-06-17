@@ -90,6 +90,9 @@ Huebot.config.no_tv_error = "I don't have permission to change the tv."
 Huebot.config.no_radio_error = "I don't have permission to change the radio."
 Huebot.config.no_synth_error = "I don't have permission to use the synth."
 
+// Aliases
+Huebot.prefix = Huebot.db.config.command_prefix
+
 Huebot.connected_rooms = {}
 
 Huebot.start_connection = function (room_id) {

@@ -261,7 +261,7 @@ module.exports = function (Huebot) {
       let c = command.url.split(" ")[0]
 
       if (Huebot.command_list.includes(c)) {
-        data.message = `${Huebot.db.config.command_prefix}${command.url} ${arg}`
+        data.message = `${Huebot.prefix}${command.url} ${arg}`
 
         Huebot.process_command(ctx, data)
       }

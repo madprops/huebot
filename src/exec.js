@@ -26,124 +26,126 @@ module.exports = function (Huebot) {
       return false
     }
 
+    let ox = {ctx:ctx, data:data, arg:arg, cmd:cmd}
+
     if (cmd === "image") {
-      Huebot.change_image(ctx, data, arg)
+      Huebot.change_image(ox)
     } else if (cmd === "tv") {
-      Huebot.change_tv(ctx, data, arg)
+      Huebot.change_tv(ox)
     } else if (cmd === "radio") {
-      Huebot.change_radio(ctx, data, arg)
+      Huebot.change_radio(ox)
     } else if (cmd === "backgroundmode") {
-      Huebot.change_background_mode(ctx, data, arg)
+      Huebot.change_background_mode(ox)
     } else if (cmd === "thememode") {
-      Huebot.change_theme_mode(ctx, data, arg)
+      Huebot.change_theme_mode(ox)
     } else if (cmd === "set" || cmd === "setforce") {
-      Huebot.add_custom_command(ctx, data, arg, cmd)
+      Huebot.add_custom_command(ox)
     } else if (cmd === "unset") {
-      Huebot.remove_custom_command(ctx, data, arg)
+      Huebot.remove_custom_command(ox)
     } else if (cmd === "rename") {
-      Huebot.rename_custom_command(ctx, data, arg)
+      Huebot.rename_custom_command(ox)
     } else if (cmd === "list") {
-      Huebot.list_custom_commands(ctx, data, arg)
+      Huebot.list_custom_commands(ox)
     } else if (cmd === "random") {
-      Huebot.execute_random_custom_command(ctx, data, arg)
+      Huebot.execute_random_custom_command(ox)
     } else if (cmd === "whatis") {
-      Huebot.whatis_command(ctx, data, arg)
+      Huebot.whatis_command(ox)
     } else if (cmd === "adminadd") {
-      Huebot.add_admin(ctx, data, arg)
+      Huebot.add_admin(ox)
     } else if (cmd === "adminremove") {
-      Huebot.remove_admin(ctx, data, arg)
+      Huebot.remove_admin(ox)
     } else if (cmd === "admins") {
-      Huebot.list_admins(ctx, data, arg)
+      Huebot.list_admins(ox)
     } else if (cmd === "themeadd") {
-      Huebot.add_theme(ctx, data, arg)
+      Huebot.add_theme(ox)
     } else if (cmd === "themeremove") {
-      Huebot.remove_theme(ctx, data, arg)
+      Huebot.remove_theme(ox)
     } else if (cmd === "themerename") {
-      Huebot.rename_theme(ctx, data, arg)
+      Huebot.rename_theme(ox)
     } else if (cmd === "theme") {
-      Huebot.apply_theme(ctx, data, arg)
+      Huebot.apply_theme(ox)
     } else if (cmd === "themes") {
-      Huebot.list_themes(ctx, data, arg)
+      Huebot.list_themes(ox)
     } else if (cmd === "decide") {
-      Huebot.decide_something(ctx, data, arg)
+      Huebot.decide_something(ox)
     } else if (cmd === "pick") {
-      Huebot.pick_something(ctx, data, arg)
+      Huebot.pick_something(ox)
     } else if (cmd == "wiki") {
-      Huebot.search_wiki(ctx, data, arg)
+      Huebot.search_wiki(ox)
     } else if (cmd === "subjectadd") {
-      Huebot.add_subject(ctx, data, arg)
+      Huebot.add_subject(ox)
     } else if (cmd === "subjectrename") {
-      Huebot.rename_subject(ctx, data, arg)
+      Huebot.rename_subject(ox)
     } else if (cmd === "subjectremove") {
-      Huebot.remove_subject(ctx, data, arg)
+      Huebot.remove_subject(ox)
     } else if (cmd === "subjectkeywords") {
-      Huebot.show_subject_keywords(ctx, data, arg)
+      Huebot.show_subject_keywords(ox)
     } else if (cmd === "subjectkeywordsadd") {
-      Huebot.add_subject_keyword(ctx, data, arg)
+      Huebot.add_subject_keyword(ox)
     } else if (cmd === "subjectkeywordsremove") {
-      Huebot.remove_subject_keyword(ctx, data, arg)
+      Huebot.remove_subject_keyword(ox)
     } else if (cmd === "subject") {
-      Huebot.use_subject(ctx, data, arg)
+      Huebot.use_subject(ox)
     } else if (cmd === "subjects") {
-      Huebot.list_subjects(ctx, data, arg)
+      Huebot.list_subjects(ox)
     } else if (cmd === "public") {
-      Huebot.change_public(ctx, data, arg)
+      Huebot.change_public(ox)
     } else if (cmd === "q") {
-      Huebot.manage_queue(ctx, data, arg)
+      Huebot.manage_queue(ox)
     } else if (cmd === "ping") {
       Huebot.process_feedback(ctx, data, "Pong")
     } else if (cmd === "stream") {
-      Huebot.get_random_stream(ctx, data, arg)
+      Huebot.get_random_stream(ox)
     } else if (cmd === "activity") {
-      Huebot.show_activity(ctx, data, arg)
+      Huebot.show_activity(ox)
     } else if (cmd === "clearcommands") {
-      Huebot.clear_commands(ctx, data, arg)
+      Huebot.clear_commands(ox)
     } else if (cmd === "clearadmins") {
-      Huebot.clear_admins(ctx, data, arg)
+      Huebot.clear_admins(ox)
     } else if (cmd === "clearthemes") {
-      Huebot.clear_themes(ctx, data, arg)
+      Huebot.clear_themes(ox)
     } else if (cmd === "clearsubjects") {
-      Huebot.clear_subjects(ctx, data, arg)
+      Huebot.clear_subjects(ox)
     } else if (cmd === "clearbackgrounds") {
-      Huebot.clear_backgrounds(ctx, data, arg)
+      Huebot.clear_backgrounds(ox)
     } else if (cmd === "say") {
-      Huebot.say(ctx, data, arg)
+      Huebot.say(ox)
     } else if (cmd === "join") {
-      Huebot.join_room(ctx, data, arg)
+      Huebot.join_room(ox)
     } else if (cmd === "leave") {
-      Huebot.leave_room(ctx, data, arg)
+      Huebot.leave_room(ox)
     } else if (cmd === "backgroundadd") {
-      Huebot.add_background(ctx, data, arg)
+      Huebot.add_background(ox)
     } else if (cmd === "backgroundremove") {
-      Huebot.remove_background(ctx, data, arg)
+      Huebot.remove_background(ox)
     } else if (cmd === "backgroundrename") {
-      Huebot.rename_background(ctx, data, arg)
+      Huebot.rename_background(ox)
     } else if (cmd === "background") {
-      Huebot.apply_background(ctx, data, arg) 
+      Huebot.apply_background(ox) 
     } else if (cmd === "backgrounds") {
-      Huebot.list_backgrounds(ctx, data, arg)
+      Huebot.list_backgrounds(ox)
     } else if (cmd === "suggest") {
-      Huebot.suggest(ctx, data, arg)
+      Huebot.suggest(ox)
     } else if (cmd === "song") {
-      Huebot.play_song(ctx, data, arg)
+      Huebot.play_song(ox)
     } else if (cmd === "key") {
-      Huebot.synth_key(ctx, data, arg)
+      Huebot.synth_key(ox)
     } else if (cmd === "speak") {
-      Huebot.speak(ctx, data, arg)
+      Huebot.speak(ox)
     } else if (cmd === "think") {
-      Huebot.think(ctx, data, arg)
+      Huebot.think(ox)
     } else if (cmd === "think2") {
-      Huebot.think2(ctx, data, arg)
+      Huebot.think2(ox)
     } else if (cmd === "remind") {
-      Huebot.remind(ctx, data, arg)
+      Huebot.remind(ox)
     } else if (cmd === "calc") {
-      Huebot.do_calculation(ctx, data, arg)
+      Huebot.do_calculation(ox)
     } else if (cmd === "roll") {
-      Huebot.roll_dice(ctx, data, arg)
+      Huebot.roll_dice(ox)
     } else if (cmd === "users") {
-      Huebot.show_users(ctx, data, arg)
+      Huebot.show_users(ox)
     } else if (cmd === "help") {
-      Huebot.show_help(ctx, data, arg)
+      Huebot.show_help(ox)
     }
   }
 }

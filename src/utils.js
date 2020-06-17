@@ -347,7 +347,7 @@ module.exports = function (Huebot) {
     let strings = []
 
     for (let control of controls) {
-      strings.push(`[whisper ${Huebot.db.config.command_prefix}random ${control}]${smart_capitalize(control)}[/whisper]`)
+      strings.push(`[whisper ${Huebot.prefix}random ${control}]${smart_capitalize(control)}[/whisper]`)
     }
 
     return strings.join(" | ")
@@ -432,7 +432,7 @@ module.exports = function (Huebot) {
   }
 
   Huebot.is_command = function (message) {
-    if (message.length > 1 && message[0] === Huebot.db.config.command_prefix && message[1] !== Huebot.db.config.command_prefix) {
+    if (message.length > 1 && message[0] === Huebot.prefix && message[1] !== Huebot.prefix) {
       return true
     }
 
