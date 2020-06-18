@@ -2,247 +2,308 @@ module.exports = function (Huebot) {
   Huebot.commands = {
     "image": {
       description: "Change the image",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.change_image(ox)}
     },
     "tv": {
       description: "Change the tv",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.change_tv(ox)}
     },
     "radio": {
       description: "Change the radio",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.change_radio(ox)}
     },
     "set": {
       description: "Set a command",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.add_custom_command(ox)}
     },
     "setforce": {
       description: "Set a command with a name that already exists",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.add_custom_command(ox)}
     },
     "unset": {
       description: "Remove a command",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.remove_custom_command(ox)}
     },
     "rename": {
       description: "Change the name of a command",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.rename_custom_command(ox)}
     },
     "list": {
       description: "List set commands",
-      public: true
+      public: true,
+      exec: function(ox) {Huebot.list_custom_commands(ox)}
     },
     "random": {
       description: "Execute a random command",
-      public: true
+      public: true,
+      exec: function(ox) {Huebot.execute_random_custom_command(ox)}
     },
     "q": {
       description: "Control the queue",
-      public: true
+      public: true,
+      exec: function(ox) {Huebot.manage_queue(ox)}
     },
     "adminadd": {
       description: "Add a bot admin",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.add_admin(ox)}
     },
     "adminremove": {
       description: "Remove a bot admin",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.remove_admin(ox)}
     },
     "admins": {
       description: "List admins",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.list_admins(ox)}
     },
     "themeadd": {
       description: "Save current theme",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.add_theme(ox)}
     },
     "themeremove": {
       description: "Remove a theme",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.remove_theme(ox)}
     },
     "themerename": {
       description: "Change the name of a theme",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.rename_theme(ox)}
     },
     "theme": {
       description: "Apply a theme",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.apply_theme(ox)}
     },
     "themes": {
       description: "List themes",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.list_themes(ox)}
     },
     "stream": {
       description: "Put a random video stream",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.get_random_stream(ox)}
     },
     "activity": {
       description: "Show recent bot users",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.show_activity(ox)}
     },
     "clearcommands": {
       description: "Remove all commands",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.clear_commands(ox)}
     },
     "clearadmins": {
       description: "Remove all bot admins",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.clear_admins(ox)}
     },
     "clearthemes": {
       description: "Remove all themes",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.clear_themes(ox)}
     },
     "clearsubjects": {
       description: "Remove all tv subjects",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.clear_subjects(ox)}
     },
     "help": {
       description: "Show a summary of commands",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.show_help(ox)}
     },
     "ping": {
       description: "Returns a Pong",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.ping(ox)}
     },
     "whatis": {
       description: "Inspects a command",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.whatis_command(ox)}
     },
     "say": {
       description: "Make the bot say something",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.say(ox)}
     },
     "subjectadd": {
       description: "Add a tv subject",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.add_subject(ox)}
     },
     "subjectremove": {
       description: "Remove a tv subject",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.remove_subject(ox)}
     },
     "subjectrename": {
       description: "Rename a tv subject",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.rename_subject(ox)}
     },
     "subjectkeywords": {
       description: "List keywords added to a tv subject",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.show_subject_keywords(ox)}
     },
     "subjectkeywordsadd": {
       description: "Add a keyword to a tv subject",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.add_subject_keyword(ox)}
     },
     "subjectkeywordsremove": {
       description: "Remove a keyword from a tv subject",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.remove_subject_keyword(ox)}
     },
     "subject": {
       description: "Use a keyword to find a semi-random video",
-      public: true
+      public: true,
+      exec: function(ox) {Huebot.use_subject(ox)}
     },
     "subjects": {
       description: "List saved tv subjects",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.list_subjects(ox)}
     },
     "leave": {
       description: "Leave the room",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.leave_room(ox)}
     },
     "join": {
       description: "Join a room",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.join_room(ox)}
     },
     "backgroundadd": {
       description: "Save the current background",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.add_background(ox)}
     },
     "backgroundremove": {
       description: "Remove a background",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.remove_background(ox)}
     },
     "backgroundrename": {
       description: "Change the name of a background",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.rename_background(ox)}
     },
     "background": {
       description: "Apply a background",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.apply_background(ox)}
     },
     "backgrounds": {
       description: "List backgrounds",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.list_backgrounds(ox)}
     },
     "backgroundmode": {
       description: "Change the background mode",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.change_background_mode(ox)}
     },
     "clearbackgrounds": {
       description: "Remove all backgrounds",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.clear_backgrounds(ox)}
     },
     "thememode": {
       description: "Change the theme mode",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.change_theme_mode(ox)}
     },
     "sleep": {
       description: "Wait before executing the next command (ms)",
-      public: false
+      public: false,
+      exec: undefined
     },
     "suggest": {
       description: "Suggest topics/subjects",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.suggest(ox)}
     },
     "song": {
       description: "Play a random song on the synth",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.play_song(ox)}
     },
     "key": {
       description: "Play a synth key",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.synth_key(ox)}
     },
     "speak": {
       description: "Say something through the voice synth",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.speak(ox)}
     },
     "think": {
       description: "Get a random showerthought",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.think(ox)}
     },
     "think2": {
       description: "Speak a random showerthought",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.think2(ox)}
     },
     "public": {
       description: "Enable or disable public commands",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.change_public(ox)}
     },
     "remind": {
       description: "Remind a message to a user when they become active",
-      public: false
+      public: false,
+      exec: function(ox) {Huebot.remind(ox)}
     },
     "calc": {
       description: "Make a math calculation",
-      public: true
+      public: true,
+      exec: function(ox) {Huebot.do_calculation(ox)}
     },
     "roll": {
       description: "Simulate a dice",
-      public: true
+      public: true,
+      exec: function(ox) {Huebot.roll_dice(ox)}
     },
     "users": {
       description: "List connected users",
-      public: true
+      public: true,
+      exec: function(ox) {Huebot.show_users(ox)}
     },
     "decide": {
       description: "Decide if yes or no",
-      public: true
+      public: true,
+      exec: function(ox) {Huebot.decide_something(ox)}
     },
     "pick": {
       description: "Pick one among various items",
-      public: true
+      public: true,
+      exec: function(ox) {Huebot.pick_something(ox)}
     },
     "wiki": {
       description: "Define something using wikipedia",
-      public: true
+      public: true,
+      exec: function(ox) {Huebot.search_wiki(ox)}
     },
   }
 
@@ -402,6 +463,38 @@ module.exports = function (Huebot) {
       return data.callback()
     } else {
       return false
+    }
+  }
+
+  Huebot.execute_command = function (ctx, data, cmd, arg) {
+    if (!Huebot.command_list.includes(cmd)) {
+      if (Huebot.db.commands[cmd] !== undefined) {
+        Huebot.run_command(ctx, cmd, arg, data)
+      } else {
+        let highest_num = 0
+        let highest_cmd
+
+        for (let cmd2 in Huebot.db.commands) {
+          let num = Huebot.string_similarity(cmd, cmd2)
+
+          if (num > highest_num) {
+            highest_num = num
+            highest_cmd = cmd2
+          }
+        }
+
+        if (highest_num >= 0.8) {
+          Huebot.run_command(ctx, highest_cmd, arg, data)
+        }
+      }
+
+      return false
+    }
+
+    let command = Huebot.commands[cmd]
+
+    if(command && command.exec) {
+      command.exec({ctx:ctx, data:data, arg:arg, cmd:cmd})
     }
   }
 }

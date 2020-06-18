@@ -1521,4 +1521,8 @@ module.exports = function (Huebot) {
       Huebot.send_whisper(ox.ctx, ox.data.username, "Nothing found.", false)
     }
   }
+
+  Huebot.ping = function (ox) {
+    Huebot.process_feedback(ox.ctx, ox.data, "Pong")
+  }
 }
