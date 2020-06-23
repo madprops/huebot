@@ -916,10 +916,11 @@ module.exports = function (Huebot) {
     
     if (n <= (p)) {
       let n2 = Huebot.get_random_int(1, 5)
+      
       if (n2 === 1) {
-        Huebot.think(ctx, data, arg)
+        Huebot.think({ctx:ctx, data:data, arg:arg, cmd:"think"})
       } else if (n2 === 2) {
-        Huebot.think2(ctx, data, arg)
+        Huebot.think2({ctx:ctx, data:data, arg:arg, cmd:"think2"})
       } else {
         Huebot.send_message(ctx, Huebot.get_random_phrase())
       }
