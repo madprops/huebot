@@ -1518,7 +1518,7 @@ module.exports = function (Huebot) {
 
     let s = ""
     s += `Help ${n}`
-    s += "\n---------\n"
+    s += "\n---------------------\n"
     
     s += Huebot.list_items({
       data: items,
@@ -1529,8 +1529,16 @@ module.exports = function (Huebot) {
       limit: false
     })
 
-    s += "\n---------"
-    s += "\n[whisper .help]Help 1[/whisper]  |  [whisper .help 2]Help 2[/whisper]"
+    if (n < 2) {
+      let n2 = 2
+  
+      if (n === 2) {
+        n2 = 1
+      }
+  
+      s += "\n---------------------"
+      s += `\n[whisper .help ${n2}]Show More[/whisper]`
+    }
 
     if (s) {
       Huebot.send_whisper(ox.ctx, ox.data.username, s, false)
