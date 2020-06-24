@@ -1505,15 +1505,32 @@ module.exports = function (Huebot) {
   }
 
   Huebot.show_help = function (ox) {
-    let s = Huebot.list_items({
-      data: Huebot.command_list,
-      filter: ox.arg,
+    let items = []
+    let i = 25
+    let n = 1
+
+    if(ox.arg === "2") {
+      items = Huebot.command_list.slice(i)
+      n = 2
+    } else {
+      items = Huebot.command_list.slice(0, i)
+    }
+
+    let s = ""
+    s += `Help ${n}`
+    s += "\n---------\n"
+    
+    s += Huebot.list_items({
+      data: items,
       prepend: Huebot.prefix,
       append: " ",
       sort_mode: "sort",
       whisperify: `${Huebot.prefix}whatis `,
       limit: false
     })
+
+    s += "\n---------"
+    s += "\n[whisper .help]Help 1[/whisper]  |  [whisper .help 2]Help 2[/whisper]"
 
     if (s) {
       Huebot.send_whisper(ox.ctx, ox.data.username, s, false)

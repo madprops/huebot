@@ -313,6 +313,8 @@ module.exports = function (Huebot) {
     Huebot.command_list.push(key)
   }
 
+  Huebot.command_list.sort()
+
   // Must Include:
   // data.message
   // data.username

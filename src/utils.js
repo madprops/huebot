@@ -916,7 +916,7 @@ module.exports = function (Huebot) {
     
     if (n <= (p)) {
       let n2 = Huebot.get_random_int(1, 5)
-      
+
       if (n2 === 1) {
         Huebot.think({ctx:ctx, data:data, arg:arg, cmd:"think"})
       } else if (n2 === 2) {
