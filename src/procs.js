@@ -560,11 +560,19 @@ module.exports = function (Huebot) {
             }
           }
         })
+
+        .catch(err => { 
+          console.error(err.message)
+        })
       } else {
         if (res.extract) {
           Huebot.process_feedback(ox.ctx, ox.data, res.extract)
         }
       }
+    })
+
+    .catch(err => { 
+      console.error(err.message)
     })
   }
 
