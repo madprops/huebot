@@ -234,7 +234,7 @@ module.exports = function (Huebot) {
     }
 
     if (Huebot.command_list.includes(ox.arg)) {
-      Huebot.process_feedback(ox.ctx, ox.data, `${ox.arg}: ${Huebot.commands[ox.arg].description}`)
+      Huebot.process_feedback(ox.ctx, ox.data, `**${ox.arg}**: ${Huebot.commands[ox.arg].description}`)
     } else {
       let command = Huebot.db.commands[ox.arg]
 
