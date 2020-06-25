@@ -1140,8 +1140,21 @@ module.exports = function (Huebot) {
       return false
     }
 
-    Huebot.process_feedback(ox.ctx, ox.data, "Good bye!")
-    ox.ctx.socket.disconnect()
+    let context = ox.ctx
+
+    if (ox.arg) {
+      let room = Huebot.connected_rooms[ox.arg]
+
+      if (!room) {
+        Huebot.process_feedback(ox.ctx, ox.data, "It seems I'm not in that room.")
+        return false
+      }
+
+      context = room.context
+    }
+
+    Huebot.process_feedback(context, ox.data, "Good bye!")
+    context.socket.disconnect()
   }
 
   Huebot.add_background = function (ox) {

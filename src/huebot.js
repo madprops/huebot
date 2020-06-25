@@ -148,7 +148,7 @@ Huebot.start_connection = function (room_id) {
 			if (type === 'joined') {
 				console.info(`Joined ${room_id}`)
 
-				Huebot.connected_rooms[room_id] = true
+				Huebot.connected_rooms[room_id] = {context:ctx}
 
 				Huebot.set_username(ctx, data.username)
 				Huebot.set_role(ctx, data.role)
