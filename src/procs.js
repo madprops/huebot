@@ -1517,8 +1517,7 @@ module.exports = function (Huebot) {
     }
 
     let s = ""
-    s += `Help ${n}`
-    s += "\n---------------------\n"
+    s += `Help ${n}[line]`
     
     s += Huebot.list_items({
       data: items,
@@ -1536,8 +1535,7 @@ module.exports = function (Huebot) {
         n2 = 1
       }
   
-      s += "\n---------------------"
-      s += `\n[whisper .help ${n2}]Show More[/whisper]`
+      s += `[line][whisper .help ${n2}]Show More[/whisper]`
     }
 
     if (s) {
