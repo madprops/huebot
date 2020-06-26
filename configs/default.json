@@ -7,5 +7,7 @@
     "room_ids": ["main"],
     "protected_admins": ["mad"],
     "command_prefix": ".",
-    "speak_chance_percentage": 1
+    "speak_chance_percentage": 1,
+    "wolfram_id": "xxx",
+    "wolfram_enabled": true
 }

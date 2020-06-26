@@ -1588,4 +1588,29 @@ module.exports = function (Huebot) {
   Huebot.ping = function (ox) {
     Huebot.process_feedback(ox.ctx, ox.data, "Pong")
   }
+
+  Huebot.ask_wolfram = function (ox) {
+    if (!Huebot.db.config.wolfram_enabled || !ox.arg) {
+      return
+    }
+
+    let query = `http://api.wolframalpha.com/v2/query?input=${ox.arg}&appid=${Huebot.db.config.wolfram_id}&output=json&includepodid=Result`
+
+    fetch(query)
+  
+    .then(res => {
+      return res.json()
+    })
+  
+    .then(res => {
+      if (res.queryresult && res.queryresult.pods) {
+        let result = res.queryresult.pods[0].subpods[0].plaintext
+        Huebot.process_feedback(ox.ctx, ox.data, result)
+      }
+    })
+
+    .catch(err => { 
+      console.error(err.message)
+    })
+  }
 }

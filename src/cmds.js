@@ -305,6 +305,11 @@ module.exports = function (Huebot) {
       public: true,
       exec: function(ox) {Huebot.search_wiki(ox)}
     },
+    "wolfram": {
+      description: "Ask Wolfram something",
+      public: true,
+      exec: function(ox) {Huebot.ask_wolfram(ox)}
+    }
   }
 
   Huebot.command_list = []
