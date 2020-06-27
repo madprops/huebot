@@ -1594,7 +1594,7 @@ module.exports = function (Huebot) {
       return
     }
 
-    let query = `http://api.wolframalpha.com/v2/query?input=${ox.arg}&appid=${Huebot.db.config.wolfram_id}&output=json&includepodid=Result`
+    let query = `http://api.wolframalpha.com/v2/query?input=${ox.arg}&appid=${Huebot.db.config.wolfram_id}&output=json&includepodid=Result&units=metric`
 
     fetch(query)
   

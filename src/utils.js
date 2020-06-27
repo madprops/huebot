@@ -485,24 +485,24 @@ module.exports = function (Huebot) {
   }
 
   Huebot.get_random_user = function (ctx) {
-    return ctx.userlist[Huebot.get_random_int(0, userlist.length - 1)]
+    return ctx.userlist[Huebot.get_random_int(0, ctx.userlist.length - 1)]
   }
 
   Huebot.do_replacements = function (ctx, s) {
     s = s.replace(/\$user\$/gi, function () {
-      return get_random_user(ctx)
+      return Huebot.get_random_user(ctx)
     })
 
     s = s.replace(/\$word\$/g, function () {
-      return get_random_word()
+      return Huebot.get_random_word()
     })
 
     s = s.replace(/\$Word\$/g, function () {
-      return get_random_word("capitalized")
+      return Huebot.get_random_word("capitalized")
     })
 
     s = s.replace(/\$WORD\$/g, function () {
-      return get_random_word("upper_case")
+      return Huebot.get_random_word("upper_case")
     })
 
     return s
