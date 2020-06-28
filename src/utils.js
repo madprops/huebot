@@ -347,7 +347,7 @@ module.exports = function (Huebot) {
     let strings = []
 
     for (let control of controls) {
-      strings.push(`[whisper ${Huebot.prefix}random ${control}]${smart_capitalize(control)}[/whisper]`)
+      strings.push(`[whisper ${Huebot.prefix}commands random ${control}]${Huebot.smart_capitalize(control)}[/whisper]`)
     }
 
     return strings.join(" | ")

@@ -68,7 +68,6 @@ Huebot.db.themes = require(`${Huebot.files_path}themes.json`)
 Huebot.db.options = require(`${Huebot.files_path}options.json`)
 Huebot.db.queue = require(`${Huebot.files_path}queue.json`)
 Huebot.db.words = require(`${Huebot.files_path}words`)
-Huebot.db.subjects = require(`${Huebot.files_path}subjects`)
 Huebot.db.backgrounds = require(`${Huebot.files_path}backgrounds`)
 Huebot.db.reminders = require(`${Huebot.files_path}reminders`)
 

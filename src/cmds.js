@@ -15,35 +15,10 @@ module.exports = function (Huebot) {
       public: false,
       exec: function(ox) {Huebot.change_radio(ox)}
     },
-    "set": {
-      description: "Set a command",
+    "commands": {
+      description: "Manage commands",
       public: false,
-      exec: function(ox) {Huebot.add_custom_command(ox)}
-    },
-    "setforce": {
-      description: "Set a command with a name that already exists",
-      public: false,
-      exec: function(ox) {Huebot.add_custom_command(ox)}
-    },
-    "unset": {
-      description: "Remove a command",
-      public: false,
-      exec: function(ox) {Huebot.remove_custom_command(ox)}
-    },
-    "rename": {
-      description: "Change the name of a command",
-      public: false,
-      exec: function(ox) {Huebot.rename_custom_command(ox)}
-    },
-    "list": {
-      description: "List set commands",
-      public: true,
-      exec: function(ox) {Huebot.list_custom_commands(ox)}
-    },
-    "random": {
-      description: "Execute a random command",
-      public: true,
-      exec: function(ox) {Huebot.execute_random_custom_command(ox)}
+      exec: function(ox) {Huebot.manage_commands(ox)}
     },
     "q": {
       description: "Control the queue",
@@ -65,30 +40,10 @@ module.exports = function (Huebot) {
       public: false,
       exec: function(ox) {Huebot.list_admins(ox)}
     },
-    "themeadd": {
-      description: "Save current theme",
-      public: false,
-      exec: function(ox) {Huebot.add_theme(ox)}
-    },
-    "themeremove": {
-      description: "Remove a theme",
-      public: false,
-      exec: function(ox) {Huebot.remove_theme(ox)}
-    },
-    "themerename": {
-      description: "Change the name of a theme",
-      public: false,
-      exec: function(ox) {Huebot.rename_theme(ox)}
-    },
-    "theme": {
-      description: "Apply a theme",
-      public: false,
-      exec: function(ox) {Huebot.apply_theme(ox)}
-    },
     "themes": {
-      description: "List themes",
+      description: "Manage themes",
       public: false,
-      exec: function(ox) {Huebot.list_themes(ox)}
+      exec: function(ox) {Huebot.manage_themes(ox)}
     },
     "stream": {
       description: "Put a random video stream",
@@ -100,25 +55,10 @@ module.exports = function (Huebot) {
       public: false,
       exec: function(ox) {Huebot.show_activity(ox)}
     },
-    "clearcommands": {
-      description: "Remove all commands",
-      public: false,
-      exec: function(ox) {Huebot.clear_commands(ox)}
-    },
     "clearadmins": {
       description: "Remove all bot admins",
       public: false,
       exec: function(ox) {Huebot.clear_admins(ox)}
-    },
-    "clearthemes": {
-      description: "Remove all themes",
-      public: false,
-      exec: function(ox) {Huebot.clear_themes(ox)}
-    },
-    "clearsubjects": {
-      description: "Remove all tv subjects",
-      public: false,
-      exec: function(ox) {Huebot.clear_subjects(ox)}
     },
     "help": {
       description: "Show a summary of commands",
@@ -140,45 +80,10 @@ module.exports = function (Huebot) {
       public: false,
       exec: function(ox) {Huebot.say(ox)}
     },
-    "subjectadd": {
-      description: "Add a tv subject",
-      public: false,
-      exec: function(ox) {Huebot.add_subject(ox)}
-    },
-    "subjectremove": {
-      description: "Remove a tv subject",
-      public: false,
-      exec: function(ox) {Huebot.remove_subject(ox)}
-    },
-    "subjectrename": {
-      description: "Rename a tv subject",
-      public: false,
-      exec: function(ox) {Huebot.rename_subject(ox)}
-    },
-    "subjectkeywords": {
-      description: "List keywords added to a tv subject",
-      public: false,
-      exec: function(ox) {Huebot.show_subject_keywords(ox)}
-    },
-    "subjectkeywordsadd": {
-      description: "Add a keyword to a tv subject",
-      public: false,
-      exec: function(ox) {Huebot.add_subject_keyword(ox)}
-    },
-    "subjectkeywordsremove": {
-      description: "Remove a keyword from a tv subject",
-      public: false,
-      exec: function(ox) {Huebot.remove_subject_keyword(ox)}
-    },
     "subject": {
       description: "Use a keyword to find a semi-random video",
       public: true,
       exec: function(ox) {Huebot.use_subject(ox)}
-    },
-    "subjects": {
-      description: "List saved tv subjects",
-      public: false,
-      exec: function(ox) {Huebot.list_subjects(ox)}
     },
     "leave": {
       description: "Leave the room",
@@ -190,40 +95,15 @@ module.exports = function (Huebot) {
       public: false,
       exec: function(ox) {Huebot.join_room(ox)}
     },
-    "backgroundadd": {
-      description: "Save the current background",
-      public: false,
-      exec: function(ox) {Huebot.add_background(ox)}
-    },
-    "backgroundremove": {
-      description: "Remove a background",
-      public: false,
-      exec: function(ox) {Huebot.remove_background(ox)}
-    },
-    "backgroundrename": {
-      description: "Change the name of a background",
-      public: false,
-      exec: function(ox) {Huebot.rename_background(ox)}
-    },
-    "background": {
-      description: "Apply a background",
-      public: false,
-      exec: function(ox) {Huebot.apply_background(ox)}
-    },
     "backgrounds": {
-      description: "List backgrounds",
+      description: "Manage backgrounds",
       public: false,
-      exec: function(ox) {Huebot.list_backgrounds(ox)}
+      exec: function(ox) {Huebot.manage_backgrounds(ox)}
     },
     "backgroundmode": {
       description: "Change the background mode",
       public: false,
       exec: function(ox) {Huebot.change_background_mode(ox)}
-    },
-    "clearbackgrounds": {
-      description: "Remove all backgrounds",
-      public: false,
-      exec: function(ox) {Huebot.clear_backgrounds(ox)}
     },
     "thememode": {
       description: "Change the theme mode",
@@ -236,7 +116,7 @@ module.exports = function (Huebot) {
       exec: undefined
     },
     "suggest": {
-      description: "Suggest topics/subjects",
+      description: "Suggest topics",
       public: false,
       exec: function(ox) {Huebot.suggest(ox)}
     },
@@ -389,7 +269,7 @@ module.exports = function (Huebot) {
     }
 
     if (data.message.includes(" && ")) {
-      if (cmd !== "set" && cmd !== "setforce") {
+      if (cmd !== "commands add") {
         let full_cmd = `${cmd} ${arg}`
 
         let and_split = full_cmd.split(" && ")
