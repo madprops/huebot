@@ -184,68 +184,23 @@ module.exports = function (Huebot) {
   }
 
   Huebot.execute_random_custom_command = function (ox) {
-    let comment = Huebot.generate_random_controls()
-    let words = false
-
-    if (ox.arg) {
-      if (ox.arg === "tv" || ox.arg === "radio") {
-        let n = Huebot.get_random_int(0, 2)
-
-        if (n === 0) {
-          words = true
-        }
-      }
+    if (!ox.arg) {
+      ox.arg = "tv"
     }
 
-    if (ox.arg && !words) {
-      let cmds = Object.keys(Huebot.db.commands)
+    if (!Huebot.config.media_types.includes(ox.arg)) {
+      return false
+    }
 
-      cmds = cmds.filter(x => Huebot.db.commands[x].type !== "alias")
+    let cmds = Object.keys(Huebot.db.commands)
+    cmds = cmds.filter(x => Huebot.db.commands[x].type !== "alias")
 
-      if (!Huebot.config.media_types.includes(ox.arg)) {
-        return false
-      }
+    cmds = cmds.filter(x => Huebot.db.commands[x].type === ox.arg)
+    let c = cmds[Huebot.get_random_int(0, cmds.length - 1)]
+    ox.data.comment = Huebot.generate_random_controls()
 
-      cmds = cmds.filter(x => Huebot.db.commands[x].type === ox.arg)
-
-      let c = cmds[Huebot.get_random_int(0, cmds.length - 1)]
-
-      ox.data.comment = comment
-
-      if (c) {
-        Huebot.run_command(ox.ctx, c, ox.arg, ox.data)
-      }
-    } else {
-      let type = "tv"
-      let word1, word2
-
-      if (ox.arg) {
-        type = ox.arg
-      }
-
-      if (!ox.arg || ox.arg === "tv") {
-        if (!ox.ctx.can_tv) {
-          Huebot.process_feedback(ox.ctx, ox.data, Huebot.config.no_tv_error)
-          return false
-        }
-
-        word1 = Huebot.get_random_word()
-        word2 = Huebot.get_random_word()
-      } else if (ox.arg === "radio") {
-        if (!ox.ctx.can_radio) {
-          Huebot.process_feedback(ox.ctx, ox.data, Huebot.config.no_radio_error)
-          return false
-        }
-
-        word1 = Huebot.get_random_word()
-        word2 = "music"
-      }
-
-      Huebot.change_media(ox.ctx, {
-        type: type,
-        src: `${word1} ${word2}`,
-        comment: comment
-      })
+    if (c) {
+      Huebot.run_command(ox.ctx, c, ox.arg, ox.data)
     }
   }
 

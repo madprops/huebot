@@ -354,34 +354,24 @@ module.exports = function (Huebot) {
   }
 
   Huebot.execute_command = function (ctx, data, cmd, arg) {
-    if (!Huebot.command_list.includes(cmd)) {
-      if (Huebot.db.commands[cmd] !== undefined) {
-        Huebot.run_command(ctx, cmd, arg, data)
-      } else {
-        let highest_num = 0
-        let highest_cmd
-
-        for (let cmd2 in Huebot.db.commands) {
-          let num = Huebot.string_similarity(cmd, cmd2)
-
-          if (num > highest_num) {
-            highest_num = num
-            highest_cmd = cmd2
-          }
-        }
-
-        if (highest_num >= 0.8) {
-          Huebot.run_command(ctx, highest_cmd, arg, data)
-        }
-      }
-
-      return false
-    }
-
     let command = Huebot.commands[cmd]
 
-    if(command && command.exec) {
+    if(command) {
       command.exec({ctx:ctx, data:data, arg:arg, cmd:cmd})
+    } else {
+      let closest = Huebot.find_closest(cmd, Huebot.command_list)
+      if (closest) {
+        Huebot.commands[closest].exec({ctx:ctx, data:data, arg:arg, cmd:closest})
+      } else {
+        if (Huebot.db.commands[cmd] !== undefined) {
+          Huebot.run_command(ctx, cmd, arg, data)
+        } else {
+          let closest = Huebot.find_closest(cmd, Object.keys(Huebot.db.commands))
+          if (closest) {
+            Huebot.run_command(ctx, closest, arg, data)
+          }
+        }
+      }
     }
   }
 }

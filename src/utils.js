@@ -984,4 +984,24 @@ module.exports = function (Huebot) {
       console.error(err)
     })
   }
+
+  Huebot.find_closest = function (s, list) {
+    let highest_num = 0
+    let highest_cmd = ""
+
+    for (let s2 of list) {
+      let num = Huebot.string_similarity(s, s2)
+
+      if (num > highest_num) {
+        highest_num = num
+        highest_cmd = s2
+      }
+    }
+
+    if (highest_num >= 0.7) {
+      return highest_cmd
+    } else {
+      return ""
+    }
+  }
 }
