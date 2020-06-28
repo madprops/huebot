@@ -66,7 +66,7 @@ module.exports = function (Huebot) {
     let command_url = split.slice(2).join(" ")
 
     if (!ox.arg || split.length < 3 || (!Huebot.config.media_types.includes(command_type) && command_type !== "alias")) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} [name] ${Huebot.config.media_types.join("|")}|alias [url]`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} add [name] ${Huebot.config.media_types.join("|")}|alias [url]`)
       return false
     }
 
@@ -111,7 +111,7 @@ module.exports = function (Huebot) {
 
   Huebot.remove_custom_command = function (ox) {
     if (!ox.arg) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}unset [name]`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} remove [name]`)
       return false
     }
   
@@ -133,7 +133,7 @@ module.exports = function (Huebot) {
     let new_name = split[1]
 
     if (!ox.arg || split.length !== 2) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}rename [old_name] [new_name]`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} rename [old_name] [new_name]`)
       return false
     }
 
@@ -251,7 +251,7 @@ module.exports = function (Huebot) {
 
   Huebot.whatis_command = function (ox) {
     if (!ox.arg || ox.arg.split(" ").length > 1) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}whatis [command_name]`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} [command_name]`)
       return false
     }
 
@@ -274,7 +274,7 @@ module.exports = function (Huebot) {
     }
 
     if (!ox.arg) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}adminadd [username]`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} [username]`)
       return false
     }
 
@@ -297,7 +297,7 @@ module.exports = function (Huebot) {
     }
 
     if (!ox.arg) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}adminremove [username]`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} [username]`)
       return false
     }
 
@@ -435,7 +435,7 @@ module.exports = function (Huebot) {
 
   Huebot.add_theme = function (ox) {
     if (!ox.arg) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}themeadd [name]`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} add [name]`)
       return false
     }
 
@@ -459,7 +459,7 @@ module.exports = function (Huebot) {
 
   Huebot.remove_theme = function (ox) {
     if (!ox.arg) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}themeremove [name]`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} remove [name]`)
       return false
     }
   
@@ -481,7 +481,7 @@ module.exports = function (Huebot) {
     let new_name = split[1]
   
     if (!ox.arg || split.length !== 2) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}themerename [old_name] [new_name]`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} rename [old_name] [new_name]`)
       return false
     }
   
@@ -510,7 +510,7 @@ module.exports = function (Huebot) {
     }
 
     if (!ox.arg) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}theme [name]`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} [name]`)
       return false
     }
 
@@ -651,7 +651,7 @@ module.exports = function (Huebot) {
 
   Huebot.use_subject = function (ox) {
     if (!ox.arg) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}subject [name] > ${Huebot.config.media_types.join("|")} : optional`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} [name] > ${Huebot.config.media_types.join("|")} : optional`)
       return false
     }
 
@@ -687,7 +687,7 @@ module.exports = function (Huebot) {
 
   Huebot.change_public = function (ox) {
     if (!ox.arg || (ox.arg !== "on" && ox.arg !== "off")) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}public on|off`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} on|off`)
       return false
     }
 
@@ -741,7 +741,7 @@ module.exports = function (Huebot) {
     }
 
     if (error) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}q ${Huebot.config.media_types.join("|")} [url]|next|clear|size`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} ${Huebot.config.media_types.join("|")} [url]|next|clear|size`)
       return false
     }
 
@@ -993,7 +993,7 @@ module.exports = function (Huebot) {
 
   Huebot.add_background = function (ox) {
     if (!ox.arg) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}backgroundadd [name]`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} add [name]`)
       return false
     }
 
@@ -1023,7 +1023,7 @@ module.exports = function (Huebot) {
 
   Huebot.remove_background = function (ox) {
     if (!ox.arg) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}backgroundremove [name]`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} remove [name]`)
       return false
     }
 
@@ -1045,7 +1045,7 @@ module.exports = function (Huebot) {
     let new_name = split[1]
 
     if (!ox.arg || split.length !== 2) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}backgroundrename [old_name] [new_name]`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} rename [old_name] [new_name]`)
       return false
     }
 
@@ -1074,7 +1074,7 @@ module.exports = function (Huebot) {
     }
 
     if (!ox.arg) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}background [name]`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} [name]`)
       return false
     }
 

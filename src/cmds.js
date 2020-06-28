@@ -269,7 +269,7 @@ module.exports = function (Huebot) {
     }
 
     if (data.message.includes(" && ")) {
-      if (cmd !== "commands add") {
+      if (cmd !== "commands") {
         let full_cmd = `${cmd} ${arg}`
 
         let and_split = full_cmd.split(" && ")
