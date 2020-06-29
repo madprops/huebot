@@ -123,7 +123,7 @@ module.exports = function (Huebot) {
     delete Huebot.db.commands[ox.arg]
   
     Huebot.save_file("commands.json", Huebot.db.commands, function () {
-      Huebot.send_message(ox.ctx, `Command "${ox.arg}" successfully unset.`)
+      Huebot.send_message(ox.ctx, `Command "${ox.arg}" successfully removed.`)
     })
   }
 
