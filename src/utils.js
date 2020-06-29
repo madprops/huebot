@@ -1004,4 +1004,30 @@ module.exports = function (Huebot) {
       return ""
     }
   }
+
+  Huebot.get_media_name = function (media) {
+    let name = ""
+
+    if (media === "image") {
+      name = "Image"
+    } else if (media === "tv") {
+      name = "TV"
+    } else if (media === "radio") {
+      name = "Radio"
+    } 
+
+    return name
+  }
+
+  Huebot.check_if_media = function (s) {
+    return (s === "image" || s === "tv" || s === "radio")
+  }
+
+  Huebot.tv_default = function (s, media) {
+    if (!Huebot.check_if_media(media)) {
+      s = `tv ${s}`
+    }
+
+    return s
+  }
 }

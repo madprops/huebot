@@ -672,131 +672,128 @@ module.exports = function (Huebot) {
   }
 
   Huebot.manage_queue = function (ox) {
-    let error = false
+    let args = ox.arg.split(" ")
 
-    let arg1
-    let arg2
-
-    if (!ox.arg) {
-      error = true
-    } else {
-      let split = ox.arg.split(' ')
-
-      if (split.length < 2) {
-        error = true
-      } else {
-        arg1 = split[0]
-
-        if (!Huebot.config.media_types.includes(arg1) && arg1 !== "remove" && isNaN(arg1)) {
-          error = true
-        } else {
-          arg2 = split.slice(1).join(" ")
-        }
-      }
-    }
-
-    if (error) {
+    if (!args[0]) {
       Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} ${Huebot.config.media_types.join("|")} [url]|next|clear|size`)
       return false
     }
-
-    let error_string
-    let upname
-    let perm
-
-    if (arg1 === "image") {
-      error_string = Huebot.config.no_image_error
-      upname = "Image"
-      perm = ox.ctx.can_image
-    } else if (arg1 === "tv") {
-      error_string = Huebot.config.no_tv_error
-      upname = "TV"
-      perm = ox.ctx.can_tv
-    } else if (arg1 === "radio") {
-      error_string = Huebot.config.no_radio_error
-      upname = "Radio"
-      perm = ox.ctx.can_radio
-    } else if (arg1 === "remove") {
-      if (Huebot.get_q_item(arg2, "delete")) {
-        Huebot.process_feedback(ox.ctx, ox.data, "Item successfully removed.")
-      } else {
-        Huebot.process_feedback(ox.ctx, ox.data, "This was already played or removed.")
-      }
-      return
-    } else if (!isNaN(arg1)) {
-      let item = Huebot.get_q_item(arg1, "delete")
-
-      if (item) {
-        Huebot.selective_play(ox.ctx, item.kind, item.url)
-        Huebot.save_file("queue.json", Huebot.db.queue)
-      } else {
-        Huebot.process_feedback(ox.ctx, ox.data, "This was already played or removed.")
-      }
-      return
+    
+    if (args[0] !== "remove" && args[0] !== "play") {
+      ox.arg = Huebot.tv_default(ox.arg, args[0])
+      args = ox.arg.split(" ")
     }
 
-    if (arg2 === "next") {
-      if (Huebot.db.queue[arg1].length > 0) {
-        if (!perm) {
-          Huebot.process_feedback(ox.ctx, ox.data, error_string)
-          return false
-        }
-
-        let item = Huebot.db.queue[arg1].shift()
-
-        if (typeof item !== "object") {
-          return
-        }
-
-        Huebot.selective_play(ox.ctx, item.kind, item.url)
-        Huebot.save_file("queue.json", Huebot.db.queue)
-      } else {
-        Huebot.process_feedback(ox.ctx, ox.data, `${upname} queue is empty.`)
-      }
-    } else if (arg2 === "clear") {
-      if (Huebot.db.queue[arg1].length > 0) {
-        Huebot.db.queue[arg1] = []
-
-        Huebot.save_file("queue.json", Huebot.db.queue, function () {
-          Huebot.send_message(ox.ctx, `${upname} queue successfully cleared.`)
-        })
-      } else {
-        Huebot.process_feedback(ox.ctx, ox.data, `${upname} queue was already cleared.`)
-      }
-    } else if (arg2 === "size") {
-      let n = Huebot.db.queue[arg1].length
-
-      let s
-
-      if (n === 1) {
-        s = "item"
-      } else {
-        s = "items"
-      }
-
-      Huebot.process_feedback(ox.ctx, ox.data, `${upname} queue has ${n} ${s}.`)
+    if (args[0] === "remove") {
+      Huebot.remove_queue_item(ox)
+    } else if (args[0] === "play") {
+      Huebot.play_specific_queue_item(ox)
+    } else if (args[1] === "next") {
+      Huebot.next_in_queue(ox)
+    } else if (args[1] === "clear") {
+      Huebot.clear_queue(ox)
+    } else if (args[1] === "size" || args[1] === "list") {
+      Huebot.get_queue_size(ox)
     } else {
-      if (Huebot.db.queue[arg1].includes(arg2)) {
-        Huebot.process_feedback(ox.ctx, ox.data, `That item is already in the ${arg1} queue.`)
+      Huebot.add_to_queue(ox)
+    }
+  }
+
+  Huebot.remove_queue_item = function (ox) {
+    let args = ox.arg.split(" ")
+
+    if (Huebot.get_q_item(args[1], "delete")) {
+      Huebot.process_feedback(ox.ctx, ox.data, "Item successfully removed.")
+    } else {
+      Huebot.process_feedback(ox.ctx, ox.data, "This was already played or removed.")
+    }
+  }
+
+  Huebot.play_specific_queue_item = function (ox) {
+    let args = ox.arg.split(" ")
+    let item = Huebot.get_q_item(args[1], "delete")
+
+    if (item) {
+      Huebot.selective_play(ox.ctx, item.kind, item.url)
+      Huebot.save_file("queue.json", Huebot.db.queue)
+    } else {
+      Huebot.process_feedback(ox.ctx, ox.data, "This was already played or removed.")
+    }
+  }
+
+  Huebot.next_in_queue = function (ox) {
+    let args = ox.arg.split(" ")
+
+    if (Huebot.db.queue[args[0]].length > 0) {
+      if (!ox.ctx[`can_${args[0]}`]) {
+        Huebot.process_feedback(ox.ctx, ox.data, Huebot.config[`no_${args[0]}_error`])
         return false
       }
 
-      let obj = {}
-      obj.kind = arg1
-      obj.url = arg2
-      obj.date = Date.now()
+      let item = Huebot.db.queue[args[0]].shift()
 
-      Huebot.db.queue[arg1].push(obj)
+      if (typeof item !== "object") {
+        return
+      }
+
+      Huebot.selective_play(ox.ctx, item.kind, item.url)
+      Huebot.save_file("queue.json", Huebot.db.queue)
+    } else {
+      Huebot.process_feedback(ox.ctx, ox.data, `${Huebot.get_media_name(args[0])} queue is empty.`)
+    }
+  }
+
+  Huebot.clear_queue = function (ox) {
+    let args = ox.arg.split(" ")
+
+    if (Huebot.db.queue[args[0]].length > 0) {
+      Huebot.db.queue[args[0]] = []
 
       Huebot.save_file("queue.json", Huebot.db.queue, function () {
-        let links = `[whisper .q ${obj.date} next]Play This[/whisper]`
-        links += ` | [whisper .q ${arg1} next]Play Next[/whisper]`
-        links += ` | [whisper .q remove ${obj.date} next]Remove[/whisper]`
-        let message = `${upname} item successfully queued.`
-        let ans = `${message}\n${links}`
-        Huebot.send_message(ox.ctx, ans)
+        Huebot.send_message(ox.ctx, `${Huebot.get_media_name(args[0])} queue successfully cleared.`)
       })
+    } else {
+      Huebot.process_feedback(ox.ctx, ox.data, `${Huebot.get_media_name(args[0])} queue was already cleared.`)
     }
+  }
+
+  Huebot.get_queue_size = function (ox) {
+    let args = ox.arg.split(" ")
+    let n = Huebot.db.queue[args[0]].length
+    let s
+
+    if (n === 1) {
+      s = "item"
+    } else {
+      s = "items"
+    }
+
+    Huebot.process_feedback(ox.ctx, ox.data, `${Huebot.get_media_name(args[0])} queue has ${n} ${s}.`)
+  }
+
+  Huebot.add_to_queue = function (ox) {
+    let args = ox.arg.split(" ")
+
+    if (Huebot.db.queue[args[0]].includes(args[1])) {
+      Huebot.process_feedback(ox.ctx, ox.data, `That item is already in the ${args[0]} queue.`)
+      return false
+    }
+
+    let obj = {}
+    obj.kind = args[0]
+    obj.url = args[1]
+    obj.date = Date.now()
+
+    Huebot.db.queue[args[0]].push(obj)
+
+    Huebot.save_file("queue.json", Huebot.db.queue, function () {
+      let links = `[whisper .q play ${obj.date}]Play This[/whisper]`
+      links += ` | [whisper .q ${args[0]} next]Play Next[/whisper]`
+      links += ` | [whisper .q remove ${obj.date}]Remove[/whisper]`
+      let message = `${Huebot.get_media_name(args[0])} item successfully queued.`
+      let ans = `${message}\n${links}`
+      Huebot.send_message(ox.ctx, ans)
+    })
   }
 
   Huebot.get_random_stream = function (ox) {

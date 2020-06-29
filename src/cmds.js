@@ -21,7 +21,7 @@ module.exports = function (Huebot) {
       exec: function(ox) {Huebot.manage_commands(ox)}
     },
     "q": {
-      description: "Control the queue",
+      description: "Manage the queue",
       public: true,
       exec: function(ox) {Huebot.manage_queue(ox)}
     },
