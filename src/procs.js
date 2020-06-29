@@ -692,11 +692,20 @@ module.exports = function (Huebot) {
       Huebot.next_in_queue(ox)
     } else if (args[1] === "clear") {
       Huebot.clear_queue(ox)
-    } else if (args[1] === "size" || args[1] === "list") {
+    } else if (args[1] === "size") {
       Huebot.get_queue_size(ox)
+    } else if (args[1] === "list") {
+      Huebot.list_queue(ox)
     } else {
       Huebot.add_to_queue(ox)
     }
+  }
+
+  Huebot.list_queue = function (ox) {
+    let args = ox.arg.split(" ")
+    let queue = Huebot.db.queue[args[0]]
+    let list = queue.slice(0, 5).map(x => x.url).join("\n")
+    Huebot.process_feedback(ox.ctx, ox.data, `${Huebot.get_media_name(args[0])} queue:\n${list}`)
   }
 
   Huebot.remove_queue_item = function (ox) {
