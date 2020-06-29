@@ -149,27 +149,25 @@ module.exports = function (Huebot) {
     return Math.floor(Math.random() * (max - min + 1) + min)
   }
 
-  Huebot.get_q_item = function (date, op = "normal") {
-    date = parseInt(date)
+  Huebot.get_q_item = function (id, op = "normal") {
+    let media = id.split("_")[0]
+    
+    if (!Huebot.check_if_media(media)) {
+      return false
+    }
 
-    let media = ["image", "tv", "radio"]
+    let i = 0
 
-    while (media.length > 0) {
-      let i = 0
-
-      for (let item of Huebot.db.queue[media[0]]) {
-        if (item.date === date) {
-          if (op === "delete") {
-            Huebot.db.queue[media[0]].splice(i, 1)
-          }
-
-          return item
+    for (let item of Huebot.db.queue[media]) {
+      if (item.id === id) {
+        if (op === "delete") {
+          Huebot.db.queue[media].splice(i, 1)
         }
 
-        i += 1
+        return item
       }
 
-      media.shift()
+      i += 1
     }
 
     return false

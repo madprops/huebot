@@ -792,13 +792,14 @@ module.exports = function (Huebot) {
     obj.kind = args[0]
     obj.url = args[1]
     obj.date = Date.now()
+    obj.id = `${obj.kind}_${obj.date}_${Huebot.get_random_string(4)}`
 
     Huebot.db.queue[args[0]].push(obj)
 
     Huebot.save_file("queue.json", Huebot.db.queue, function () {
-      let links = `[whisper .q play ${obj.date}]Play This[/whisper]`
+      let links = `[whisper .q play ${obj.id}]Play This[/whisper]`
       links += ` | [whisper .q ${args[0]} next]Play Next[/whisper]`
-      links += ` | [whisper .q remove ${obj.date}]Remove[/whisper]`
+      links += ` | [whisper .q remove ${obj.id}]Remove[/whisper]`
       let message = `${Huebot.get_media_name(args[0])} item successfully queued.`
       let ans = `${message}\n${links}`
       Huebot.send_message(ox.ctx, ans)
