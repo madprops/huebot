@@ -548,31 +548,8 @@ module.exports = function (Huebot) {
     })
 
     .then(res => {
-      if (res.type === "disambiguation") {
-        query = `https://en.wikipedia.org/api/rest_v1/page/related/${ox.arg}`
-  
-        fetch(query)
-  
-        .then(res => {
-          return res.json()
-        })
-
-        .then(res => {
-          if (res.pages) {
-            let extract = res.pages[0].extract
-            if (extract) {
-              Huebot.process_feedback(ox.ctx, ox.data, extract)
-            }
-          }
-        })
-
-        .catch(err => { 
-          console.error(err.message)
-        })
-      } else {
-        if (res.extract) {
-          Huebot.process_feedback(ox.ctx, ox.data, res.extract)
-        }
+      if (res.extract) {
+        Huebot.process_feedback(ox.ctx, ox.data, res.extract)
       }
     })
 
