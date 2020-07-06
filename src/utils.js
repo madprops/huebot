@@ -578,6 +578,12 @@ module.exports = function (Huebot) {
     })
   }
 
+  Huebot.delete_message = function (ctx, id) {
+    Huebot.socket_emit(ctx, 'delete_message', {
+      id: id
+    })
+  }
+
   Huebot.send_whisper = function (ctx, uname, message, coords = false) {
     message = Huebot.do_replacements(ctx, message)
     message = Huebot.clean_string10(Huebot.clean_multiline(message.substring(0, Huebot.config.max_text_length)))

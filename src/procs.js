@@ -689,7 +689,9 @@ module.exports = function (Huebot) {
     let args = ox.arg.split(" ")
 
     if (Huebot.get_q_item(args[1], "delete")) {
-      Huebot.process_feedback(ox.ctx, ox.data, "Item successfully removed.")
+      if (args[2]) {
+        Huebot.delete_message(ox.ctx, args[2])
+      }
     } else {
       Huebot.process_feedback(ox.ctx, ox.data, "This was already played or removed.")
     }
@@ -776,7 +778,7 @@ module.exports = function (Huebot) {
     Huebot.save_file("queue.json", Huebot.db.queue, function () {
       let links = `[whisper .q play ${obj.id}]Play This[/whisper]`
       links += ` | [whisper .q ${args[0]} next]Play Next[/whisper]`
-      links += ` | [whisper .q remove ${obj.id}]Remove[/whisper]`
+      links += ` | [whisper .q remove ${obj.id} $id$]Remove[/whisper]`
       let message = `${Huebot.get_media_name(args[0])} item successfully queued.`
       let ans = `${message}\n${links}`
       Huebot.send_message(ox.ctx, ans)
