@@ -776,9 +776,9 @@ module.exports = function (Huebot) {
     Huebot.db.queue[args[0]].push(obj)
 
     Huebot.save_file("queue.json", Huebot.db.queue, function () {
-      let links = `[whisper .q play ${obj.id}]Play This[/whisper]`
-      links += ` | [whisper .q ${args[0]} next]Play Next[/whisper]`
-      links += ` | [whisper .q remove ${obj.id} $id$]Remove[/whisper]`
+      let links = `[whisper ${Huebot.prefix}q play ${obj.id}]Play This[/whisper]`
+      links += ` | [whisper ${Huebot.prefix}q ${args[0]} next]Play Next[/whisper]`
+      links += ` | [whisper ${Huebot.prefix}q remove ${obj.id} $id$]Remove[/whisper]`
       let message = `${Huebot.get_media_name(args[0])} item successfully queued.`
       let ans = `${message}\n${links}`
       Huebot.send_message(ox.ctx, ans)
@@ -1169,7 +1169,7 @@ module.exports = function (Huebot) {
       return false
     }
 
-    let links = `[whisper .think again]Another One[/whisper] | [anchor ${thought.url}]Source[/anchor]`
+    let links = `[whisper ${Huebot.prefix}think again]Another One[/whisper] | [anchor ${thought.url}]Source[/anchor]`
     let ans = `${thought.title}\n${links}`
 
     if (ox.arg === "again") {
@@ -1324,7 +1324,7 @@ module.exports = function (Huebot) {
         n2 = 1
       }
   
-      s += `[line][whisper .help ${n2}]Show More[/whisper]`
+      s += `[line][whisper ${Huebot.prefix}help ${n2}]Show More[/whisper]`
     }
 
     if (s) {
