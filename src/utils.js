@@ -572,6 +572,7 @@ module.exports = function (Huebot) {
 
     message = Huebot.do_replacements(ctx, message)
     message = Huebot.clean_string10(message.substring(0, Huebot.config.max_text_length))
+    message = message.trim()
 
     Huebot.socket_emit(ctx, 'sendchat', {
       message: message
