@@ -10,11 +10,6 @@ module.exports = function (Huebot) {
       public: false,
       exec: function(ox) {Huebot.change_tv(ox)}
     },
-    "radio": {
-      description: "Change the radio",
-      public: false,
-      exec: function(ox) {Huebot.change_radio(ox)}
-    },
     "commands": {
       description: "Manage commands",
       public: false,
@@ -120,30 +115,10 @@ module.exports = function (Huebot) {
       public: false,
       exec: function(ox) {Huebot.suggest(ox)}
     },
-    "song": {
-      description: "Play a random song on the synth",
-      public: false,
-      exec: function(ox) {Huebot.play_song(ox)}
-    },
-    "key": {
-      description: "Play a synth key",
-      public: false,
-      exec: function(ox) {Huebot.synth_key(ox)}
-    },
-    "speak": {
-      description: "Say something through the voice synth",
-      public: false,
-      exec: function(ox) {Huebot.speak(ox)}
-    },
     "think": {
       description: "Get a random showerthought",
       public: false,
       exec: function(ox) {Huebot.think(ox)}
-    },
-    "think2": {
-      description: "Speak a random showerthought",
-      public: false,
-      exec: function(ox) {Huebot.think2(ox)}
     },
     "public": {
       description: "Enable or disable public commands",
@@ -234,7 +209,7 @@ module.exports = function (Huebot) {
           let cmd2 = Huebot.db.commands[cmd]
 
           if (cmd2) {
-            if (cmd2.type === "image" || cmd2.type === "tv" || cmd2.type === "radio") {
+            if (cmd2.type === "image" || cmd2.type === "tv") {
               allowed = true
             } else if (cmd2.type === "alias") {
               let split = cmd2.url.split(" && ")

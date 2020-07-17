@@ -341,7 +341,7 @@ module.exports = function (Huebot) {
   }
 
   Huebot.generate_random_controls = function () {
-    let controls = ["image", "tv", "radio"]
+    let controls = ["image", "tv"]
     let strings = []
 
     for (let control of controls) {
@@ -440,7 +440,7 @@ module.exports = function (Huebot) {
   Huebot.check_public_command = function (cmd, arg) {
     if (cmd === "random") {
       if (arg) {
-        if (arg !== "image" && arg !== "tv" && arg !== "radio") {
+        if (arg !== "image" && arg !== "tv") {
           return false
         }
       }
@@ -512,10 +512,6 @@ module.exports = function (Huebot) {
 
   Huebot.set_tv_source = function (ctx, src) {
     ctx.current_tv_source = src
-  }
-
-  Huebot.set_radio_source = function (ctx, src) {
-    ctx.current_radio_source = src
   }
 
   Huebot.run_commands_queue = function (ctx, id) {
@@ -597,41 +593,6 @@ module.exports = function (Huebot) {
     })
   }
 
-  Huebot.send_synth_key = function (ctx, key) {
-    if (!key || !ctx.can_synth) {
-      return false
-    }
-
-    key = parseInt(key)
-
-    if (typeof key !== "number") {
-      return false
-    }
-
-    if (isNaN(key)) {
-      return false
-    }
-
-    if (key < 1 || key > Huebot.config.num_synth_keys) {
-      return false
-    }
-
-    Huebot.socket_emit(ctx, "send_synth_key", {
-      key: key
-    })
-  }
-
-  Huebot.send_synth_voice = function (ctx, text) {
-    if (!text || !ctx.can_synth) {
-      return false
-    }
-
-    text = Huebot.clean_string2(text.substring(0, 140))
-    Huebot.socket_emit(ctx, "send_synth_voice", {
-      text: text
-    })
-  }
-
   Huebot.change_media = function (ctx, args = {}) {
     let def_args = {
       type: "",
@@ -692,23 +653,6 @@ module.exports = function (Huebot) {
         src: args.src,
         comment: args.comment
       })
-    } else if (args.type === "radio") {
-      if (!ctx.can_radio) {
-        if (args.feedback) {
-          send_message(Huebot.config.no_radio_error)
-        }
-
-        return false
-      }
-
-      if (ctx.current_radio_source === args.src) {
-        return false
-      }
-
-      Huebot.socket_emit(ctx, 'change_radio_source', {
-        src: args.src,
-        comment: args.comment
-      })
     }
   }
 
@@ -727,12 +671,6 @@ module.exports = function (Huebot) {
         src: command.url,
         comment: data.comment
       })
-    } else if (command.type === "radio") {
-      Huebot.change_media(ctx, {
-        type: "radio",
-        src: command.url,
-        comment: data.comment
-      })
     } else if (command.type === "alias") {
       let c = command.url.split(" ")[0]
 
@@ -748,8 +686,6 @@ module.exports = function (Huebot) {
     ctx.can_chat = Huebot.check_media_permission(ctx, "chat")
     ctx.can_image = ctx.room_image_mode === "enabled" && Huebot.check_media_permission(ctx, "image")
     ctx.can_tv = ctx.room_tv_mode === "enabled" && Huebot.check_media_permission(ctx, "tv")
-    ctx.can_radio = ctx.room_radio_mode === "enabled" && Huebot.check_media_permission(ctx, "radio")
-    ctx.can_synth = ctx.room_synth_mode === "enabled" && Huebot.check_media_permission(ctx, "synth")
   }
 
   Huebot.check_media_permission = function (ctx, type) {
@@ -791,8 +727,6 @@ module.exports = function (Huebot) {
   Huebot.set_room_enables = function (ctx, data) {
     ctx.room_image_mode = data.room_image_mode
     ctx.room_tv_mode = data.room_tv_mode
-    ctx.room_radio_mode = data.room_radio_mode
-    ctx.room_synth_mode = data.room_synth_mode
   }
 
   Huebot.socket_emit = function (ctx, destination, data) {
@@ -943,11 +877,6 @@ module.exports = function (Huebot) {
         type: "tv",
         src: url
       })
-    } else if (kind === "radio") {
-      Huebot.change_media(ctx, {
-        type: "radio",
-        src: url
-      })
     }
   }
 
@@ -1017,15 +946,13 @@ module.exports = function (Huebot) {
       name = "Image"
     } else if (media === "tv") {
       name = "TV"
-    } else if (media === "radio") {
-      name = "Radio"
-    } 
+    }
 
     return name
   }
 
   Huebot.check_if_media = function (s) {
-    return (s === "image" || s === "tv" || s === "radio")
+    return (s === "image" || s === "tv")
   }
 
   Huebot.tv_default = function (s, media) {

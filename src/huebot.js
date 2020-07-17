@@ -79,13 +79,10 @@ Huebot.config.max_user_command_activity = 20
 Huebot.config.max_media_source_length = 800
 Huebot.config.max_list_items = 20
 Huebot.config.num_suggestions = 5
-Huebot.config.num_synth_keys = 10
 
-Huebot.config.media_types = ["image", "tv", "radio"]
+Huebot.config.media_types = ["image", "tv"]
 Huebot.config.no_image_error = "I don't have permission to change the image."
 Huebot.config.no_tv_error = "I don't have permission to change the tv."
-Huebot.config.no_radio_error = "I don't have permission to change the radio."
-Huebot.config.no_synth_error = "I don't have permission to use the synth."
 
 // Aliases
 Huebot.prefix = Huebot.db.config.command_prefix
@@ -99,10 +96,8 @@ Huebot.start_connection = function (room_id) {
 	ctx.role = false
 	ctx.room_image_mode = "disabled"
 	ctx.room_tv_mode = "disabled"
-	ctx.room_radio_mode = "disabled"
 	ctx.can_chat = false
 	ctx.can_tv = false
-	ctx.can_radio = false
 	ctx.voice_permissions = {}
 	ctx.op_permissions = {}
 	ctx.theme
@@ -118,7 +113,6 @@ Huebot.start_connection = function (room_id) {
 	ctx.background_tile_dimensions
 	ctx.current_image_source
 	ctx.current_tv_source
-	ctx.current_radio_source
 	ctx.commands_queue = {}
 	ctx.theme_mode
 	ctx.user_command_activity = []
@@ -161,7 +155,6 @@ Huebot.start_connection = function (room_id) {
 				Huebot.set_userlist(ctx, data)
 				Huebot.set_image_source(ctx, data.image_source)
 				Huebot.set_tv_source(ctx, data.tv_source)
-				Huebot.set_radio_source(ctx, data.radio_source)
 				Huebot.check_media_permissions(ctx)
 			} else if (type === 'chat_message') {
 				if (data.username === ctx.username) {
@@ -193,12 +186,6 @@ Huebot.start_connection = function (room_id) {
 				Huebot.check_media_permissions(ctx)
 			} else if (type === 'room_tv_mode_change') {
 				ctx.room_tv_mode = data.what
-				Huebot.check_media_permissions(ctx)
-			} else if (type === 'room_radio_mode_change') {
-				ctx.room_radio_mode = data.what
-				Huebot.check_media_permissions(ctx)
-			} else if (type === 'room_synth_mode_change') {
-				ctx.room_synth_mode = data.what
 				Huebot.check_media_permissions(ctx)
 			} else if (type === 'voice_permission_change') {
 				ctx.voice_permissions[`${data.vtype}_permissions`][data.ptype] = data.what
@@ -278,8 +265,6 @@ Huebot.start_connection = function (room_id) {
 				Huebot.set_image_source(ctx, data.source)
 			} else if (type === 'changed_tv_source') {
 				Huebot.set_tv_source(ctx, data.source)
-			} else if (type === 'changed_radio_source') {
-				Huebot.set_radio_source(ctx, data.source)
 			}
 		} catch (err) {
 			console.error(err)

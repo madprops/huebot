@@ -23,13 +23,6 @@ module.exports = function (Huebot) {
     })
   }
 
-  Huebot.change_radio = function (ox) {
-    Huebot.change_media(ox.ctx, {
-      type: "radio",
-      src: ox.arg
-    })
-  }
-
   Huebot.manage_commands = function (ox) {
     let args = ox.arg.split(" ")
 
@@ -603,17 +596,12 @@ module.exports = function (Huebot) {
           type: "tv",
           src: query
         })
-      } else if (type === "radio") {
+      } else {
         Huebot.change_media(ox.ctx, {
-          type: "radio",
+          type: "tv",
           src: query
         })
       }
-    } else {
-      Huebot.change_media(ox.ctx, {
-        type: "tv",
-        src: query
-      })
     }
   }
 
@@ -1085,7 +1073,7 @@ module.exports = function (Huebot) {
     let type = "tv"
 
     if (ox.arg) {
-      if (ox.arg === "tv" || ox.arg === "image" || ox.arg === "radio") {
+      if (ox.arg === "tv" || ox.arg === "image") {
         type = ox.arg
       }
     }
@@ -1107,57 +1095,6 @@ module.exports = function (Huebot) {
     Huebot.process_feedback(ox.ctx, ox.data, suggestions)
   }
 
-  Huebot.play_song = function (ox) {
-    if (!ox.ctx.can_synth) {
-      Huebot.process_feedback(ox.ctx, ox.data, Huebot.config.no_synth_error)
-      return false
-    }
-
-    let i = 0
-
-    function send() {
-      let key = Huebot.get_random_int(1, Huebot.config.num_synth_keys)
-
-      Huebot.send_synth_key(ox.ctx, key)
-
-      i += 1
-
-      if (i < 20) {
-        setTimeout(function () {
-          send()
-        }, Huebot.get_random_int(200, 600))
-      }
-    }
-
-    send()
-  }
-
-  Huebot.synth_key = function (ox) {
-    if (!ox.ctx.can_synth) {
-      Huebot.process_feedback(ox.ctx, ox.data, Huebot.config.no_synth_error)
-      return false
-    }
-
-    if (!ox.arg) {
-      return false
-    }
-
-    Huebot.send_synth_key(ox.ctx, ox.arg)
-  }
-
-  Huebot.speak = function (ox) {
-    if (!ox.ctx.can_synth) {
-      Huebot.process_feedback(ox.ctx, ox.data, Huebot.config.no_synth_error)
-      return false
-    }
-
-    if (!ox.arg) {
-      return false
-    }
-
-    Huebot.send_synth_voice(ox.ctx, ox.arg)
-  }
-
   Huebot.think = async function (ox) {
     if (!ox.ctx.can_chat) {
       return false
@@ -1177,21 +1114,6 @@ module.exports = function (Huebot) {
     }
 
     Huebot.process_feedback(ox.ctx, ox.data, ans)
-  }
-
-  Huebot.think2 = async function (ox) {
-    if (!ox.ctx.can_synth) {
-      Huebot.process_feedback(ox.ctx, ox.data, Huebot.config.no_synth_error)
-      return false
-    }
-
-    let thought = await Huebot.get_shower_thought()
-
-    if(!thought) {
-      return false
-    }
-
-    Huebot.send_synth_voice(ox.ctx, thought.title)
   }
 
   Huebot.remind = function (ox) {
@@ -1294,19 +1216,9 @@ module.exports = function (Huebot) {
   }
 
   Huebot.show_help = function (ox) {
-    let items = []
-    let i = 20
-    let n = 1
+    let items = Huebot.command_list
 
-    if(ox.arg === "2") {
-      items = Huebot.command_list.slice(i)
-      n = 2
-    } else {
-      items = Huebot.command_list.slice(0, i)
-    }
-
-    let s = ""
-    s += `Help ${n}[line]`
+    let s = `Available Commands[line]`
     
     s += Huebot.list_items({
       data: items,
@@ -1317,21 +1229,7 @@ module.exports = function (Huebot) {
       limit: false
     })
 
-    if (n < 2) {
-      let n2 = 2
-  
-      if (n === 2) {
-        n2 = 1
-      }
-  
-      s += `[line][whisper ${Huebot.prefix}help ${n2}]Show More[/whisper]`
-    }
-
-    if (s) {
-      Huebot.send_whisper(ox.ctx, ox.data.username, s, false)
-    } else {
-      Huebot.send_whisper(ox.ctx, ox.data.username, "Nothing found.", false)
-    }
+    Huebot.send_whisper(ox.ctx, ox.data.username, s, false)
   }
 
   Huebot.ping = function (ox) {
