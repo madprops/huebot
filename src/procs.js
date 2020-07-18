@@ -582,18 +582,13 @@ module.exports = function (Huebot) {
 
     let split = ox.arg.split(">")
     let name = split[0].toLowerCase().trim()
-    let type = split.slice(1).join(" ").toLowerCase().trim()
+    let type = split.slice(1).join(" ").toLowerCase().trim() || "tv"
     let query = `${name} ${Huebot.get_random_word()}`
 
     if (type) {
       if (type === "image") {
         Huebot.change_media(ox.ctx, {
           type: "image",
-          src: query
-        })
-      } else if (type === "tv") {
-        Huebot.change_media(ox.ctx, {
-          type: "tv",
           src: query
         })
       } else {
