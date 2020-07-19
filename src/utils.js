@@ -30,41 +30,21 @@ module.exports = function (Huebot) {
     }
   }
 
-  Huebot.get_random_phrase = function () {
+  Huebot.get_random_phrase = function (ctx) {
     let contexts = [
-      // bool=plural | bool=add_question_mark
-      ["I want a", false, false],
-      ["I feel like a", false, false],
-      ["would you like a", false, true],
-      ["I'm playing with a", false, false],
-      ["you look like a", false, false],
-      ["you're all a bunch of", true, false],
-      ["I want to eat a", false, false],
-      ["I see the", false, false],
+      "I want a $word$",
+      "I feel like a $word$",
+      "would you like a $word$?",
+      "I'm playing with a $word$",
+      "you look like a $word$",
+      "you're all a bunch of $word$",
+      "I want to eat a $word$",
+      "I see the $word$",
+      "Hit the road, shit-smelling $word$!",
     ]
-
-    let word = Huebot.get_random_word()
+    
     let context = contexts[Huebot.get_random_int(0, contexts.length - 1)]
-    let en = ""
-
-    if (context[0].endsWith(" a") && (word.startsWith("a") || word.startsWith("e") ||
-        word.startsWith("i") || word.startsWith("o") || word.startsWith("u"))) {
-      en = "n"
-    }
-
-    let plural = ""
-
-    if (context[1]) {
-      plural = "s"
-    }
-
-    let qs = ""
-
-    if (context[2]) {
-      qs = "?"
-    }
-
-    return `${context[0]}${en} ${word}${plural}${qs}`
+    return Huebot.do_replacements(ctx, context)
   }
 
   Huebot.safe_replacements = function (s) {
@@ -860,7 +840,7 @@ module.exports = function (Huebot) {
         if (n2 === 1) {
           Huebot.think({ctx:ctx, data:data, arg:arg, cmd:"think"})
         } else {
-          Huebot.send_message(ctx, Huebot.get_random_phrase())
+          Huebot.send_message(ctx, Huebot.get_random_phrase(ctx))
         }
       }, 1000)
     }
