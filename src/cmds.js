@@ -204,7 +204,7 @@ module.exports = function (Huebot) {
     if (!Huebot.is_admin(data.username)) {
       if (Huebot.db.options.public_commands) {
         if (Huebot.public_command_list.includes(cmd)) {
-          allowed = check_public_command(cmd, arg)
+          allowed = Huebot.check_public_command(cmd, arg)
         } else {
           let cmd2 = Huebot.db.commands[cmd]
 
@@ -221,7 +221,7 @@ module.exports = function (Huebot) {
                 let cmd = sp[0]
                 let arg = sp.slice(1).join(" ")
 
-                if (!Huebot.public_command_list.includes(cmd) || !check_public_command(cmd, arg)) {
+                if (!Huebot.public_command_list.includes(cmd) || !Huebot.check_public_command(cmd, arg)) {
                   allowed = false
                   break
                 }
