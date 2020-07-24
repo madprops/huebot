@@ -5,8 +5,7 @@
 	"dependencies": {
 		"socket.io-client": "~2.0.4",
 		"node-fetch": "~2.1.2",
-		"cheerio": "~1.0.0-rc.2",
-		"linkifyjs": "2.1.6",
-		"mathjs": "~6.0.2"
+		"mathjs": "~6.0.2",
+		"random-sentence": "~1.0.4"
 	}
 }

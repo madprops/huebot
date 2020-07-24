@@ -57,7 +57,7 @@ module.exports = function (Huebot) {
     },
     "help": {
       description: "Show a summary of commands",
-      public: false,
+      public: true,
       exec: function(ox) {Huebot.show_help(ox)}
     },
     "ping": {
