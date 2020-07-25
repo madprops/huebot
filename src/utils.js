@@ -31,25 +31,25 @@ module.exports = function (Huebot) {
     }
   }
 
-  Huebot.get_random_phrase = function (ctx, weird = false) {
-    if (weird) {
-      return randomSentence({words: Huebot.get_random_int(1, 8)});
-    } else {
-      let contexts = [
-        "I want a $word$",
-        "I feel like a $word$",
-        "would you like a $word$?",
-        "I'm playing with a $word$",
-        "you look like a $word$",
-        "you're all a bunch of $word$",
-        "I want to eat a $word$",
-        "I see the $word$",
-        "Hit the road, shit-smelling $word$!",
-      ]
-      
-      let context = contexts[Huebot.get_random_int(0, contexts.length - 1)]
-      return Huebot.do_replacements(ctx, context)
-    }
+  Huebot.get_random_phrase = function (ctx) {
+    let contexts = [
+      "I want a $word$",
+      "I feel like a $word$",
+      "would you like a $word$?",
+      "I'm playing with a $word$",
+      "you look like a $word$",
+      "you're all a bunch of $word$",
+      "I want to eat a $word$",
+      "I see the $word$",
+      "Hit the road, shit-smelling $word$!",
+    ]
+    
+    let context = contexts[Huebot.get_random_int(0, contexts.length - 1)]
+    return Huebot.do_replacements(ctx, context)
+  }
+
+  Huebot.get_random_sentence = function () {
+    return randomSentence({words: Huebot.get_random_int(1, 8)})
   }
 
   Huebot.safe_replacements = function (s) {
@@ -840,18 +840,20 @@ module.exports = function (Huebot) {
     
     if (n <= (p)) {
       setTimeout(function () {
-        let mode = Huebot.db.config.speak_mode
+        let modes = Huebot.db.config.speak_modes
+
+        if (modes.length === 0) {
+          return
+        }
+
+        let mode = modes[Huebot.get_random_int(0, modes.length - 1)]
 
         if (mode === 1) {
-          let n2 = Huebot.get_random_int(1, 4)
-    
-          if (n2 === 1) {
-            Huebot.think({ctx:ctx, data:data, arg:arg, cmd:"think"})
-          } else {
-            Huebot.send_message(ctx, Huebot.get_random_phrase(ctx))
-          }
+          Huebot.think({ctx:ctx, data:data, arg:arg, cmd:"think"})
         } else if (mode === 2) {
-          Huebot.send_message(ctx, Huebot.get_random_phrase(ctx, true))
+          Huebot.send_message(ctx, Huebot.get_random_phrase(ctx))
+        } else if (mode === 3) {
+          Huebot.send_message(ctx, Huebot.get_random_sentence())
         }
       }, 1000)
     }

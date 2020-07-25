@@ -58,6 +58,14 @@ The character to trigger/identify commands.
 
 50 would be 50% chance to make the chat speak on each message. 1 is a good default.
 
+>speak_modes
+
+1 to 3. Different kinds of responses.
+
+1 = Shower Thought
+2 = Random Phrase
+3 = Random Sentence
+
 >wolfram_id
 
 Id to use the Wolfram api
