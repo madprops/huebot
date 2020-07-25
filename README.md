@@ -63,8 +63,8 @@ The character to trigger/identify commands.
 1 to 3. Different kinds of responses.
 
 1 = Shower Thought
-2 = Random Phrase
-3 = Random Sentence
+2 = Random Sentence
+3 = Random Weird Sentence
 
 >wolfram_id
 
@@ -84,9 +84,13 @@ These replacements happen at the moment of sending a message or changing media.
 
 These replacements exist:
 
-$word$ = A random word from words.json
-
-$user$ = A random username from the list of connected users.
+{{ user }}
+{{ noun }}
+{{ a_noun }}
+{{ a_noun }}
+{{ nouns }}
+{{ adjective }}
+{{ an_adjective }}
 
 # More
 

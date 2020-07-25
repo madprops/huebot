@@ -1,6 +1,7 @@
 const fs = require("fs")
 const path = require('path')
 const fetch = require("node-fetch")
+const Sentencer = require('sentencer')
 const randomSentence = require("random-sentence")
 
 module.exports = function (Huebot) {
@@ -20,7 +21,7 @@ module.exports = function (Huebot) {
   }
 
   Huebot.get_random_word = function (mode = "normal") {
-    let word = Huebot.db.words[Huebot.get_random_int(0, Huebot.db.words.length - 1)]
+    let word = Sentencer.make("{{ noun }}")
 
     if (mode === "normal") {
       return word
@@ -31,24 +32,24 @@ module.exports = function (Huebot) {
     }
   }
 
-  Huebot.get_random_phrase = function (ctx) {
+  Huebot.get_random_sentence = function (ctx) {
     let contexts = [
-      "I want a $word$",
-      "I feel like a $word$",
-      "would you like a $word$?",
-      "I'm playing with a $word$",
-      "you look like a $word$",
-      "you're all a bunch of $word$",
-      "I want to eat a $word$",
-      "I see the $word$",
-      "Hit the road, shit-smelling $word$!",
+      "I want {{ a_noun }}",
+      "I feel like {{ a_noun }}",
+      "would you like {{ a_noun }}?",
+      "I'm playing with {{ a_noun }}",
+      "you look like {{ a_noun }}",
+      "you're all a bunch of {{ adjective }} {{ nouns }}",
+      "I want to eat {{ a_noun }}",
+      "I see the {{ noun}}",
+      "Hit the road, shit-smelling {{ nouns }}!",
     ]
     
     let context = contexts[Huebot.get_random_int(0, contexts.length - 1)]
     return Huebot.do_replacements(ctx, context)
   }
 
-  Huebot.get_random_sentence = function () {
+  Huebot.get_random_weird_sentence = function () {
     return randomSentence({words: Huebot.get_random_int(1, 8)})
   }
 
@@ -472,23 +473,11 @@ module.exports = function (Huebot) {
   }
 
   Huebot.do_replacements = function (ctx, s) {
-    s = s.replace(/\$user\$/gi, function () {
+    s = s.replace(/\{\{\s*user\s*\}\}/gi, function () {
       return Huebot.get_random_user(ctx)
     })
 
-    s = s.replace(/\$word\$/g, function () {
-      return Huebot.get_random_word()
-    })
-
-    s = s.replace(/\$Word\$/g, function () {
-      return Huebot.get_random_word("capitalized")
-    })
-
-    s = s.replace(/\$WORD\$/g, function () {
-      return Huebot.get_random_word("upper_case")
-    })
-
-    return s
+    return Sentencer.make(s)
   }
 
   Huebot.set_image_source = function (ctx, src) {
@@ -851,9 +840,9 @@ module.exports = function (Huebot) {
         if (mode === 1) {
           Huebot.think({ctx:ctx, data:data, arg:arg, cmd:"think"})
         } else if (mode === 2) {
-          Huebot.send_message(ctx, Huebot.get_random_phrase(ctx))
+          Huebot.send_message(ctx, Huebot.get_random_sentence(ctx))
         } else if (mode === 3) {
-          Huebot.send_message(ctx, Huebot.get_random_sentence())
+          Huebot.send_message(ctx, Huebot.get_random_weird_sentence())
         }
       }, 1000)
     }
