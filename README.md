@@ -87,7 +87,6 @@ These replacements exist:
 {{ user }}
 {{ noun }}
 {{ a_noun }}
-{{ a_noun }}
 {{ nouns }}
 {{ adjective }}
 {{ an_adjective }}
