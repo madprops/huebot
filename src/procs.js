@@ -220,7 +220,7 @@ module.exports = function (Huebot) {
     let args = ox.arg.split(" ")
 
     if (!args[0]) {
-      Huebot.process_feedback(ox.ctx, ox.data, "[name] or: add, remove, rename, list, clear, random")
+      Huebot.process_feedback(ox.ctx, ox.data, "[name] or: add, remove, list, clear")
       return
     }
 
