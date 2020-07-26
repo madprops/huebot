@@ -33,7 +33,7 @@ module.exports = function (Huebot) {
     "admins": {
       description: "List admins",
       public: false,
-      exec: function(ox) {Huebot.list_admins(ox)}
+      exec: function(ox) {Huebot.manage_admins(ox)}
     },
     "themes": {
       description: "Manage themes",

@@ -216,6 +216,29 @@ module.exports = function (Huebot) {
     }
   }
 
+  Huebot.manage_admins = function (ox) {
+    let args = ox.arg.split(" ")
+
+    if (!args[0]) {
+      Huebot.process_feedback(ox.ctx, ox.data, "[name] or: add, remove, rename, list, clear, random")
+      return
+    }
+
+    if (args[0] === "add") {
+      ox.arg = args.slice(1).join(" ")
+      Huebot.add_admin(ox)
+    } else if (args[0] === "remove") {
+      ox.arg = args.slice(1).join(" ")
+      Huebot.remove_admin(ox)
+    } else if (args[0] === "list") {
+      ox.arg = args.slice(1).join(" ")
+      Huebot.list_admins(ox)
+    } else if (args[0] === "clear") {
+      ox.arg = ""
+      Huebot.clear_admins(ox)
+    }
+  }  
+
   Huebot.add_admin = function (ox) {
     if (!Huebot.is_protected_admin(ox.data.username)) {
       return false
@@ -290,6 +313,18 @@ module.exports = function (Huebot) {
   
     Huebot.process_feedback(ox.ctx, ox.data, s)
   }
+
+  Huebot.clear_admins = function (ox) {
+    if (!Huebot.is_protected_admin(ox.data.username)) {
+      return false
+    }
+
+    Huebot.db.permissions.admins = [ox.data.username]
+
+    Huebot.save_file("permissions.json", Huebot.db.permissions, function () {
+      Huebot.send_message(ox.ctx, `Admins list successfully cleared.`)
+    })
+  }  
 
   Huebot.change_background_mode = function (ox) {
     if (!Huebot.check_op_permission(ox.ctx, "background")) {
@@ -799,18 +834,6 @@ module.exports = function (Huebot) {
   
     Huebot.save_file("commands.json", Huebot.db.commands, function () {
       Huebot.send_message(ox.ctx, `Commands list successfully cleared.`)
-    })
-  }
-
-  Huebot.clear_admins = function (ox) {
-    if (!Huebot.is_protected_admin(ox.data.username)) {
-      return false
-    }
-
-    Huebot.db.permissions.admins = [ox.data.username]
-
-    Huebot.save_file("permissions.json", Huebot.db.permissions, function () {
-      Huebot.send_message(ox.ctx, `Admins list successfully cleared.`)
     })
   }
 
