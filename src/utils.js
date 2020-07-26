@@ -364,7 +364,7 @@ module.exports = function (Huebot) {
 
   Huebot.rgb_to_hex = function (rgb, hash = true) {
     if (typeof rgb === "string") {
-      rgb = rgb_to_array(rgb)
+      rgb = Huebot.rgb_to_array(rgb)
     }
 
     let code = ((1 << 24) + (rgb[0] << 16) + (rgb[1] << 8) + rgb[2]).toString(16).slice(1)
