@@ -80,6 +80,7 @@ Huebot.config.max_user_command_activity = 20
 Huebot.config.max_media_source_length = 800
 Huebot.config.max_list_items = 20
 Huebot.config.num_suggestions = 5
+Huebot.config.emit_limit = 5
 
 Huebot.config.media_types = ["image", "tv"]
 Huebot.config.no_image_error = "I don't have permission to change the image."
@@ -117,6 +118,7 @@ Huebot.start_connection = function (room_id) {
 	ctx.commands_queue = {}
 	ctx.theme_mode
 	ctx.user_command_activity = []
+	ctx.emit_charge = 0
 
 	ctx.socket = io(Huebot.db.config.server_address, {
 		reconnection: true,
@@ -280,3 +282,5 @@ Huebot.start_connection = function (room_id) {
 for (let room_id of Huebot.db.config.room_ids) {
 	Huebot.start_connection(room_id)
 }
+
+Huebot.start_emit_charge_loop()

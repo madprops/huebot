@@ -736,8 +736,24 @@ module.exports = function (Huebot) {
   }
 
   Huebot.do_socket_emit = function (ctx, obj) {
+    if (ctx.emit_charge >= Huebot.config.emit_limit) {
+      return false
+    }
+
     obj.data.server_method_name = obj.destination
     ctx.socket.emit("server_method", obj.data)
+    ctx.emit_charge += 1
+  }
+
+  Huebot.start_emit_charge_loop = function () {
+    setInterval(() => {
+      for (let key in Huebot.connected_rooms) {
+        let ctx = Huebot.connected_rooms[key].context
+        if (ctx.emit_charge > 0) {
+          ctx.emit_charge -= 1
+        }
+      }      
+    }, Huebot.config.emit_limit * 1000);
   }
 
   Huebot.set_theme = function (ctx, data) {
