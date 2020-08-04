@@ -1125,7 +1125,7 @@ module.exports = function (Huebot) {
     }
 
     let links = `[whisper ${Huebot.prefix}think again]Another One[/whisper] | [anchor ${thought.url}]Source[/anchor]`
-    let ans = `${thought.title}][line]${links}`
+    let ans = `${thought.title}[line]${links}`
 
     if (ox.arg === "again") {
       ox.data.method = "public"
