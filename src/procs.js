@@ -798,7 +798,7 @@ module.exports = function (Huebot) {
       links += ` | [whisper ${Huebot.prefix}q ${args[0]} next]Play Next[/whisper]`
       links += ` | [whisper ${Huebot.prefix}q remove ${obj.id} $id$]Remove[/whisper]`
       let message = `${Huebot.get_media_name(args[0])} item successfully queued.`
-      let ans = `${message}\n${links}`
+      let ans = `${message}[line]${links}`
       Huebot.send_message(ox.ctx, ans)
     })
   }
@@ -1125,7 +1125,7 @@ module.exports = function (Huebot) {
     }
 
     let links = `[whisper ${Huebot.prefix}think again]Another One[/whisper] | [anchor ${thought.url}]Source[/anchor]`
-    let ans = `${thought.title}\n${links}`
+    let ans = `${thought.title}][line]${links}`
 
     if (ox.arg === "again") {
       ox.data.method = "public"
