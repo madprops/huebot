@@ -787,7 +787,7 @@ module.exports = function (Huebot) {
 
     let obj = {}
     obj.kind = args[0]
-    obj.url = args[1]
+    obj.url = args.slice(1).join(" ")
     obj.date = Date.now()
     obj.id = `${obj.kind}_${obj.date}_${Huebot.get_random_string(4)}`
 
