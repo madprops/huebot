@@ -861,12 +861,16 @@ module.exports = function (Huebot) {
     })
   }
   
-  Huebot.say = function (ox) {
+  Huebot.say = function (ox, whisper = false) {
     if (!ox.arg) {
       return false
     }
 
-    Huebot.send_message(ox.ctx, ox.arg)
+    if (whisper) {
+      Huebot.send_whisper(ox.ctx, ox.data.username, ox.arg, false)
+    } else {
+      Huebot.send_message(ox.ctx, ox.arg)
+    }
   }
   
   Huebot.join_room = function (ox) {

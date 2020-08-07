@@ -75,6 +75,11 @@ module.exports = function (Huebot) {
       public: false,
       exec: function(ox) {Huebot.say(ox)}
     },
+    "say2": {
+      description: "Make the bot say something through a whisper",
+      public: false,
+      exec: function(ox) {Huebot.say(ox, true)}
+    },
     "subject": {
       description: "Use a keyword to find a semi-random video",
       public: true,
