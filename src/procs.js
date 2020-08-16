@@ -1195,7 +1195,7 @@ module.exports = function (Huebot) {
     let r
 
     try {
-      r = math.evaluate(ox.arg).toString()
+      r = math.round(math.evaluate(ox.arg), 3).toString()
     } catch (err) {
       r = "Error"
     }
