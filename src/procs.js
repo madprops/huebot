@@ -867,7 +867,7 @@ module.exports = function (Huebot) {
     }
 
     if (whisper) {
-      Huebot.send_whisper(ox.ctx, ox.data.username, ox.arg, false)
+      Huebot.send_whisper(ox.ctx, ox.data.username, ox.arg)
     } else {
       Huebot.send_message(ox.ctx, ox.arg)
     }
@@ -1251,7 +1251,7 @@ module.exports = function (Huebot) {
       limit: false
     })
 
-    Huebot.send_whisper(ox.ctx, ox.data.username, s, false)
+    Huebot.send_whisper(ox.ctx, ox.data.username, s)
   }
 
   Huebot.ping = function (ox) {

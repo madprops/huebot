@@ -394,27 +394,6 @@ module.exports = function (Huebot) {
     return array
   }
 
-  Huebot.generate_random_drawing = function () {
-    let n = Huebot.get_random_int(3, 300)
-
-    let click_x = []
-    let click_y = []
-    let drag = []
-
-    for (let i = 0; i < n; i++) {
-      click_x.push(Huebot.get_random_int(0, 400))
-      click_y.push(Huebot.get_random_int(0, 300))
-
-      if (drag.length === 0) {
-        drag.push(false)
-      } else {
-        drag.push(Huebot.get_random_int(0, 2) > 0)
-      }
-    }
-
-    return [click_x, click_y, drag]
-  }
-
   Huebot.is_command = function (message) {
     if (message.length > 1 && message[0] === Huebot.prefix && message[1] !== Huebot.prefix) {
       return true
@@ -462,7 +441,7 @@ module.exports = function (Huebot) {
     }
 
     if (data.method === "whisper") {
-      Huebot.send_whisper(ctx, data.username, s, false)
+      Huebot.send_whisper(ctx, data.username, s)
     } else {
       Huebot.send_message(ctx, s)
     }
@@ -555,15 +534,14 @@ module.exports = function (Huebot) {
     })
   }
 
-  Huebot.send_whisper = function (ctx, uname, message, coords = false) {
+  Huebot.send_whisper = function (ctx, uname, message) {
     message = Huebot.do_replacements(ctx, message)
     message = Huebot.clean_string10(Huebot.clean_multiline(message.substring(0, Huebot.config.max_text_length)))
 
     Huebot.socket_emit(ctx, 'whisper', {
       type: "user",
       usernames: [uname],
-      message: message,
-      draw_coords: coords
+      message: message
     })
   }
 

@@ -253,8 +253,7 @@ Huebot.start_connection = function (room_id) {
 						return false
 					}
 
-					let s = `\nI call this ${Huebot.get_random_word("capitalized")} ${Huebot.get_random_word("capitalized")}`
-					Huebot.send_whisper(ctx, data.username, `Hi! I hope you like my drawing :)${s}`, Huebot.generate_random_drawing())
+					Huebot.send_whisper(ctx, data.username, "Hi!")
 				}
 			} else if (type === 'background_image_change') {
 				Huebot.set_background_image(ctx, data.background_image)
