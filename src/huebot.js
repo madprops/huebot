@@ -143,6 +143,11 @@ Huebot.start_connection = function (room_id) {
 			let data = received.data
 
 			if (type === 'joined') {
+				if (data.room_locked) {
+					console.info("Seems I'm banned from this room")
+					return false
+				}
+
 				console.info(`Joined ${room_id}`)
 				Huebot.connected_rooms[room_id] = {context:ctx}
 				Huebot.set_username(ctx, data.username)
