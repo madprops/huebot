@@ -98,10 +98,6 @@ Huebot.start_connection = function (room_id) {
 	ctx.role = false
 	ctx.room_image_mode = "disabled"
 	ctx.room_tv_mode = "disabled"
-	ctx.can_chat = false
-	ctx.can_tv = false
-	ctx.voice_permissions = {}
-	ctx.op_permissions = {}
 	ctx.theme
 	ctx.text_color
 	ctx.text_color_mode
@@ -153,7 +149,6 @@ Huebot.start_connection = function (room_id) {
 				Huebot.set_username(ctx, data.username)
 				Huebot.set_role(ctx, data.role)
 				Huebot.set_room_enables(ctx, data)
-				Huebot.set_permissions(ctx, data)
 				Huebot.set_theme(ctx, data)
 				Huebot.set_background_image(ctx, data.background_image)
 				Huebot.set_background_mode(ctx, data.background_mode)
@@ -162,7 +157,6 @@ Huebot.start_connection = function (room_id) {
 				Huebot.set_userlist(ctx, data)
 				Huebot.set_image_source(ctx, data.image_source)
 				Huebot.set_tv_source(ctx, data.tv_source)
-				Huebot.check_media_permissions(ctx)
 			} else if (type === 'chat_message') {
 				if (data.username === ctx.username) {
 					return false
@@ -188,18 +182,6 @@ Huebot.start_connection = function (room_id) {
 
 				Huebot.check_reminders(ctx, data.username)
 				Huebot.check_speech(ctx, data, "")
-			} else if (type === 'room_image_mode_change') {
-				ctx.room_image_mode = data.what
-				Huebot.check_media_permissions(ctx)
-			} else if (type === 'room_tv_mode_change') {
-				ctx.room_tv_mode = data.what
-				Huebot.check_media_permissions(ctx)
-			} else if (type === 'voice_permission_change') {
-				ctx.voice_permissions[`${data.vtype}_permissions`][data.ptype] = data.what
-				Huebot.check_media_permissions(ctx)
-			} else if (type === 'op_permission_change') {
-				ctx.op_permissions[`${data.optype}_permissions`][data.ptype] = data.what
-				Huebot.check_media_permissions(ctx)
 			} else if (type === "user_join") {
 				Huebot.add_to_userlist(ctx, data.username)
 				Huebot.check_reminders(ctx, data.username)
@@ -222,22 +204,6 @@ Huebot.start_connection = function (room_id) {
 			} else if (type === 'announce_role_change') {
 				if (ctx.username === data.username2) {
 					Huebot.set_role(ctx, data.role)
-					Huebot.check_media_permissions(ctx)
-				}
-			} else if (type === 'announce_removed_ops') {
-				if (ctx.role === 'op') {
-					Huebot.set_role(ctx, "voice_1")
-					Huebot.check_media_permissions(ctx)
-				}
-			} else if (type === 'voices_resetted') {
-				if (ctx.role.startsWith('voice') && ctx.role !== "voice_1") {
-					Huebot.set_role(ctx, "voice_1")
-					Huebot.check_media_permissions(ctx)
-				}
-			} else if (type === 'ops_resetted') {
-				if (ctx.role.startsWith('op') && ctx.role !== "op_1") {
-					Huebot.set_role(ctx, "op_1")
-					Huebot.check_media_permissions(ctx)
 				}
 			} else if (type === "whisper") {
 				if (data.username === ctx.username) {

@@ -515,10 +515,6 @@ module.exports = function (Huebot) {
       return false
     }
 
-    if (!ctx.can_chat) {
-      return false
-    }
-
     message = Huebot.do_replacements(ctx, message)
     message = Huebot.clean_string10(message.substring(0, Huebot.config.max_text_length))
     message = message.trim()
@@ -572,14 +568,6 @@ module.exports = function (Huebot) {
     }
 
     if (args.type === "image") {
-      if (!ctx.can_image) {
-        if (args.feedback) {
-          send_message(Huebot.config.no_image_error)
-        }
-
-        return false
-      }
-
       if (ctx.current_image_source === args.src) {
         return false
       }
@@ -589,14 +577,6 @@ module.exports = function (Huebot) {
         comment: args.comment
       })
     } else if (args.type === "tv") {
-      if (!ctx.can_tv) {
-        if (args.feedback) {
-          send_message(Huebot.config.no_tv_error)
-        }
-
-        return false
-      }
-
       if (ctx.current_tv_source === args.src) {
         return false
       }
@@ -634,44 +614,12 @@ module.exports = function (Huebot) {
     }
   }
 
-  Huebot.check_media_permissions = function (ctx) {
-    ctx.can_chat = Huebot.check_media_permission(ctx, "chat")
-    ctx.can_image = ctx.room_image_mode === "enabled" && Huebot.check_media_permission(ctx, "image")
-    ctx.can_tv = ctx.room_tv_mode === "enabled" && Huebot.check_media_permission(ctx, "tv")
-  }
-
-  Huebot.check_media_permission = function (ctx, type) {
-    if (Huebot.is_admin_or_op(ctx.role)) {
-      return true
-    }
-
-    return ctx.voice_permissions[`${ctx.role}_permissions`][type]
-  }
-
-  Huebot.check_op_permission = function (ctx, type) {
-    if (!Huebot.is_admin_or_op(ctx.role)) {
-      return false
-    }
-
-    return ctx.op_permissions[`${ctx.role}_permissions`][type]
-  }
-
   Huebot.set_username = function (ctx, uname) {
     ctx.username = uname
   }
 
   Huebot.set_role = function (ctx, rol) {
     ctx.role = rol
-  }
-
-  Huebot.set_permissions = function (ctx, data) {
-    ctx.voice_permissions.voice_1_permissions = data.voice_1_permissions
-    ctx.voice_permissions.voice_2_permissions = data.voice_2_permissions
-    ctx.voice_permissions.voice_3_permissions = data.voice_3_permissions
-
-    ctx.op_permissions.op_1_permissions = data.op_1_permissions
-    ctx.op_permissions.op_2_permissions = data.op_2_permissions
-    ctx.op_permissions.op_3_permissions = data.op_3_permissions
   }
 
   Huebot.set_room_enables = function (ctx, data) {

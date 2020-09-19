@@ -327,7 +327,7 @@ module.exports = function (Huebot) {
   }  
 
   Huebot.change_background_mode = function (ox) {
-    if (!Huebot.check_op_permission(ox.ctx, "background")) {
+    if (!Huebot.is_admin_or_op(ox.ctx.role)) {
       return false
     }
 
@@ -358,7 +358,7 @@ module.exports = function (Huebot) {
   }
 
   Huebot.change_theme_mode = function (ox) {
-    if (!Huebot.check_op_permission(ox.ctx, "theme")) {
+    if (!Huebot.is_admin_or_op(ox.ctx.role)) {
       return false
     }
 
@@ -488,7 +488,7 @@ module.exports = function (Huebot) {
   }
 
   Huebot.apply_theme = function (ox) {
-    if (!Huebot.check_op_permission(ox.ctx, "theme")) {
+    if (!Huebot.is_admin_or_op(ox.ctx.role)) {
       return false
     }
 
@@ -1020,7 +1020,7 @@ module.exports = function (Huebot) {
   }
 
   Huebot.apply_background = function (ox) {
-    if (!Huebot.check_op_permission(ox.ctx, "background")) {
+    if (!Huebot.is_admin_or_op(ox.ctx.role)) {
       return false
     }
 
@@ -1118,10 +1118,6 @@ module.exports = function (Huebot) {
   }
 
   Huebot.think = async function (ox) {
-    if (!ox.ctx.can_chat) {
-      return false
-    }
-
     let thought = await Huebot.get_shower_thought()
 
     if(!thought) {
