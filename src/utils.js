@@ -668,12 +668,10 @@ module.exports = function (Huebot) {
     ctx.voice_permissions.voice_1_permissions = data.voice_1_permissions
     ctx.voice_permissions.voice_2_permissions = data.voice_2_permissions
     ctx.voice_permissions.voice_3_permissions = data.voice_3_permissions
-    ctx.voice_permissions.voice_4_permissions = data.voice_4_permissions
 
     ctx.op_permissions.op_1_permissions = data.op_1_permissions
     ctx.op_permissions.op_2_permissions = data.op_2_permissions
     ctx.op_permissions.op_3_permissions = data.op_3_permissions
-    ctx.op_permissions.op_4_permissions = data.op_4_permissions
   }
 
   Huebot.set_room_enables = function (ctx, data) {
