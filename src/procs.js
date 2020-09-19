@@ -731,11 +731,6 @@ module.exports = function (Huebot) {
     let args = ox.arg.split(" ")
 
     if (Huebot.db.queue[args[0]].length > 0) {
-      if (!ox.ctx[`can_${args[0]}`]) {
-        Huebot.process_feedback(ox.ctx, ox.data, Huebot.config[`no_${args[0]}_error`])
-        return false
-      }
-
       let item = Huebot.db.queue[args[0]].shift()
 
       if (typeof item !== "object") {

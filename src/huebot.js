@@ -83,8 +83,6 @@ Huebot.config.num_suggestions = 5
 Huebot.config.emit_limit = 5
 
 Huebot.config.media_types = ["image", "tv"]
-Huebot.config.no_image_error = "I don't have permission to change the image."
-Huebot.config.no_tv_error = "I don't have permission to change the tv."
 
 // Aliases
 Huebot.prefix = Huebot.db.config.command_prefix
