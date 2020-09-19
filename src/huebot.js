@@ -132,7 +132,8 @@ Huebot.start_connection = function (room_id) {
 			alternative: true,
 			room_id: room_id,
 			email: Huebot.db.config.bot_email,
-			password: Huebot.db.config.bot_password
+			password: Huebot.db.config.bot_password,
+			no_message_log: true
 		})
 	})
 
@@ -143,9 +144,7 @@ Huebot.start_connection = function (room_id) {
 
 			if (type === 'joined') {
 				console.info(`Joined ${room_id}`)
-
 				Huebot.connected_rooms[room_id] = {context:ctx}
-
 				Huebot.set_username(ctx, data.username)
 				Huebot.set_role(ctx, data.role)
 				Huebot.set_room_enables(ctx, data)
