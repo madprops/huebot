@@ -681,7 +681,6 @@ module.exports = function (Huebot) {
   }
 
   Huebot.set_theme = function (ctx, data) {
-    ctx.theme_mode = data.theme_mode
     ctx.theme = data.theme
     ctx.text_color_mode = data.text_color_mode
     ctx.text_color = data.text_color

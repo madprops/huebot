@@ -110,7 +110,6 @@ Huebot.start_connection = function (room_id) {
 	ctx.current_image_source
 	ctx.current_tv_source
 	ctx.commands_queue = {}
-	ctx.theme_mode
 	ctx.user_command_activity = []
 	ctx.emit_charge = 0
 
@@ -191,8 +190,6 @@ Huebot.start_connection = function (room_id) {
 				}
 
 				Huebot.replace_in_userlist(ctx, data.old_username, data.username)
-			} else if (type === 'theme_mode_changed') {
-				ctx.theme_mode = data.mode
 			} else if (type === 'theme_change') {
 				ctx.theme = data.color
 			} else if (type === 'text_color_changed') {

@@ -357,37 +357,6 @@ module.exports = function (Huebot) {
     })
   }
 
-  Huebot.change_theme_mode = function (ox) {
-    if (!Huebot.is_admin_or_op(ox.ctx.role)) {
-      return false
-    }
-
-    if (!ox.data || !ox.arg) {
-      return false
-    }
-
-    if (!Huebot.is_admin_or_op(ox.ctx.role)) {
-      Huebot.process_feedback(ox.ctx, ox.data, "I need to be an operator to do that.")
-      return false
-    }
-
-    let modes = ["automatic", "custom"]
-
-    if (!modes.includes(ox.arg)) {
-      Huebot.process_feedback(ox.ctx, ox.data, "Invalid theme mode.")
-      return false
-    }
-
-    if (ox.arg === ox.ctx.theme_mode) {
-      Huebot.process_feedback(ox.ctx, ox.data, "Theme mode is already set to that.")
-      return false
-    }
-
-    Huebot.socket_emit(ox.ctx, "change_theme_mode", {
-      mode: ox.arg
-    })
-  }
-
   Huebot.manage_themes = function (ox) {
     let args = ox.arg.split(" ")
 
@@ -419,11 +388,6 @@ module.exports = function (Huebot) {
   Huebot.add_theme = function (ox) {
     if (!ox.arg) {
       Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} add [name]`)
-      return false
-    }
-
-    if (ox.ctx.theme_mode !== "custom") {
-      Huebot.process_feedback(ox.ctx, ox.data, "Automatic themes can't be saved.")
       return false
     }
 
@@ -500,10 +464,6 @@ module.exports = function (Huebot) {
     let obj = Huebot.db.themes[ox.arg]
 
     if (obj) {
-      if (ox.ctx.theme_mode !== "custom") {
-        Huebot.change_theme_mode(ox.ctx, ox.data, "custom")
-      }
-
       obj.theme = Huebot.clean_string5(obj.theme)
       obj.text_color = Huebot.clean_string5(obj.text_color)
 
