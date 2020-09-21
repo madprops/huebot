@@ -128,7 +128,7 @@ module.exports = function (Huebot) {
   }
 
   Huebot.is_admin_or_op = function (rol) {
-    return rol === "admin" || rol.startsWith("op")
+    return rol === "admin" || rol === "op"
   }
 
   Huebot.get_random_int = function (min, max) {
