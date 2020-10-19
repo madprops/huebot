@@ -112,6 +112,8 @@ Huebot.start_connection = function (room_id) {
 	ctx.commands_queue = {}
 	ctx.user_command_activity = []
 	ctx.emit_charge = 0
+	ctx.q_image_cooldown = 0
+	ctx.q_tv_cooldown = 0
 
 	ctx.socket = io(Huebot.db.config.server_address, {
 		reconnection: true,

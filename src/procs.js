@@ -691,6 +691,11 @@ module.exports = function (Huebot) {
     let args = ox.arg.split(" ")
 
     if (Huebot.db.queue[args[0]].length > 0) {
+      if (Date.now() - ox.ctx[`q_${args[0]}_cooldown`] < 3000) {
+        console.log("queue cooldown hit")
+        return false
+      }
+
       let item = Huebot.db.queue[args[0]].shift()
 
       if (typeof item !== "object") {
@@ -698,6 +703,7 @@ module.exports = function (Huebot) {
       }
 
       Huebot.selective_play(ox.ctx, item.kind, item.url)
+      ox.ctx[`q_${args[0]}_cooldown`] = Date.now()
       Huebot.save_file("queue.json", Huebot.db.queue)
     } else {
       Huebot.process_feedback(ox.ctx, ox.data, `${Huebot.get_media_name(args[0])} queue is empty.`)
