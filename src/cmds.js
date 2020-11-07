@@ -20,6 +20,14 @@ module.exports = function (Huebot) {
       public: true,
       exec: function(ox) {Huebot.manage_queue(ox)}
     },
+    "next": {
+      description: "Shortcut for queue (next tv item)",
+      public: true,
+      exec: function(ox) {
+        ox.arg = "next"
+        Huebot.manage_queue(ox)
+      }
+    },
     "adminadd": {
       description: "Add a bot admin",
       public: false,
