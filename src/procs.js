@@ -758,8 +758,7 @@ module.exports = function (Huebot) {
       let links = `[whisper ${Huebot.prefix}q play ${obj.id}]Play This[/whisper]`
       links += ` | [whisper ${Huebot.prefix}q ${args[0]} next]Play Next[/whisper]`
       links += ` | [whisper ${Huebot.prefix}q remove ${obj.id} $id$]Remove[/whisper]`
-      let message = `${Huebot.get_media_name(args[0])} item successfully queued.`
-      let ans = `${message}[line]${links}`
+      let ans = `Done >> ${links}`
       Huebot.send_message(ox.ctx, ans)
     })
   }
