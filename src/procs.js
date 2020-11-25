@@ -755,8 +755,8 @@ module.exports = function (Huebot) {
     Huebot.db.queue[args[0]].push(obj)
 
     Huebot.save_file("queue.json", Huebot.db.queue, function () {
-      let links = `[whisper ${Huebot.prefix}q play ${obj.id}]Play This[/whisper]`
-      links += ` | [whisper ${Huebot.prefix}q ${args[0]} next]Play Next[/whisper]`
+      let links = `[whisper ${Huebot.prefix}q play ${obj.id}]Play[/whisper]`
+      links += ` | [whisper ${Huebot.prefix}q ${args[0]} next]Next[/whisper]`
       links += ` | [whisper ${Huebot.prefix}q remove ${obj.id} $id$]Remove[/whisper]`
       let ans = `Done >> ${links}`
       Huebot.send_message(ox.ctx, ans)
