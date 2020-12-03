@@ -340,7 +340,7 @@ module.exports = function (Huebot) {
       return false
     }
 
-    let modes = ["normal", "tiled", "mirror", "mirror_tiled", "solid"]
+    let modes = ["normal", "tiled", "solid"]
 
     if (!modes.includes(ox.arg)) {
       Huebot.process_feedback(ox.ctx, ox.data, "Invalid background mode.")
