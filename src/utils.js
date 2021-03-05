@@ -402,18 +402,6 @@ module.exports = function (Huebot) {
     return false
   }
 
-  Huebot.check_public_command = function (cmd, arg) {
-    if (cmd === "random") {
-      if (arg) {
-        if (arg !== "image" && arg !== "tv") {
-          return false
-        }
-      }
-    }
-
-    return true
-  }
-
   Huebot.get_shower_thought = async function () {
     return new Promise(async (resolve, reject) =>
     {

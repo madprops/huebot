@@ -75,7 +75,7 @@ module.exports = function (Huebot) {
     },
     "whatis": {
       description: "Inspects a command",
-      public: false,
+      public: true,
       exec: function(ox) {Huebot.whatis_command(ox)}
     },
     "say": {
@@ -88,10 +88,10 @@ module.exports = function (Huebot) {
       public: false,
       exec: function(ox) {Huebot.say(ox, true)}
     },
-    "subject": {
-      description: "Use a keyword to find a semi-random video",
+    "random": {
+      description: "Random video. Optional keyword for semi-random search",
       public: true,
-      exec: function(ox) {Huebot.use_subject(ox)}
+      exec: function(ox) {Huebot.random(ox)}
     },
     "leave": {
       description: "Leave the room",
@@ -217,7 +217,7 @@ module.exports = function (Huebot) {
     if (!Huebot.is_admin(data.username)) {
       if (Huebot.db.options.public_commands) {
         if (Huebot.public_command_list.includes(cmd)) {
-          allowed = Huebot.check_public_command(cmd, arg)
+          allowed = true
         } else {
           let cmd2 = Huebot.db.commands[cmd]
 
@@ -234,7 +234,7 @@ module.exports = function (Huebot) {
                 let cmd = sp[0]
                 let arg = sp.slice(1).join(" ")
 
-                if (!Huebot.public_command_list.includes(cmd) || !Huebot.check_public_command(cmd, arg)) {
+                if (!Huebot.public_command_list.includes(cmd)) {
                   allowed = false
                   break
                 }

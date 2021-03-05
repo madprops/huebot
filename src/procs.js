@@ -569,30 +569,14 @@ module.exports = function (Huebot) {
     Huebot.process_feedback(ox.ctx, ox.data, split[n])
   }
 
-  Huebot.use_subject = function (ox) {
-    if (!ox.arg) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} [name] > ${Huebot.config.media_types.join("|")} : optional`)
-      return false
-    }
+  Huebot.random = function (ox) {
+    console.log(ox.arg)
+    let query = `${ox.arg || ""} ${Huebot.get_random_word()}`.trim()
 
-    let split = ox.arg.split(">")
-    let name = split[0].toLowerCase().trim()
-    let type = split.slice(1).join(" ").toLowerCase().trim() || "tv"
-    let query = `${name} ${Huebot.get_random_word()}`
-
-    if (type) {
-      if (type === "image") {
-        Huebot.change_media(ox.ctx, {
-          type: "image",
-          src: query
-        })
-      } else {
-        Huebot.change_media(ox.ctx, {
-          type: "tv",
-          src: query
-        })
-      }
-    }
+    Huebot.change_media(ox.ctx, {
+      type: "tv",
+      src: query
+    })
   }
 
   Huebot.change_public = function (ox) {
