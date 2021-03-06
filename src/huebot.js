@@ -192,8 +192,8 @@ Huebot.start_connection = function (room_id) {
 				}
 
 				Huebot.replace_in_userlist(ctx, data.old_username, data.username)
-			} else if (type === 'theme_change') {
-				ctx.theme = data.color
+			} else if (type === 'background_color_changed') {
+				ctx.background_color = data.color
 			} else if (type === 'text_color_changed') {
 				ctx.text_color = data.color
 			} else if (type === 'text_color_mode_changed') {

@@ -393,7 +393,7 @@ module.exports = function (Huebot) {
 
     let obj = {}
 
-    obj.theme = ox.ctx.theme
+    obj.background_color = ox.ctx.background_color
     obj.text_color = ox.ctx.text_color
     obj.text_color_mode = ox.ctx.text_color_mode
 
@@ -464,20 +464,20 @@ module.exports = function (Huebot) {
     let obj = Huebot.db.themes[ox.arg]
 
     if (obj) {
-      obj.theme = Huebot.clean_string5(obj.theme)
+      obj.background_color = Huebot.clean_string5(obj.background_color)
       obj.text_color = Huebot.clean_string5(obj.text_color)
 
-      if (obj.theme.startsWith("rgb")) {
-        obj.theme = Huebot.rgb_to_hex(obj.theme)
+      if (obj.background_color.startsWith("rgb")) {
+        obj.background_color = Huebot.rgb_to_hex(obj.background_color)
       }
 
       if (obj.text_color.startsWith("rgb")) {
         obj.text_color = Huebot.rgb_to_hex(obj.text_color)
       }
 
-      if (obj.theme && obj.theme !== ox.ctx.theme) {
-        Huebot.socket_emit(ox.ctx, "change_theme", {
-          color: obj.theme
+      if (obj.background_color && obj.background_color !== ox.ctx.background_color) {
+        Huebot.socket_emit(ox.ctx, "change_background_color", {
+          color: obj.background_color
         })
       }
 

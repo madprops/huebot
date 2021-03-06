@@ -669,7 +669,7 @@ module.exports = function (Huebot) {
   }
 
   Huebot.set_theme = function (ctx, data) {
-    ctx.theme = data.theme
+    ctx.background_color = data.background_color
     ctx.text_color_mode = data.text_color_mode
     ctx.text_color = data.text_color
   }
