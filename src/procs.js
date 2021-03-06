@@ -570,7 +570,6 @@ module.exports = function (Huebot) {
   }
 
   Huebot.random = function (ox) {
-    console.log(ox.arg)
     let query = `${ox.arg || ""} ${Huebot.get_random_word()}`.trim()
 
     Huebot.change_media(ox.ctx, {
