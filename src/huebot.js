@@ -181,10 +181,10 @@ Huebot.start_connection = function (room_id) {
 
 				Huebot.check_reminders(ctx, data.username)
 				Huebot.check_speech(ctx, data, "")
-			} else if (type === "user_join") {
+			} else if (type === "user_joined") {
 				Huebot.add_to_userlist(ctx, data.username)
 				Huebot.check_reminders(ctx, data.username)
-			} else if (type === "user_disconnect") {
+			} else if (type === "user_disconnected") {
 				Huebot.remove_from_userlist(ctx, data.username)
 			} else if (type === 'new_username') {
 				if (ctx.username === data.old_username) {
