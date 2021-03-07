@@ -198,7 +198,7 @@ Huebot.start_connection = function (room_id) {
 				ctx.text_color = data.color
 			} else if (type === 'text_color_mode_changed') {
 				ctx.text_color_mode = data.mode
-			} else if (type === 'announce_role_change') {
+			} else if (type === 'announce_role_changed') {
 				if (ctx.username === data.username2) {
 					Huebot.set_role(ctx, data.role)
 				}
@@ -222,7 +222,7 @@ Huebot.start_connection = function (room_id) {
 
 					Huebot.send_whisper(ctx, data.username, "Hi!")
 				}
-			} else if (type === 'background_image_change') {
+			} else if (type === 'background_image_changed') {
 				Huebot.set_background_image(ctx, data.background_image)
 			} else if (type === 'background_mode_changed') {
 				Huebot.set_background_mode(ctx, data.mode)
@@ -230,9 +230,9 @@ Huebot.start_connection = function (room_id) {
 				Huebot.set_background_effect(ctx, data.effect)
 			} else if (type === 'background_tile_dimensions_changed') {
 				Huebot.set_background_tile_dimensions(ctx, data.dimensions)
-			} else if (type === 'changed_image_source') {
+			} else if (type === 'image_source_changed') {
 				Huebot.set_image_source(ctx, data.source)
-			} else if (type === 'changed_tv_source') {
+			} else if (type === 'tv_source_changed') {
 				Huebot.set_tv_source(ctx, data.source)
 			}
 		} catch (err) {
