@@ -372,19 +372,23 @@ module.exports = function (Huebot) {
     obj.tile_dimensions = ox.ctx.background_tile_dimensions
 
     if (obj.background_image.startsWith("/")) {
-      if (Huebot.db.config.server_address.includes("localhost")) {
+      if (Huebot.db.config.server_url.includes("localhost")) {
         Huebot.send_message(ox.ctx, `Can't upload localhost image. Ignoring background image`)
         obj.background_image = ""
         Huebot.do_theme_save(ox, obj)
+        return
       }
+      
       imgur
-      .uploadUrl(Huebot.db.config.server_address + "/" + obj.background_image)
+      .uploadUrl(Huebot.db.config.server_url + "/" + obj.background_image)
       .then((res) => {
         obj.background_image = res.link
         do_theme_save(ox, obj)
+        return
       })
       .catch((err) => {
         console.error(err.message)
+        return
       })
     } else {
       Huebot.do_theme_save(ox, obj)

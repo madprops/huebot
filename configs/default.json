@@ -4,6 +4,7 @@
     "youtube_client_id": "xxx",
     "youtube_enabled": true,
     "server_address": "http://localhost:3210",
+    "server_url": "https://some.site",
     "room_ids": ["main"],
     "protected_admins": ["mad"],
     "command_prefix": ".",
