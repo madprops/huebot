@@ -1,5 +1,6 @@
 const MathJS = require("mathjs")
 const fetch = require("node-fetch")
+const imgur = require("imgur")
 
 module.exports = function (Huebot) {
   let math_config = {
@@ -326,37 +327,6 @@ module.exports = function (Huebot) {
     })
   }  
 
-  Huebot.change_background_mode = function (ox) {
-    if (!Huebot.is_admin_or_op(ox.ctx.role)) {
-      return false
-    }
-
-    if (!ox.data || !ox.arg) {
-      return false
-    }
-
-    if (!Huebot.is_admin_or_op(ox.ctx.role)) {
-      Huebot.process_feedback(ox.ctx, ox.data, "I need to be an operator to do that.")
-      return false
-    }
-
-    let modes = ["normal", "tiled", "solid"]
-
-    if (!modes.includes(ox.arg)) {
-      Huebot.process_feedback(ox.ctx, ox.data, "Invalid background mode.")
-      return false
-    }
-
-    if (ox.arg === ox.ctx.background_mode) {
-      Huebot.process_feedback(ox.ctx, ox.data, "Background mode is already set to that.")
-      return false
-    }
-
-    Huebot.socket_emit(ox.ctx, "change_background_mode", {
-      mode: ox.arg
-    })
-  }
-
   Huebot.manage_themes = function (ox) {
     let args = ox.arg.split(" ")
 
@@ -396,7 +366,32 @@ module.exports = function (Huebot) {
     obj.background_color = ox.ctx.background_color
     obj.text_color = ox.ctx.text_color
     obj.text_color_mode = ox.ctx.text_color_mode
+    obj.background_image = ox.ctx.background_image
+    obj.background_mode = ox.ctx.background_mode
+    obj.background_effect = ox.ctx.background_effect
+    obj.tile_dimensions = ox.ctx.background_tile_dimensions
 
+    if (obj.background_image.startsWith("/")) {
+      if (Huebot.db.config.server_address.includes("localhost")) {
+        Huebot.send_message(ox.ctx, `Can't upload localhost image. Ignoring background image`)
+        obj.background_image = ""
+        Huebot.do_theme_save(ox, obj)
+      }
+      imgur
+      .uploadUrl(Huebot.db.config.server_address + "/" + obj.background_image)
+      .then((res) => {
+        obj.background_image = res.link
+        do_theme_save(ox, obj)
+      })
+      .catch((err) => {
+        console.error(err.message)
+      })
+    } else {
+      Huebot.do_theme_save(ox, obj)
+    }
+  }
+
+  Huebot.do_theme_save = function (ox, obj) {
     Huebot.db.themes[ox.arg] = obj
 
     Huebot.save_file("themes.json", Huebot.db.themes, function () {
@@ -494,6 +489,42 @@ module.exports = function (Huebot) {
           })
         }
       }
+
+      if (obj.background_image && obj.background_image !== ox.ctx.background_image) {
+        Huebot.socket_emit(ox.ctx, "change_background_image_source", {
+          src: obj.background_image
+        })
+      }
+
+      if (obj.background_mode && obj.background_mode !== ox.ctx.background_mode) {
+        ox.arg = obj.background_mode
+        Huebot.socket_emit(ox.ctx, "change_background_mode", {
+          mode: ox.arg
+        })
+      }
+
+      if (obj.background_mode && obj.background_mode !== "solid") {
+        let effect = obj.background_effect
+
+        if (!effect) {
+          effect = "none"
+        }
+
+        if (effect !== ox.ctx.background_effect) {
+          Huebot.socket_emit(ox.ctx, "change_background_effect", {
+            effect: effect
+          })
+        }
+      }
+
+      if (obj.background_mode && obj.background_mode === "tiled") {
+        if (obj.tile_dimensions && obj.tile_dimensions !== ox.ctx.background_tile_dimensions) {
+          Huebot.socket_emit(ox.ctx, "change_background_tile_dimensions", {
+            dimensions: obj.tile_dimensions
+          })
+        }
+      }
+
     } else {
       Huebot.process_feedback(ox.ctx, ox.data, `Theme "${ox.arg}" doesn't exist.`)
     }
@@ -791,18 +822,6 @@ module.exports = function (Huebot) {
       Huebot.send_message(ox.ctx, `Themes list successfully cleared.`)
     })
   }
-
-  Huebot.clear_backgrounds = function (ox) {
-    if (!Huebot.is_protected_admin(ox.data.username)) {
-      return false
-    }
-  
-    Huebot.db.backgrounds = {}
-  
-    Huebot.save_file("backgrounds.json", Huebot.db.backgrounds, function () {
-      Huebot.send_message(ox.ctx, `Backgrounds list successfully cleared.`)
-    })
-  }
   
   Huebot.say = function (ox, whisper = false) {
     if (!ox.arg) {
@@ -855,183 +874,6 @@ module.exports = function (Huebot) {
 
     Huebot.process_feedback(context, ox.data, "Good bye!")
     context.socket.disconnect()
-  }
-
-  Huebot.manage_backgrounds = function (ox) {
-    let args = ox.arg.split(" ")
-
-    if (!args[0]) {
-      Huebot.process_feedback(ox.ctx, ox.data, "[name] or: add, remove, rename, list, clear")
-      return
-    }
-
-    if (args[0] === "add") {
-      ox.arg = args.slice(1).join(" ")
-      Huebot.add_background(ox)
-    } else if (args[0] === "remove") {
-      ox.arg = args.slice(1).join(" ")
-      Huebot.remove_background(ox)
-    } else if (args[0] === "rename") {
-      ox.arg = args.slice(1).join(" ")
-      Huebot.rename_background(ox)
-    } else if (args[0] === "list") {
-      ox.arg = args.slice(1).join(" ")
-      Huebot.list_backgrounds(ox)
-    } else if (args[0] === "clear") {
-      ox.arg = ""
-      Huebot.clear_backgrounds(ox)
-    } else {
-      Huebot.apply_background(ox)
-    }
-  }
-
-  Huebot.add_background = function (ox) {
-    if (!ox.arg) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} add [name]`)
-      return false
-    }
-
-    if (ox.ctx.background_mode !== "normal" && ox.ctx.background_mode !== "tiled") {
-      Huebot.process_feedback(ox.ctx, ox.data, "Only backgrounds that use an image can be saved.")
-      return false
-    }
-
-    if (!ox.ctx.background_image.startsWith("http://") && !ox.ctx.background_image.startsWith("https://")) {
-      Huebot.process_feedback(ox.ctx, ox.data, "Only backgrounds that use external images can be saved.")
-      return false
-    }
-
-    let obj = {}
-
-    obj.image = ox.ctx.background_image
-    obj.mode = ox.ctx.background_mode
-    obj.effect = ox.ctx.background_effect
-    obj.tile_dimensions = ox.ctx.background_tile_dimensions
-
-    Huebot.db.backgrounds[ox.arg] = obj
-
-    Huebot.save_file("backgrounds.json", Huebot.db.backgrounds, function () {
-      Huebot.send_message(ox.ctx, `Background "${ox.arg}" successfully added.`)
-    })
-  }
-
-  Huebot.remove_background = function (ox) {
-    if (!ox.arg) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} remove [name]`)
-      return false
-    }
-
-    if (Huebot.db.backgrounds[ox.arg] === undefined) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Background "${ox.arg}" doesn't exist.`)
-      return false
-    }
-
-    delete Huebot.db.backgrounds[ox.arg]
-
-    Huebot.save_file("backgrounds.json", Huebot.db.backgrounds, function () {
-      Huebot.send_message(ox.ctx, `Background "${ox.arg}" successfully removed.`)
-    })
-  }
-
-  Huebot.rename_background = function (ox) {
-    let split = ox.arg.split(' ')
-    let old_name = split[0]
-    let new_name = split[1]
-
-    if (!ox.arg || split.length !== 2) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} rename [old_name] [new_name]`)
-      return false
-    }
-
-    if (Huebot.db.backgrounds[old_name] === undefined) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Background "${old_name}" doesn't exist.`)
-      return false
-    }
-
-    try {
-      Huebot.db.backgrounds[new_name] = Huebot.db.backgrounds[old_name]
-
-      delete Huebot.db.backgrounds[old_name]
-
-      Huebot.save_file("backgrounds.json", Huebot.db.backgrounds, function (err) {
-        Huebot.send_message(ox.ctx, `Background "${old_name}" successfully renamed to "${new_name}".`)
-      })
-    } catch (err) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Can't rename that background.`)
-      return false
-    }
-  }
-
-  Huebot.apply_background = function (ox) {
-    if (!Huebot.is_admin_or_op(ox.ctx.role)) {
-      return false
-    }
-
-    if (!ox.arg) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} [name]`)
-      return false
-    }
-
-    let obj = Huebot.db.backgrounds[ox.arg]
-
-    if (obj) {
-      if (obj.image && obj.image !== ox.ctx.background_image) {
-        Huebot.socket_emit(ox.ctx, "change_background_image_source", {
-          src: obj.image
-        })
-      }
-
-      if (obj.mode && obj.mode !== ox.ctx.background_mode) {
-        ox.arg = obj.mode
-        Huebot.change_background_mode(ox)
-      }
-
-      if (obj.mode && obj.mode !== "solid") {
-        let effect = obj.effect
-
-        if (!effect) {
-          effect = "none"
-        }
-
-        if (effect !== ox.ctx.background_effect) {
-          Huebot.socket_emit(ox.ctx, "change_background_effect", {
-            effect: effect
-          })
-        }
-      }
-
-      if (obj.mode && obj.mode === "tiled") {
-        if (obj.tile_dimensions && obj.tile_dimensions !== ox.ctx.background_tile_dimensions) {
-          Huebot.socket_emit(ox.ctx, "change_background_tile_dimensions", {
-            dimensions: obj.tile_dimensions
-          })
-        }
-      }
-    } else {
-      Huebot.process_feedback(ox.ctx, ox.data, `Background "${ox.arg}" doesn't exist.`)
-    }
-  }
-
-  Huebot.list_backgrounds = function (ox) {
-    let sort_mode = "random"
-
-    if (ox.arg) {
-      sort_mode = "sort"
-    }
-
-    let s = Huebot.list_items({
-      data: Huebot.db.backgrounds,
-      filter: ox.arg,
-      append: ",",
-      sort_mode: sort_mode,
-      whisperify: `${Huebot.prefix}background `
-    })
-
-    if (!s) {
-      s = "No backgrounds found."
-    }
-
-    Huebot.process_feedback(ox.ctx, ox.data, s)
   }
 
   Huebot.suggest = function (ox) {
