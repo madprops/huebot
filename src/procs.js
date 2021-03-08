@@ -12,14 +12,14 @@ module.exports = function (Huebot) {
 
   Huebot.change_image = function (ox) {
     Huebot.change_media(ox.ctx, {
-      type: "image",
+      type: 'image',
       src: ox.arg
     })
   }
 
   Huebot.change_tv = function (ox) {
     Huebot.change_media(ox.ctx, {
-      type: "tv",
+      type: 'tv',
       src: ox.arg
     })
   }
