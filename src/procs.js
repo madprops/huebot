@@ -28,11 +28,9 @@ module.exports = function (Huebot) {
     let args = ox.arg.split(" ")
 
     if (!args[0]) {
-      Huebot.process_feedback(ox.ctx, ox.data, "[name] or: add, remove, rename, list, clear, random")
-      return
-    }
-
-    if (args[0] === "add") {
+      ox.arg = args.slice(1).join(" ")
+      Huebot.list_custom_commands(ox)
+    } else if (args[0] === "add") {
       ox.arg = args.slice(1).join(" ")
       Huebot.add_custom_command(ox)
     } else if (args[0] === "remove") {
@@ -41,9 +39,8 @@ module.exports = function (Huebot) {
     } else if (args[0] === "rename") {
       ox.arg = args.slice(1).join(" ")
       Huebot.rename_custom_command(ox)
-    } else if (args[0] === "list") {
-      ox.arg = args.slice(1).join(" ")
-      Huebot.list_custom_commands(ox)
+    } else if (args[0] === "help") {
+      Huebot.process_feedback(ox.ctx, ox.data, "[name] or: add, remove, rename, clear, random")
     } else if (args[0] === "random") {
       ox.arg = args.slice(1).join(" ")
       Huebot.execute_random_custom_command(ox)
@@ -221,19 +218,16 @@ module.exports = function (Huebot) {
     let args = ox.arg.split(" ")
 
     if (!args[0]) {
-      Huebot.process_feedback(ox.ctx, ox.data, "[name] or: add, remove, list, clear")
-      return
-    }
-
-    if (args[0] === "add") {
+      ox.arg = args.slice(1).join(" ")
+      Huebot.list_admins(ox)
+    } else if (args[0] === "add") {
       ox.arg = args.slice(1).join(" ")
       Huebot.add_admin(ox)
     } else if (args[0] === "remove") {
       ox.arg = args.slice(1).join(" ")
       Huebot.remove_admin(ox)
-    } else if (args[0] === "list") {
-      ox.arg = args.slice(1).join(" ")
-      Huebot.list_admins(ox)
+    } else if (args[0] === "help") {
+      Huebot.process_feedback(ox.ctx, ox.data, "[name] or: add, remove, clear")
     } else if (args[0] === "clear") {
       ox.arg = ""
       Huebot.clear_admins(ox)
@@ -331,11 +325,9 @@ module.exports = function (Huebot) {
     let args = ox.arg.split(" ")
 
     if (!args[0]) {
-      Huebot.process_feedback(ox.ctx, ox.data, "[name] or: add, remove, rename, list, clear")
-      return
-    }
-
-    if (args[0] === "add") {
+      ox.arg = args.slice(1).join(" ")
+      Huebot.list_themes(ox)
+    } else if (args[0] === "add") {
       ox.arg = args.slice(1).join(" ")
       Huebot.add_theme(ox)
     } else if (args[0] === "remove") {
@@ -344,12 +336,11 @@ module.exports = function (Huebot) {
     } else if (args[0] === "rename") {
       ox.arg = args.slice(1).join(" ")
       Huebot.rename_theme(ox)
-    } else if (args[0] === "list") {
-      ox.arg = args.slice(1).join(" ")
-      Huebot.list_themes(ox)
     } else if (args[0] === "clear") {
       ox.arg = ""
       Huebot.clear_themes(ox)
+    } else if (args[0] === "help") {
+      Huebot.process_feedback(ox.ctx, ox.data, "[name] or: add, remove, rename, clear")
     } else {
       Huebot.apply_theme(ox)
     }
@@ -650,7 +641,7 @@ module.exports = function (Huebot) {
     let args = ox.arg.split(" ")
 
     if (!args[0]) {
-      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} ${Huebot.config.media_types.join("|")} [url]|next|clear|size`)
+      Huebot.process_feedback(ox.ctx, ox.data, `Correct format is --> ${Huebot.prefix}${ox.cmd} url`)
       return false
     }
     
@@ -671,6 +662,8 @@ module.exports = function (Huebot) {
       Huebot.get_queue_size(ox)
     } else if (args[1] === "list") {
       Huebot.list_queue(ox)
+    } else if (args[1] === "help") {
+      Huebot.process_feedback(ox.ctx, ox.data, `${Huebot.prefix}${ox.cmd} url or next, size, list, clear`)
     } else {
       Huebot.add_to_queue(ox)
     }
