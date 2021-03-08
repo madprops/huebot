@@ -373,7 +373,6 @@ module.exports = function (Huebot) {
 
     if (obj.background_image.startsWith("/")) {
       if (Huebot.db.config.server_url.includes("localhost")) {
-      Huebot.send_message(ox.ctx, Huebot.db.config.server_url)
         Huebot.send_message(ox.ctx, `Can't upload localhost image. Ignoring background image`)
         obj.background_image = ""
         Huebot.do_theme_save(ox, obj)
