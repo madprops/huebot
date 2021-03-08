@@ -379,11 +379,13 @@ module.exports = function (Huebot) {
         return
       }
 
+      Huebot.send_message(ox.ctx, `Uploading background image...`)
+
       imgur
       .uploadUrl(Huebot.db.config.server_url + "/" + obj.background_image)
       .then((res) => {
         obj.background_image = res.link
-        do_theme_save(ox, obj)
+        Huebot.do_theme_save(ox, obj)
         return
       })
       .catch((err) => {
