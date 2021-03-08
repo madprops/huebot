@@ -103,16 +103,6 @@ module.exports = function (Huebot) {
       public: false,
       exec: function(ox) {Huebot.join_room(ox)}
     },
-    "backgrounds": {
-      description: "Manage backgrounds",
-      public: false,
-      exec: function(ox) {Huebot.manage_backgrounds(ox)}
-    },
-    "backgroundmode": {
-      description: "Change the background mode",
-      public: false,
-      exec: function(ox) {Huebot.change_background_mode(ox)}
-    },
     "thememode": {
       description: "Change the theme mode",
       public: false,
