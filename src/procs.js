@@ -375,6 +375,10 @@ module.exports = function (Huebot) {
       imgur
       .uploadUrl(Huebot.db.config.server_url + "/" + obj.background_image)
       .then((res) => {
+        if (ox.ctx.background_image === obj.background_image) {
+          ox.ctx.background_image = res.link
+        }
+        
         obj.background_image = res.link
         Huebot.do_theme_save(ox, obj)
         return
