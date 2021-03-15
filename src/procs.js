@@ -10,17 +10,19 @@ module.exports = function (Huebot) {
 
   const math = MathJS.create(MathJS.all, math_config)
 
-  Huebot.change_image = function (ox) {
+  Huebot.change_image = function (ox, comment = "") {
     Huebot.change_media(ox.ctx, {
       type: 'image',
-      src: ox.arg
+      src: ox.arg,
+      comment: comment
     })
   }
 
-  Huebot.change_tv = function (ox) {
+  Huebot.change_tv = function (ox, comment = "") {
     Huebot.change_media(ox.ctx, {
       type: 'tv',
-      src: ox.arg
+      src: ox.arg,
+      comment: comment
     })
   }
 
@@ -697,7 +699,7 @@ module.exports = function (Huebot) {
     let item = Huebot.get_q_item(args[1], "delete")
 
     if (item) {
-      Huebot.selective_play(ox.ctx, item.kind, item.url)
+      Huebot.selective_play(ox.ctx, item.kind, item.url, `Selected by ${item.username}`)
       Huebot.save_file("queue.json", Huebot.db.queue)
     } else {
       Huebot.process_feedback(ox.ctx, ox.data, "This was already played or removed.")
@@ -719,7 +721,7 @@ module.exports = function (Huebot) {
         return
       }
 
-      Huebot.selective_play(ox.ctx, item.kind, item.url)
+      Huebot.selective_play(ox.ctx, item.kind, item.url, `Selected by ${item.username}`)
       ox.ctx[`q_${args[0]}_cooldown`] = Date.now()
       Huebot.save_file("queue.json", Huebot.db.queue)
     } else {
@@ -768,6 +770,7 @@ module.exports = function (Huebot) {
     obj.url = args.slice(1).join(" ")
     obj.date = Date.now()
     obj.id = `${obj.kind}_${obj.date}_${Huebot.get_random_string(4)}`
+    obj.username = ox.data.username
 
     Huebot.db.queue[args[0]].push(obj)
 

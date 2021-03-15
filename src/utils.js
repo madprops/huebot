@@ -775,16 +775,18 @@ module.exports = function (Huebot) {
     }
   }
 
-  Huebot.selective_play = function (ctx, kind, url) {
+  Huebot.selective_play = function (ctx, kind, url, comment = "") {
     if (kind === "image") {
       Huebot.change_media(ctx, {
         type: "image",
-        src: url
+        src: url,
+        comment: comment
       })
     } else if (kind === "tv") {
       Huebot.change_media(ctx, {
         type: "tv",
-        src: url
+        src: url,
+        comment: comment
       })
     }
   }
