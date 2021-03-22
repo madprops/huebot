@@ -355,7 +355,6 @@ module.exports = function (Huebot) {
     }
 
     let obj = {}
-    console.log(ox.ctx.text_color)
     obj.background_color = ox.ctx.background_color
     obj.text_color = ox.ctx.text_color
     obj.background_image = ox.ctx.background_image
