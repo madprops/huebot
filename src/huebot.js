@@ -98,15 +98,11 @@ Huebot.start_connection = function (room_id) {
 	ctx.room_tv_mode = "disabled"
 	ctx.theme
 	ctx.text_color
-	ctx.text_color_mode
 	ctx.emit_queue_timeout
 	ctx.emit_queue = []
 	ctx.recent_youtube_streams = []
 	ctx.userlist = []
 	ctx.background_image
-	ctx.background_mode
-	ctx.background_effect
-	ctx.background_tile_dimensions
 	ctx.current_image_source
 	ctx.current_tv_source
 	ctx.commands_queue = {}
@@ -150,9 +146,6 @@ Huebot.start_connection = function (room_id) {
 				Huebot.set_room_enables(ctx, data)
 				Huebot.set_theme(ctx, data)
 				Huebot.set_background_image(ctx, data.background_image)
-				Huebot.set_background_mode(ctx, data.background_mode)
-				Huebot.set_background_effect(ctx, data.background_effect)
-				Huebot.set_background_tile_dimensions(ctx, data.background_tile_dimensions)
 				Huebot.set_userlist(ctx, data)
 				Huebot.set_image_source(ctx, data.image_source)
 				Huebot.set_tv_source(ctx, data.tv_source)
@@ -196,8 +189,6 @@ Huebot.start_connection = function (room_id) {
 				ctx.background_color = data.color
 			} else if (type === 'text_color_changed') {
 				ctx.text_color = data.color
-			} else if (type === 'text_color_mode_changed') {
-				ctx.text_color_mode = data.mode
 			} else if (type === 'announce_role_changed') {
 				if (ctx.username === data.username2) {
 					Huebot.set_role(ctx, data.role)
@@ -224,12 +215,6 @@ Huebot.start_connection = function (room_id) {
 				}
 			} else if (type === 'background_image_changed') {
 				Huebot.set_background_image(ctx, data.background_image)
-			} else if (type === 'background_mode_changed') {
-				Huebot.set_background_mode(ctx, data.mode)
-			} else if (type === 'background_effect_changed') {
-				Huebot.set_background_effect(ctx, data.effect)
-			} else if (type === 'background_tile_dimensions_changed') {
-				Huebot.set_background_tile_dimensions(ctx, data.dimensions)
 			} else if (type === 'image_source_changed') {
 				Huebot.set_image_source(ctx, data.source)
 			} else if (type === 'tv_source_changed') {

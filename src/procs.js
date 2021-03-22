@@ -358,11 +358,7 @@ module.exports = function (Huebot) {
 
     obj.background_color = ox.ctx.background_color
     obj.text_color = ox.ctx.text_color
-    obj.text_color_mode = ox.ctx.text_color_mode
     obj.background_image = ox.ctx.background_image
-    obj.background_mode = ox.ctx.background_mode
-    obj.background_effect = ox.ctx.background_effect
-    obj.tile_dimensions = ox.ctx.background_tile_dimensions
 
     if (obj.background_image.startsWith("/")) {
       if (Huebot.db.config.server_url.includes("localhost")) {
@@ -479,55 +475,11 @@ module.exports = function (Huebot) {
         })
       }
 
-      if (obj.text_color_mode && obj.text_color_mode !== ox.ctx.text_color_mode) {
-        Huebot.socket_emit(ox.ctx, "change_text_color_mode", {
-          mode: obj.text_color_mode
-        })
-      }
-
-      if (obj.text_color_mode && obj.text_color_mode === "custom") {
-        if (obj.text_color && obj.text_color !== ox.ctx.text_color) {
-          Huebot.socket_emit(ox.ctx, "change_text_color", {
-            color: obj.text_color
-          })
-        }
-      }
-
       if (obj.background_image && obj.background_image !== ox.ctx.background_image) {
         Huebot.socket_emit(ox.ctx, "change_background_image_source", {
           src: obj.background_image
         })
       }
-
-      if (obj.background_mode && obj.background_mode !== ox.ctx.background_mode) {
-        ox.arg = obj.background_mode
-        Huebot.socket_emit(ox.ctx, "change_background_mode", {
-          mode: ox.arg
-        })
-      }
-
-      if (obj.background_mode && obj.background_mode !== "solid") {
-        let effect = obj.background_effect
-
-        if (!effect) {
-          effect = "none"
-        }
-
-        if (effect !== ox.ctx.background_effect) {
-          Huebot.socket_emit(ox.ctx, "change_background_effect", {
-            effect: effect
-          })
-        }
-      }
-
-      if (obj.background_mode && obj.background_mode === "tiled") {
-        if (obj.tile_dimensions && obj.tile_dimensions !== ox.ctx.background_tile_dimensions) {
-          Huebot.socket_emit(ox.ctx, "change_background_tile_dimensions", {
-            dimensions: obj.tile_dimensions
-          })
-        }
-      }
-
     } else {
       Huebot.process_feedback(ox.ctx, ox.data, `Theme "${ox.arg}" doesn't exist.`)
     }
