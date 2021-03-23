@@ -87,6 +87,7 @@ Huebot.prefix = Huebot.db.config.command_prefix
 Huebot.connected_rooms = {}
 
 process.on('SIGUSR2', function (signal) {
+	console.info(`Received ${signal} signal`)
 	fs.readFile('buffer.txt', 'utf8' , (err, data) => {
 		if (data) {
 			let text = data.trim()
