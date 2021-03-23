@@ -11,5 +11,7 @@
     "speak_chance_percentage": 1,
     "speak_modes": [1, 2, 3],
     "wolfram_id": "xxx",
-    "wolfram_enabled": true
+    "wolfram_enabled": true,
+    "use_webserver": false,
+    "webserver_port": 1845
 }

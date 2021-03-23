@@ -8,6 +8,7 @@
 		"mathjs": "~6.0.2",
 		"sentencer": "~0.2.1",
 		"random-sentence": "~1.0.4",
-		"imgur": "~0.3.2"
+		"imgur": "~0.3.2",
+		"express": "~4.17.1"
 	}
 }

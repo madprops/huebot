@@ -3,6 +3,7 @@
 const path = require('path')
 const fs = require("fs")
 const io = require("socket.io-client")
+const express = require("express")
 
 const Huebot = {}
 Huebot.db = {}
@@ -232,3 +233,28 @@ for (let room_id of Huebot.db.config.room_ids) {
 }
 
 Huebot.start_emit_charge_loop()
+
+// Web Server
+
+const app = express()
+
+if (Huebot.db.config.use_webserver) {
+	app.get('/show_message', (req, res) => {
+		if (req.query.message) {
+			let text = req.query.message.trim()
+			if (text) {
+				for (let key in Huebot.connected_rooms) {
+					Huebot.send_message(Huebot.connected_rooms[key].context, text)
+				}
+			}
+		}
+
+		res.send("ok")
+	})
+
+	let port = Huebot.db.config.webserver_port
+	
+	app.listen(port, () => {
+		console.log(`Web server started on port ${port}`)
+	})
+}
