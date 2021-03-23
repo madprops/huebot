@@ -86,21 +86,6 @@ Huebot.config.media_types = ["image", "tv"]
 Huebot.prefix = Huebot.db.config.command_prefix
 Huebot.connected_rooms = {}
 
-process.on('SIGUSR2', function (signal) {
-	console.info(`Received ${signal} signal`)
-	fs.readFile('buffer.txt', 'utf8' , (err, data) => {
-		if (data) {
-			let text = data.trim()
-
-			if (text) {
-				for (let key in Huebot.connected_rooms) {
-					Huebot.send_message(Huebot.connected_rooms[key].context, text)
-				}
-			}
-		}
-	})
-})
-
 Huebot.start_connection = function (room_id) {
 	let ctx = {}
 
