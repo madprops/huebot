@@ -88,10 +88,13 @@ Huebot.connected_rooms = {}
 
 process.on('SIGUSR2', function (signal) {
 	fs.readFile('buffer.txt', 'utf8' , (err, data) => {
-		let text = data.trim()
-		if (text) {
-			for (let key in Huebot.connected_rooms) {
-				Huebot.send_message(Huebot.connected_rooms[key].context, text)
+		if (data) {
+			let text = data.trim()
+			
+			if (text) {
+				for (let key in Huebot.connected_rooms) {
+					Huebot.send_message(Huebot.connected_rooms[key].context, text)
+				}
 			}
 		}
 	})
