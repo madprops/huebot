@@ -1,4 +1,4 @@
-// T6
+// T7
 
 const path = require('path')
 const fs = require("fs")
@@ -83,11 +83,19 @@ Huebot.config.num_suggestions = 5
 Huebot.config.emit_limit = 5
 
 Huebot.config.media_types = ["image", "tv"]
-
-// Aliases
 Huebot.prefix = Huebot.db.config.command_prefix
-
 Huebot.connected_rooms = {}
+
+process.on('SIGUSR2', function (signal) {
+	fs.readFile('buffer.txt', 'utf8' , (err, data) => {
+		let text = data.trim()
+		if (text) {
+			for (let key in Huebot.connected_rooms) {
+				Huebot.send_message(Huebot.connected_rooms[key].context, text)
+			}
+		}
+	})
+})
 
 Huebot.start_connection = function (room_id) {
 	let ctx = {}
