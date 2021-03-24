@@ -43,9 +43,6 @@ module.exports = function (Huebot) {
       Huebot.rename_custom_command(ox)
     } else if (args[0] === "help") {
       Huebot.process_feedback(ox.ctx, ox.data, "[name] or: add, remove, rename, clear, random")
-    } else if (args[0] === "random") {
-      ox.arg = args.slice(1).join(" ")
-      Huebot.execute_random_custom_command(ox)
     } else if (args[0] === "clear") {
       ox.arg = ""
       Huebot.clear_custom_commands(ox)
@@ -174,27 +171,6 @@ module.exports = function (Huebot) {
     }
   
     Huebot.process_feedback(ox.ctx, ox.data, s)
-  }
-
-  Huebot.execute_random_custom_command = function (ox) {
-    if (!ox.arg) {
-      ox.arg = "tv"
-    }
-
-    if (!Huebot.config.media_types.includes(ox.arg)) {
-      return false
-    }
-
-    let cmds = Object.keys(Huebot.db.commands)
-    cmds = cmds.filter(x => Huebot.db.commands[x].type !== "alias")
-
-    cmds = cmds.filter(x => Huebot.db.commands[x].type === ox.arg)
-    let c = cmds[Huebot.get_random_int(0, cmds.length - 1)]
-    ox.data.comment = Huebot.generate_random_controls()
-
-    if (c) {
-      Huebot.run_command(ox.ctx, c, ox.arg, ox.data)
-    }
   }
 
   Huebot.whatis_command = function (ox) {
