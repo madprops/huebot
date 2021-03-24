@@ -326,17 +326,6 @@ module.exports = function (Huebot) {
     }
   }
 
-  Huebot.generate_random_controls = function () {
-    let controls = ["image", "tv"]
-    let strings = []
-
-    for (let control of controls) {
-      strings.push(`[whisper ${Huebot.prefix}commands random ${control}]${Huebot.smart_capitalize(control)}[/whisper]`)
-    }
-
-    return strings.join(" | ")
-  }
-
   Huebot.clean_multiline = function (message) {
     let message_split = message.split("\n")
     let num_lines = message_split.length
